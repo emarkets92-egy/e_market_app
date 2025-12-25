@@ -1,0 +1,144 @@
+import 'package:get_it/get_it.dart';
+import 'package:dio/dio.dart';
+import '../network/api_client.dart';
+import '../network/interceptors.dart';
+import '../storage/secure_storage.dart';
+import '../storage/local_storage.dart';
+
+// Auth
+import '../../features/auth/data/datasources/auth_remote_datasource.dart';
+import '../../features/auth/data/datasources/auth_local_datasource.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/presentation/cubit/auth_cubit.dart';
+
+// Product
+import '../../features/product/data/datasources/product_remote_datasource.dart';
+import '../../features/product/data/repositories/product_repository_impl.dart';
+import '../../features/product/domain/repositories/product_repository.dart';
+import '../../features/product/presentation/cubit/product_cubit.dart';
+
+// Points
+import '../../features/points/data/datasources/points_remote_datasource.dart';
+import '../../features/points/data/repositories/points_repository_impl.dart';
+import '../../features/points/domain/repositories/points_repository.dart';
+import '../../features/points/presentation/cubit/points_cubit.dart';
+
+// Localization
+import '../../features/localization/data/datasources/localization_remote_datasource.dart';
+import '../../features/localization/data/repositories/localization_repository_impl.dart';
+import '../../features/localization/domain/repositories/localization_repository.dart';
+import '../../features/localization/presentation/cubit/localization_cubit.dart';
+
+// Subscription
+import '../../features/subscription/data/datasources/subscription_remote_datasource.dart';
+import '../../features/subscription/data/repositories/subscription_repository_impl.dart';
+import '../../features/subscription/domain/repositories/subscription_repository.dart';
+import '../../features/subscription/presentation/cubit/subscription_cubit.dart';
+
+// Home
+import '../../features/home/presentation/cubit/home_cubit.dart';
+
+final sl = GetIt.instance;
+
+Future<void> init() async {
+  // Initialize LocalStorage
+  await LocalStorage.init();
+
+  // Core
+  sl.registerLazySingleton<SecureStorage>(() => SecureStorage());
+  sl.registerLazySingleton<LocalStorage>(() => LocalStorage());
+
+  // Network
+  sl.registerLazySingleton<Dio>(() {
+    final dio = Dio();
+    dio.interceptors.add(AuthInterceptor());
+    dio.interceptors.add(ErrorInterceptor());
+    dio.interceptors.add(LoggingInterceptor());
+    return dio;
+  });
+
+  sl.registerLazySingleton<ApiClient>(() => ApiClient(sl<Dio>()));
+
+  // Data Sources - Auth
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(sl<ApiClient>()),
+  );
+  sl.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(),
+  );
+
+  // Data Sources - Product
+  sl.registerLazySingleton<ProductRemoteDataSource>(
+    () => ProductRemoteDataSourceImpl(sl<ApiClient>()),
+  );
+
+  // Data Sources - Points
+  sl.registerLazySingleton<PointsRemoteDataSource>(
+    () => PointsRemoteDataSourceImpl(sl<ApiClient>()),
+  );
+
+  // Data Sources - Localization
+  sl.registerLazySingleton<LocalizationRemoteDataSource>(
+    () => LocalizationRemoteDataSourceImpl(sl<ApiClient>()),
+  );
+
+  // Data Sources - Subscription
+  sl.registerLazySingleton<SubscriptionRemoteDataSource>(
+    () => SubscriptionRemoteDataSourceImpl(sl<ApiClient>()),
+  );
+
+  // Repositories - Auth
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(
+      remoteDataSource: sl<AuthRemoteDataSource>(),
+      localDataSource: sl<AuthLocalDataSource>(),
+    ),
+  );
+
+  // Repositories - Product
+  sl.registerLazySingleton<ProductRepository>(
+    () =>
+        ProductRepositoryImpl(remoteDataSource: sl<ProductRemoteDataSource>()),
+  );
+
+  // Repositories - Points
+  sl.registerLazySingleton<PointsRepository>(
+    () => PointsRepositoryImpl(remoteDataSource: sl<PointsRemoteDataSource>()),
+  );
+
+  // Repositories - Localization
+  sl.registerLazySingleton<LocalizationRepository>(
+    () => LocalizationRepositoryImpl(
+      remoteDataSource: sl<LocalizationRemoteDataSource>(),
+    ),
+  );
+
+  // Repositories - Subscription
+  sl.registerLazySingleton<SubscriptionRepository>(
+    () => SubscriptionRepositoryImpl(
+      remoteDataSource: sl<SubscriptionRemoteDataSource>(),
+    ),
+  );
+
+  // Cubits - Register as lazy singletons
+  sl.registerLazySingleton<AuthCubit>(() => AuthCubit(sl<AuthRepository>()));
+
+  sl.registerLazySingleton<ProductCubit>(
+    () => ProductCubit(sl<ProductRepository>()),
+  );
+
+  sl.registerLazySingleton<PointsCubit>(
+    () => PointsCubit(sl<PointsRepository>()),
+  );
+
+  sl.registerLazySingleton<LocalizationCubit>(
+    () => LocalizationCubit(sl<LocalizationRepository>()),
+  );
+
+  sl.registerLazySingleton<SubscriptionCubit>(
+    () => SubscriptionCubit(sl<SubscriptionRepository>()),
+  );
+
+  sl.registerLazySingleton<HomeCubit>(() => HomeCubit());
+}
