@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../data/models/profile_model.dart';
 import '../../../../core/di/injection_container.dart' as di;
-import '../../../points/presentation/cubit/points_cubit.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 import 'blurred_content_widget.dart';
 import 'unlock_button.dart';
 
@@ -82,9 +82,9 @@ class ProfileCard extends StatelessWidget {
 
   int _getCurrentBalance(BuildContext context) {
     try {
-      return context.read<PointsCubit>().state.balance;
+      return context.read<AuthCubit>().state.user?.points ?? 0;
     } catch (e) {
-      return di.sl<PointsCubit>().state.balance;
+      return di.sl<AuthCubit>().state.user?.points ?? 0;
     }
   }
 }

@@ -4,7 +4,6 @@ import '../../core/di/injection_container.dart' as di;
 import '../../core/storage/secure_storage.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
-import '../../features/points/presentation/cubit/points_cubit.dart';
 import '../../features/product/presentation/cubit/product_cubit.dart';
 import '../../features/subscription/presentation/cubit/subscription_cubit.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
@@ -21,6 +20,7 @@ import '../../features/subscription/presentation/screens/competitive_analysis_sc
 import '../../features/subscription/presentation/screens/pestle_analysis_screen.dart';
 import '../../features/subscription/presentation/screens/swot_analysis_screen.dart';
 import '../../features/subscription/presentation/screens/market_plan_screen.dart';
+import '../../features/subscription/presentation/screens/subscription_selection_screen.dart';
 import 'route_names.dart';
 
 final appRouter = GoRouter(
@@ -68,9 +68,16 @@ final appRouter = GoRouter(
       builder: (context, state) => MultiBlocProvider(
         providers: [
           BlocProvider.value(value: di.sl<HomeCubit>()),
-          BlocProvider.value(value: di.sl<PointsCubit>()),
+          BlocProvider.value(value: di.sl<SubscriptionCubit>()),
         ],
         child: const HomeScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteNames.subscriptionSelection,
+      builder: (context, state) => BlocProvider.value(
+        value: di.sl<SubscriptionCubit>(),
+        child: const SubscriptionSelectionScreen(),
       ),
     ),
     GoRoute(

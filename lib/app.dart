@@ -9,7 +9,6 @@ import 'shared/localization/app_localizations.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/product/presentation/cubit/product_cubit.dart';
 import 'features/subscription/presentation/cubit/subscription_cubit.dart';
-import 'features/points/presentation/cubit/points_cubit.dart';
 import 'features/home/presentation/cubit/home_cubit.dart';
 import 'features/localization/presentation/cubit/localization_cubit.dart';
 
@@ -26,7 +25,6 @@ class MyApp extends StatelessWidget {
         BlocProvider.value(value: di.sl<AuthCubit>()),
         BlocProvider.value(value: di.sl<ProductCubit>()),
         BlocProvider.value(value: di.sl<SubscriptionCubit>()),
-        BlocProvider.value(value: di.sl<PointsCubit>()),
         BlocProvider.value(value: di.sl<HomeCubit>()),
         BlocProvider.value(value: di.sl<LocalizationCubit>()),
       ],

@@ -9,6 +9,7 @@ class MarketExplorationResponseModel {
   final PESTLEAnalysisModel? pestleAnalysis;
   final SWOTAnalysisModel? swotAnalysis;
   final MarketPlanModel? marketPlan;
+  final PaginationInfo? pagination;
 
   MarketExplorationResponseModel({
     required this.product,
@@ -18,6 +19,7 @@ class MarketExplorationResponseModel {
     this.pestleAnalysis,
     this.swotAnalysis,
     this.marketPlan,
+    this.pagination,
   });
 
   factory MarketExplorationResponseModel.fromJson(Map<String, dynamic> json) {
@@ -45,6 +47,10 @@ class MarketExplorationResponseModel {
           ? MarketPlanModel.fromJson(
               json['marketPlan'] as Map<String, dynamic>)
           : null,
+      pagination: json['pagination'] != null
+          ? PaginationInfo.fromJson(
+              json['pagination'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -59,6 +65,7 @@ class MarketExplorationResponseModel {
       if (pestleAnalysis != null) 'pestleAnalysis': pestleAnalysis!.toJson(),
       if (swotAnalysis != null) 'swotAnalysis': swotAnalysis!.toJson(),
       if (marketPlan != null) 'marketPlan': marketPlan!.toJson(),
+      if (pagination != null) 'pagination': pagination!.toJson(),
     };
   }
 
@@ -70,6 +77,7 @@ class MarketExplorationResponseModel {
     PESTLEAnalysisModel? pestleAnalysis,
     SWOTAnalysisModel? swotAnalysis,
     MarketPlanModel? marketPlan,
+    PaginationInfo? pagination,
   }) {
     return MarketExplorationResponseModel(
       product: product ?? this.product,
@@ -79,6 +87,7 @@ class MarketExplorationResponseModel {
       pestleAnalysis: pestleAnalysis ?? this.pestleAnalysis,
       swotAnalysis: swotAnalysis ?? this.swotAnalysis,
       marketPlan: marketPlan ?? this.marketPlan,
+      pagination: pagination ?? this.pagination,
     );
   }
 }
@@ -115,11 +124,13 @@ class MarketInfo {
   final int id;
   final String code;
   final String name;
+  final String? marketType;
 
   MarketInfo({
     required this.id,
     required this.code,
     required this.name,
+    this.marketType,
   });
 
   factory MarketInfo.fromJson(Map<String, dynamic> json) {
@@ -127,6 +138,7 @@ class MarketInfo {
       id: (json['id'] as num).toInt(),
       code: json['code'] as String,
       name: json['name'] as String,
+      marketType: json['marketType'] as String?,
     );
   }
 
@@ -135,6 +147,39 @@ class MarketInfo {
       'id': id,
       'code': code,
       'name': name,
+      if (marketType != null) 'marketType': marketType,
+    };
+  }
+}
+
+class PaginationInfo {
+  final int page;
+  final int limit;
+  final int total;
+  final int totalPages;
+
+  PaginationInfo({
+    required this.page,
+    required this.limit,
+    required this.total,
+    required this.totalPages,
+  });
+
+  factory PaginationInfo.fromJson(Map<String, dynamic> json) {
+    return PaginationInfo(
+      page: (json['page'] as num).toInt(),
+      limit: (json['limit'] as num).toInt(),
+      total: (json['total'] as num).toInt(),
+      totalPages: (json['totalPages'] as num).toInt(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'page': page,
+      'limit': limit,
+      'total': total,
+      'totalPages': totalPages,
     };
   }
 }

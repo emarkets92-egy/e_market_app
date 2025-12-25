@@ -6,7 +6,7 @@ import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 import '../widgets/blurred_content_widget.dart';
 import '../widgets/unlock_button.dart';
-import '../../../points/presentation/cubit/points_cubit.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class SWOTAnalysisScreen extends StatelessWidget {
   final String productId;
@@ -114,6 +114,6 @@ class SWOTAnalysisScreen extends StatelessWidget {
   }
 
   int _getBalance(BuildContext context) {
-    return di.sl<PointsCubit>().state.balance;
+    return di.sl<AuthCubit>().state.user?.points ?? 0;
   }
 }

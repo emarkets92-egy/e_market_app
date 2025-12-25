@@ -179,4 +179,11 @@ class AuthCubit extends Cubit<AuthState> {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
+
+  void updatePoints(int newPoints) {
+    if (state.user != null) {
+      final updatedUser = state.user!.copyWith(points: newPoints);
+      emit(state.copyWith(user: updatedUser));
+    }
+  }
 }

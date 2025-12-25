@@ -18,12 +18,6 @@ import '../../features/product/data/repositories/product_repository_impl.dart';
 import '../../features/product/domain/repositories/product_repository.dart';
 import '../../features/product/presentation/cubit/product_cubit.dart';
 
-// Points
-import '../../features/points/data/datasources/points_remote_datasource.dart';
-import '../../features/points/data/repositories/points_repository_impl.dart';
-import '../../features/points/domain/repositories/points_repository.dart';
-import '../../features/points/presentation/cubit/points_cubit.dart';
-
 // Localization
 import '../../features/localization/data/datasources/localization_remote_datasource.dart';
 import '../../features/localization/data/repositories/localization_repository_impl.dart';
@@ -73,11 +67,6 @@ Future<void> init() async {
     () => ProductRemoteDataSourceImpl(sl<ApiClient>()),
   );
 
-  // Data Sources - Points
-  sl.registerLazySingleton<PointsRemoteDataSource>(
-    () => PointsRemoteDataSourceImpl(sl<ApiClient>()),
-  );
-
   // Data Sources - Localization
   sl.registerLazySingleton<LocalizationRemoteDataSource>(
     () => LocalizationRemoteDataSourceImpl(sl<ApiClient>()),
@@ -102,11 +91,6 @@ Future<void> init() async {
         ProductRepositoryImpl(remoteDataSource: sl<ProductRemoteDataSource>()),
   );
 
-  // Repositories - Points
-  sl.registerLazySingleton<PointsRepository>(
-    () => PointsRepositoryImpl(remoteDataSource: sl<PointsRemoteDataSource>()),
-  );
-
   // Repositories - Localization
   sl.registerLazySingleton<LocalizationRepository>(
     () => LocalizationRepositoryImpl(
@@ -126,10 +110,6 @@ Future<void> init() async {
 
   sl.registerLazySingleton<ProductCubit>(
     () => ProductCubit(sl<ProductRepository>()),
-  );
-
-  sl.registerLazySingleton<PointsCubit>(
-    () => PointsCubit(sl<PointsRepository>()),
   );
 
   sl.registerLazySingleton<LocalizationCubit>(

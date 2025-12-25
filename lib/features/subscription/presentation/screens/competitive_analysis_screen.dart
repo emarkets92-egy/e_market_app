@@ -6,7 +6,7 @@ import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 import '../widgets/blurred_content_widget.dart';
 import '../widgets/unlock_button.dart';
-import '../../../points/presentation/cubit/points_cubit.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class CompetitiveAnalysisScreen extends StatelessWidget {
   final String productId;
@@ -50,7 +50,7 @@ class CompetitiveAnalysisScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.marketName,
+                        item.marketName ?? 'Competitive Analysis',
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 8),
@@ -71,11 +71,19 @@ class CompetitiveAnalysisScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Total Imports: ${item.totalImports}'),
-                            Text(
-                              'Total Exports: ${item.totalExportsFromSelectedCountry}',
-                            ),
-                            Text('Rank: ${item.rank}'),
+                            if (item.totalImports != null)
+                              Text('Total Imports: ${item.totalImports}'),
+                            if (item.totalExportsFromSelectedCountry != null)
+                              Text(
+                                'Total Exports: ${item.totalExportsFromSelectedCountry}',
+                              ),
+                            if (item.rank != null) Text('Rank: ${item.rank}'),
+                            if (item.totalImports == null &&
+                                item.totalExportsFromSelectedCountry == null &&
+                                item.rank == null)
+                              const Text(
+                                'Analysis data will be available after unlocking',
+                              ),
                           ],
                         ),
                       ),
@@ -108,6 +116,6 @@ class CompetitiveAnalysisScreen extends StatelessWidget {
   }
 
   int _getBalance(BuildContext context) {
-    return di.sl<PointsCubit>().state.balance;
+    return di.sl<AuthCubit>().state.user?.points ?? 0;
   }
 }

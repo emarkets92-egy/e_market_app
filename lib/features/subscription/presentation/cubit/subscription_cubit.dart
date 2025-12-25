@@ -4,13 +4,32 @@ import '../cubit/subscription_state.dart';
 import '../../data/models/explore_market_request_model.dart';
 import '../../data/models/unlock_item_model.dart';
 import '../../../../core/di/injection_container.dart' as di;
-import '../../../points/presentation/cubit/points_cubit.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class SubscriptionCubit extends Cubit<SubscriptionState> {
   final SubscriptionRepository _repository;
 
   SubscriptionCubit(this._repository)
     : super(const SubscriptionState.initial());
+
+  Future<void> getSubscriptions({bool activeOnly = true}) async {
+    emit(state.copyWith(isLoading: true, error: null));
+
+    try {
+      final subscriptions = await _repository.getSubscriptions(
+        activeOnly: activeOnly,
+      );
+      emit(
+        state.copyWith(
+          isLoading: false,
+          subscriptions: subscriptions,
+          error: null,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.toString()));
+    }
+  }
 
   Future<void> exploreMarket({
     required String productId,
@@ -60,7 +79,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       }).toList();
 
       // Update points balance
-      di.sl<PointsCubit>().updateBalance(result.pointsBalance);
+      di.sl<AuthCubit>().updatePoints(result.pointsBalance);
 
       emit(
         state.copyWith(
@@ -89,7 +108,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       );
 
       // Update points balance
-      di.sl<PointsCubit>().updateBalance(result.pointsBalance);
+      di.sl<AuthCubit>().updatePoints(result.pointsBalance);
 
       // Update market exploration with unlocked analysis
       final updatedExploration = state.marketExploration?.copyWith(
@@ -121,7 +140,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       );
 
       // Update points balance
-      di.sl<PointsCubit>().updateBalance(result.pointsBalance);
+      di.sl<AuthCubit>().updatePoints(result.pointsBalance);
 
       // Update market exploration with unlocked market plan
       final updatedExploration = state.marketExploration?.copyWith(
