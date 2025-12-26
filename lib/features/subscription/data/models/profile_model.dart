@@ -32,8 +32,10 @@ class ProfileModel {
       shipmentRecords: json['shipmentRecords'] != null
           ? (json['shipmentRecords'] as num).toInt()
           : null,
-      isSeen: json['isSeen'] as bool,
-      unlockCost: (json['unlockCost'] as num).toInt(),
+      isSeen: json['isSeen'] as bool? ?? false,
+      unlockCost: json['unlockCost'] != null
+          ? (json['unlockCost'] as num).toInt()
+          : 0, // Default to 0 if not provided (e.g., in unlock response)
     );
   }
 

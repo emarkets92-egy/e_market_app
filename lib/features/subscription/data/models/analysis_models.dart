@@ -37,8 +37,10 @@ class CompetitiveAnalysisModel {
       totalExportsFromSelectedCountry:
           json['totalExportsFromSelectedCountry'] as String?,
       rank: json['rank'] != null ? (json['rank'] as num).toInt() : null,
-      isSeen: json['isSeen'] as bool,
-      unlockCost: (json['unlockCost'] as num).toInt(),
+      isSeen: json['isSeen'] as bool? ?? false,
+      unlockCost: json['unlockCost'] != null
+          ? (json['unlockCost'] as num).toInt()
+          : 0, // Default to 0 if not provided (e.g., in unlock response)
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
     );
@@ -135,8 +137,10 @@ class PESTLEAnalysisModel {
       technological: json['technological'] as String?,
       legal: json['legal'] as String?,
       environmental: json['environmental'] as String?,
-      isSeen: json['isSeen'] as bool,
-      unlockCost: (json['unlockCost'] as num).toInt(),
+      isSeen: json['isSeen'] as bool? ?? false,
+      unlockCost: json['unlockCost'] != null
+          ? (json['unlockCost'] as num).toInt()
+          : 0, // Default to 0 if not provided (e.g., in unlock response)
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
     );
@@ -231,8 +235,10 @@ class SWOTAnalysisModel {
       weaknesses: json['weaknesses'] as String?,
       opportunities: json['opportunities'] as String?,
       threats: json['threats'] as String?,
-      isSeen: json['isSeen'] as bool,
-      unlockCost: (json['unlockCost'] as num).toInt(),
+      isSeen: json['isSeen'] as bool? ?? false,
+      unlockCost: json['unlockCost'] != null
+          ? (json['unlockCost'] as num).toInt()
+          : 0, // Default to 0 if not provided (e.g., in unlock response)
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
     );
@@ -309,8 +315,10 @@ class MarketPlanModel {
       priceText: json['priceText'] as String?,
       placeText: json['placeText'] as String?,
       promotionText: json['promotionText'] as String?,
-      isSeen: json['isSeen'] as bool,
-      unlockCost: (json['unlockCost'] as num).toInt(),
+      isSeen: json['isSeen'] as bool? ?? false,
+      unlockCost: json['unlockCost'] != null
+          ? (json['unlockCost'] as num).toInt()
+          : 0, // Default to 0 if not provided (e.g., in unlock response)
     );
   }
 

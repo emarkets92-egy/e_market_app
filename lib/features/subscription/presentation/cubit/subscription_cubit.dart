@@ -4,6 +4,7 @@ import '../cubit/subscription_state.dart';
 import '../../data/models/explore_market_request_model.dart';
 import '../../data/models/unlock_item_model.dart';
 import '../../data/models/profile_model.dart';
+import '../../data/models/analysis_models.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 
@@ -99,78 +100,197 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       // Update points balance using copyWith
       di.sl<AuthCubit>().updatePoints(result.pointsBalance);
 
-      // Update the state based on content type
-      if (contentType == ContentType.profileContact) {
-        // Check if profile is in unseen list
-        ProfileModel? profileInUnseen;
-        try {
-          profileInUnseen = state.unseenProfiles.firstWhere(
+      // If unlocked content data is available, use it to update state
+      if (result.data != null && result.data!.contentData != null) {
+        // Update the state based on content type with actual unlocked data
+        if (contentType == ContentType.profileContact &&
+            result.data!.contentData is ProfileModel) {
+          final unlockedProfile = result.data!.contentData as ProfileModel;
+
+          // Check if profile is in unseen list
+          final isInUnseen = state.unseenProfiles.any(
             (profile) => profile.id == targetId,
           );
-        } catch (e) {
-          profileInUnseen = null;
-        }
 
-        if (profileInUnseen != null) {
-          // Remove from unseen and add to seen
-          final updatedUnseenProfiles = state.unseenProfiles
-              .where((profile) => profile.id != targetId)
-              .toList();
+          if (isInUnseen) {
+            // Remove from unseen and add to seen with unlocked data
+            final updatedUnseenProfiles = state.unseenProfiles
+                .where((profile) => profile.id != targetId)
+                .toList();
 
-          final unlockedProfile = profileInUnseen.copyWith(isSeen: true);
-          final updatedSeenProfiles = [...state.seenProfiles, unlockedProfile];
+            final updatedSeenProfiles = [
+              ...state.seenProfiles,
+              unlockedProfile,
+            ];
+
+            emit(
+              state.copyWith(
+                isUnlocking: false,
+                unseenProfiles: updatedUnseenProfiles,
+                seenProfiles: updatedSeenProfiles,
+                error: null,
+              ),
+            );
+          } else {
+            // Profile is already in seen list, update it with unlocked data
+            final updatedSeenProfiles = state.seenProfiles.map((profile) {
+              if (profile.id == targetId) {
+                return unlockedProfile;
+              }
+              return profile;
+            }).toList();
+
+            emit(
+              state.copyWith(
+                isUnlocking: false,
+                seenProfiles: updatedSeenProfiles,
+                error: null,
+              ),
+            );
+          }
+        } else if (contentType == ContentType.competitiveAnalysis &&
+            result.data!.contentData is CompetitiveAnalysisModel) {
+          // Update competitive analysis with unlocked data
+          final unlockedAnalysis =
+              result.data!.contentData as CompetitiveAnalysisModel;
+          final updatedExploration = state.marketExploration?.copyWith(
+            competitiveAnalysis: unlockedAnalysis,
+          );
 
           emit(
             state.copyWith(
               isUnlocking: false,
-              unseenProfiles: updatedUnseenProfiles,
-              seenProfiles: updatedSeenProfiles,
+              marketExploration: updatedExploration ?? state.marketExploration,
+              error: null,
+            ),
+          );
+        } else if (contentType == ContentType.pestleAnalysis &&
+            result.data!.contentData is PESTLEAnalysisModel) {
+          // Update PESTLE analysis with unlocked data
+          final unlockedAnalysis =
+              result.data!.contentData as PESTLEAnalysisModel;
+          final updatedExploration = state.marketExploration?.copyWith(
+            pestleAnalysis: unlockedAnalysis,
+          );
+
+          emit(
+            state.copyWith(
+              isUnlocking: false,
+              marketExploration: updatedExploration ?? state.marketExploration,
+              error: null,
+            ),
+          );
+        } else if (contentType == ContentType.swotAnalysis &&
+            result.data!.contentData is SWOTAnalysisModel) {
+          // Update SWOT analysis with unlocked data
+          final unlockedAnalysis =
+              result.data!.contentData as SWOTAnalysisModel;
+          final updatedExploration = state.marketExploration?.copyWith(
+            swotAnalysis: unlockedAnalysis,
+          );
+
+          emit(
+            state.copyWith(
+              isUnlocking: false,
+              marketExploration: updatedExploration ?? state.marketExploration,
+              error: null,
+            ),
+          );
+        } else if (contentType == ContentType.marketPlan &&
+            result.data!.contentData is MarketPlanModel) {
+          // Update market plan with unlocked data
+          final unlockedPlan = result.data!.contentData as MarketPlanModel;
+          final updatedExploration = state.marketExploration?.copyWith(
+            marketPlan: unlockedPlan,
+          );
+
+          emit(
+            state.copyWith(
+              isUnlocking: false,
+              marketExploration: updatedExploration ?? state.marketExploration,
               error: null,
             ),
           );
         } else {
-          // Profile is already in seen list, just update it
-          final updatedSeenProfiles = state.seenProfiles.map((profile) {
-            if (profile.id == targetId) {
-              return profile.copyWith(isSeen: true);
-            }
-            return profile;
-          }).toList();
+          // Fallback: just set isSeen if data structure doesn't match
+          emit(state.copyWith(isUnlocking: false, error: null));
+        }
+      } else {
+        // Fallback: if no data returned, just update isSeen flag (backward compatibility)
+        if (contentType == ContentType.profileContact) {
+          ProfileModel? profileInUnseen;
+          try {
+            profileInUnseen = state.unseenProfiles.firstWhere(
+              (profile) => profile.id == targetId,
+            );
+          } catch (e) {
+            profileInUnseen = null;
+          }
+
+          if (profileInUnseen != null) {
+            final updatedUnseenProfiles = state.unseenProfiles
+                .where((profile) => profile.id != targetId)
+                .toList();
+
+            final unlockedProfile = profileInUnseen.copyWith(isSeen: true);
+            final updatedSeenProfiles = [
+              ...state.seenProfiles,
+              unlockedProfile,
+            ];
+
+            emit(
+              state.copyWith(
+                isUnlocking: false,
+                unseenProfiles: updatedUnseenProfiles,
+                seenProfiles: updatedSeenProfiles,
+                error: null,
+              ),
+            );
+          } else {
+            final updatedSeenProfiles = state.seenProfiles.map((profile) {
+              if (profile.id == targetId) {
+                return profile.copyWith(isSeen: true);
+              }
+              return profile;
+            }).toList();
+
+            emit(
+              state.copyWith(
+                isUnlocking: false,
+                seenProfiles: updatedSeenProfiles,
+                error: null,
+              ),
+            );
+          }
+        } else {
+          // For analysis types, update the market exploration
+          final updatedExploration = state.marketExploration?.copyWith(
+            competitiveAnalysis: contentType == ContentType.competitiveAnalysis
+                ? state.marketExploration?.competitiveAnalysis?.copyWith(
+                    isSeen: true,
+                  )
+                : state.marketExploration?.competitiveAnalysis,
+            pestleAnalysis: contentType == ContentType.pestleAnalysis
+                ? state.marketExploration?.pestleAnalysis?.copyWith(
+                    isSeen: true,
+                  )
+                : state.marketExploration?.pestleAnalysis,
+            swotAnalysis: contentType == ContentType.swotAnalysis
+                ? state.marketExploration?.swotAnalysis?.copyWith(isSeen: true)
+                : state.marketExploration?.swotAnalysis,
+            marketPlan: contentType == ContentType.marketPlan
+                ? state.marketExploration?.marketPlan?.copyWith(isSeen: true)
+                : state.marketExploration?.marketPlan,
+          );
 
           emit(
             state.copyWith(
               isUnlocking: false,
-              seenProfiles: updatedSeenProfiles,
+              marketExploration: updatedExploration ?? state.marketExploration,
               error: null,
             ),
           );
         }
-      } else {
-        // For analysis types, update the market exploration
-        final updatedExploration = state.marketExploration?.copyWith(
-          competitiveAnalysis: contentType == ContentType.competitiveAnalysis
-              ? state.marketExploration?.competitiveAnalysis?.copyWith(
-                  isSeen: true,
-                )
-              : state.marketExploration?.competitiveAnalysis,
-          pestleAnalysis: contentType == ContentType.pestleAnalysis
-              ? state.marketExploration?.pestleAnalysis?.copyWith(isSeen: true)
-              : state.marketExploration?.pestleAnalysis,
-          swotAnalysis: contentType == ContentType.swotAnalysis
-              ? state.marketExploration?.swotAnalysis?.copyWith(isSeen: true)
-              : state.marketExploration?.swotAnalysis,
-          marketPlan: contentType == ContentType.marketPlan
-              ? state.marketExploration?.marketPlan?.copyWith(isSeen: true)
-              : state.marketExploration?.marketPlan,
-        );
-
-        emit(
-          state.copyWith(
-            isUnlocking: false,
-            marketExploration: updatedExploration ?? state.marketExploration,
-            error: null,
-          ),
-        );
       }
     } catch (e) {
       emit(state.copyWith(isUnlocking: false, error: e.toString()));
