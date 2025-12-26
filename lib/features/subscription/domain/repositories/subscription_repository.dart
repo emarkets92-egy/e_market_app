@@ -2,7 +2,6 @@ import '../../data/models/subscription_model.dart';
 import '../../data/models/market_exploration_response_model.dart';
 import '../../data/models/unlock_response_model.dart';
 import '../../data/models/explore_market_request_model.dart';
-import '../../data/models/unlocks_response_model.dart';
 import '../../data/models/unlock_item_model.dart';
 
 abstract class SubscriptionRepository {
@@ -14,10 +13,5 @@ abstract class SubscriptionRepository {
   Future<UnlockResponseModel> unlock({
     required ContentType contentType,
     required String targetId,
-  });
-  Future<UnlocksResponseModel> getUnlocks({
-    ContentType? contentType,
-    int page = 1,
-    int limit = 20,
   });
 }

@@ -19,7 +19,6 @@ class Endpoints {
   static const String exploreMarket = '/subscriptions/explore-market';
   static const String unlock = '/subscriptions/unlock';
   static const String pointsBalance = '/subscriptions/points/balance';
-  static const String unlocks = '/subscriptions/unlocks';
   static const String pointsTransactions = '/subscriptions/points/transactions';
 
   // Localization

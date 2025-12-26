@@ -4,7 +4,6 @@ import '../models/subscription_model.dart';
 import '../models/market_exploration_response_model.dart';
 import '../models/unlock_response_model.dart';
 import '../models/explore_market_request_model.dart';
-import '../models/unlocks_response_model.dart';
 import '../models/unlock_item_model.dart';
 
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
@@ -55,23 +54,6 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       return await remoteDataSource.unlock(
         contentType: contentType,
         targetId: targetId,
-      );
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<UnlocksResponseModel> getUnlocks({
-    ContentType? contentType,
-    int page = 1,
-    int limit = 20,
-  }) async {
-    try {
-      return await remoteDataSource.getUnlocks(
-        contentType: contentType,
-        page: page,
-        limit: limit,
       );
     } catch (e) {
       rethrow;

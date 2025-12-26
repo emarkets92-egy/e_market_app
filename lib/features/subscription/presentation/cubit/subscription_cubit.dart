@@ -61,11 +61,12 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
           unseenProfiles: result.unseenProfiles?.data ?? [],
           seenProfiles: result.seenProfiles?.data ?? [],
           unseenProfilesPage:
-              result.unseenProfiles?.pagination.page ?? state.unseenProfilesPage,
+              result.unseenProfiles?.pagination.page ??
+              state.unseenProfilesPage,
           unseenProfilesLimit:
-              result.unseenProfiles?.pagination.limit ?? state.unseenProfilesLimit,
-          unseenProfilesTotal:
-              result.unseenProfiles?.pagination.total ?? 0,
+              result.unseenProfiles?.pagination.limit ??
+              state.unseenProfilesLimit,
+          unseenProfilesTotal: result.unseenProfiles?.pagination.total ?? 0,
           unseenProfilesTotalPages:
               result.unseenProfiles?.pagination.totalPages ?? 0,
           seenProfilesPage:
@@ -103,23 +104,21 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
         // Check if profile is in unseen list
         ProfileModel? profileInUnseen;
         try {
-          profileInUnseen = state.unseenProfiles
-              .firstWhere((profile) => profile.id == targetId);
+          profileInUnseen = state.unseenProfiles.firstWhere(
+            (profile) => profile.id == targetId,
+          );
         } catch (e) {
           profileInUnseen = null;
         }
-        
+
         if (profileInUnseen != null) {
           // Remove from unseen and add to seen
           final updatedUnseenProfiles = state.unseenProfiles
               .where((profile) => profile.id != targetId)
               .toList();
-          
+
           final unlockedProfile = profileInUnseen.copyWith(isSeen: true);
-          final updatedSeenProfiles = [
-            ...state.seenProfiles,
-            unlockedProfile,
-          ];
+          final updatedSeenProfiles = [...state.seenProfiles, unlockedProfile];
 
           emit(
             state.copyWith(
@@ -155,19 +154,13 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
                 )
               : state.marketExploration?.competitiveAnalysis,
           pestleAnalysis: contentType == ContentType.pestleAnalysis
-              ? state.marketExploration?.pestleAnalysis?.copyWith(
-                  isSeen: true,
-                )
+              ? state.marketExploration?.pestleAnalysis?.copyWith(isSeen: true)
               : state.marketExploration?.pestleAnalysis,
           swotAnalysis: contentType == ContentType.swotAnalysis
-              ? state.marketExploration?.swotAnalysis?.copyWith(
-                  isSeen: true,
-                )
+              ? state.marketExploration?.swotAnalysis?.copyWith(isSeen: true)
               : state.marketExploration?.swotAnalysis,
           marketPlan: contentType == ContentType.marketPlan
-              ? state.marketExploration?.marketPlan?.copyWith(
-                  isSeen: true,
-                )
+              ? state.marketExploration?.marketPlan?.copyWith(isSeen: true)
               : state.marketExploration?.marketPlan,
         );
 
@@ -181,33 +174,6 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       }
     } catch (e) {
       emit(state.copyWith(isUnlocking: false, error: e.toString()));
-    }
-  }
-
-  Future<void> getUnlocks({
-    ContentType? contentType,
-    int page = 1,
-    int limit = 20,
-  }) async {
-    emit(state.copyWith(isLoading: true, error: null));
-
-    try {
-      final result = await _repository.getUnlocks(
-        contentType: contentType,
-        page: page,
-        limit: limit,
-      );
-      emit(
-        state.copyWith(
-          isLoading: false,
-          unlocks: result.data,
-          unlocksTotalPages: result.meta.totalPages,
-          unlocksCurrentPage: result.meta.page,
-          error: null,
-        ),
-      );
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 }
