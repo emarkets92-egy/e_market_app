@@ -27,16 +27,26 @@ class ProfileListScreen extends StatefulWidget {
 class _ProfileListScreenState extends State<ProfileListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String? _lastShownSuccessMessage;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    di.sl<SubscriptionCubit>().exploreMarket(
-      productId: widget.productId,
-      marketType: widget.marketType,
-      countryId: widget.countryId,
-    );
+    // Note: exploreMarket is now called in MarketSelectionScreen
+    // Only call it here if data is not already loaded
+    // This prevents unnecessary API calls when navigating from MarketSelectionScreen
+    final currentState = di.sl<SubscriptionCubit>().state;
+
+    // Only load if marketExploration is null (not loaded yet)
+    // This handles direct navigation to ProfileListScreen without going through MarketSelectionScreen
+    if (currentState.marketExploration == null) {
+      di.sl<SubscriptionCubit>().exploreMarket(
+        productId: widget.productId,
+        marketType: widget.marketType,
+        countryId: widget.countryId,
+      );
+    }
   }
 
   @override
@@ -77,10 +87,12 @@ class _ProfileListScreenState extends State<ProfileListScreen>
                 controller: _tabController,
                 tabs: [
                   Tab(
-                    text: 'New Profiles${state.unseenProfilesTotal > 0 ? ' (${state.unseenProfilesTotal})' : ''}',
+                    text:
+                        'New Profiles${state.unseenProfilesTotal > 0 ? ' (${state.unseenProfilesTotal})' : ''}',
                   ),
                   Tab(
-                    text: 'Unlocked${state.seenProfilesTotal > 0 ? ' (${state.seenProfilesTotal})' : ''}',
+                    text:
+                        'Unlocked${state.seenProfilesTotal > 0 ? ' (${state.seenProfilesTotal})' : ''}',
                   ),
                 ],
               );
@@ -88,8 +100,40 @@ class _ProfileListScreenState extends State<ProfileListScreen>
           ),
         ),
       ),
-      body: BlocBuilder<SubscriptionCubit, SubscriptionState>(
+      body: BlocConsumer<SubscriptionCubit, SubscriptionState>(
         bloc: di.sl<SubscriptionCubit>(),
+        listener: (context, state) {
+          // Only show snackbar if this is a new success message we haven't shown yet
+          if (state.successMessage != null &&
+              state.successMessage != _lastShownSuccessMessage) {
+            _lastShownSuccessMessage = state.successMessage;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.successMessage!),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            // Clear the success message after showing using post-frame callback
+            // to avoid triggering listener again immediately
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              try {
+                di.sl<SubscriptionCubit>().clearSuccessMessage();
+              } catch (e) {
+                // Ignore errors if cubit is disposed
+              }
+            });
+          }
+          if (state.error != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.error!),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        },
         builder: (context, state) {
           if (state.isLoading &&
               state.unseenProfiles.isEmpty &&
@@ -154,8 +198,19 @@ class _ProfileListScreenState extends State<ProfileListScreen>
     bool isSeen = false,
   }) {
     if (profiles.isEmpty && !isLoading) {
+      // Check if there are more pages before showing "No profiles found"
+      // Only for new profiles (unseen), not for unlocked profiles
+      if (!isSeen && totalPages > 1 && currentPage < totalPages) {
+        // Load next page if available
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          onPageChanged(currentPage + 1);
+        });
+        return const Center(child: CircularProgressIndicator());
+      }
       return Center(
-        child: Text(isSeen ? 'No unlocked profiles found' : 'No new profiles found'),
+        child: Text(
+          isSeen ? 'No unlocked profiles found' : 'No new profiles found',
+        ),
       );
     }
 

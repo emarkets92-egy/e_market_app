@@ -39,6 +39,8 @@ class ApiClient {
     Options? options,
   }) async {
     try {
+      // If options are provided, use them directly (they can override default timeouts)
+      // Otherwise, use default options from _dio
       return await _dio.post(
         path,
         data: data,

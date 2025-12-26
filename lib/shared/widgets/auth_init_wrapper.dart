@@ -36,7 +36,20 @@ class _AuthInitWrapperState extends State<AuthInitWrapper> {
         // If user becomes unauthenticated, navigate to login
         // The router redirect will handle preventing duplicate navigation
         if (!state.isAuthenticated && state.user == null && context.mounted) {
-          context.go(RouteNames.login);
+          // Use post-frame callback to ensure router is available
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              try {
+                // Check if GoRouter is available in context
+                GoRouter.of(context);
+                context.go(RouteNames.login);
+              } catch (e) {
+                // If router is not available yet, the redirect in app_router.dart
+                // will handle navigation when the router is ready
+                print('GoRouter not available yet, redirect will handle navigation');
+              }
+            }
+          });
         }
       },
       child: widget.child,

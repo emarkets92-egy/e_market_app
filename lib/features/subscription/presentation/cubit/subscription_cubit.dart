@@ -55,6 +55,24 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
         seenLimit: seenLimit ?? state.seenProfilesLimit,
       );
       final result = await _repository.exploreMarket(request);
+
+      // Log the parsed result to debug missing analysis data
+      print('✅ exploreMarket result parsed successfully');
+      print(
+        '  - competitiveAnalysis: ${result.competitiveAnalysis != null ? "✅" : "❌"}',
+      );
+      print('  - pestleAnalysis: ${result.pestleAnalysis != null ? "✅" : "❌"}');
+      print('  - swotAnalysis: ${result.swotAnalysis != null ? "✅" : "❌"}');
+      print('  - marketPlan: ${result.marketPlan != null ? "✅" : "❌"}');
+
+      // Warn if analysis data is missing
+      if (result.competitiveAnalysis == null &&
+          result.pestleAnalysis == null &&
+          result.swotAnalysis == null &&
+          result.marketPlan == null) {
+        print('⚠️ WARNING: All analysis data is missing from API response!');
+      }
+
       emit(
         state.copyWith(
           isLoading: false,
@@ -89,7 +107,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     required ContentType contentType,
     required String targetId,
   }) async {
-    emit(state.copyWith(isUnlocking: true, error: null));
+    emit(state.copyWith(isUnlocking: true, error: null, successMessage: null));
 
     try {
       final result = await _repository.unlock(
@@ -128,6 +146,11 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
                 isUnlocking: false,
                 unseenProfiles: updatedUnseenProfiles,
                 seenProfiles: updatedSeenProfiles,
+                unseenProfilesTotal: (state.unseenProfilesTotal - 1)
+                    .clamp(0, double.infinity)
+                    .toInt(),
+                seenProfilesTotal: state.seenProfilesTotal + 1,
+                successMessage: 'Profile unlocked successfully!',
                 error: null,
               ),
             );
@@ -243,6 +266,11 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
                 isUnlocking: false,
                 unseenProfiles: updatedUnseenProfiles,
                 seenProfiles: updatedSeenProfiles,
+                unseenProfilesTotal: (state.unseenProfilesTotal - 1)
+                    .clamp(0, double.infinity)
+                    .toInt(),
+                seenProfilesTotal: state.seenProfilesTotal + 1,
+                successMessage: 'Profile unlocked successfully!',
                 error: null,
               ),
             );
@@ -294,6 +322,12 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       }
     } catch (e) {
       emit(state.copyWith(isUnlocking: false, error: e.toString()));
+    }
+  }
+
+  void clearSuccessMessage() {
+    if (!isClosed) {
+      emit(state.copyWith(successMessage: null));
     }
   }
 }

@@ -97,18 +97,31 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> checkAuthStatus() async {
-    final isAuthenticated = await _repository.isAuthenticated();
-    if (isAuthenticated) {
-      try {
-        // Fetch fresh profile from API
-        final user = await _repository.getProfile();
-        emit(state.copyWith(isAuthenticated: true, user: user));
-      } catch (e) {
-        // If profile fetch fails, clear tokens and reset state
-        await _repository.logout();
+    try {
+      final isAuthenticated = await _repository.isAuthenticated();
+      if (isAuthenticated) {
+        try {
+          // Fetch fresh profile from API
+          final user = await _repository.getProfile();
+          emit(state.copyWith(isAuthenticated: true, user: user));
+        } catch (e) {
+          // If profile fetch fails, clear tokens and reset state
+          // This handles both network errors and authentication errors
+          // Network errors will still log out for security (token might be invalid)
+          try {
+            await _repository.logout();
+          } catch (logoutError) {
+            // Even if logout API call fails, state is reset
+            print('Logout failed during checkAuthStatus: $logoutError');
+          }
+          emit(const AuthState.initial());
+        }
+      } else {
         emit(const AuthState.initial());
       }
-    } else {
+    } catch (e) {
+      // Handle any unexpected errors in isAuthenticated check
+      print('Error checking auth status: $e');
       emit(const AuthState.initial());
     }
   }

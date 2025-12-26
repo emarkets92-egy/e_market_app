@@ -21,34 +21,92 @@ class MarketExplorationResponseModel {
   });
 
   factory MarketExplorationResponseModel.fromJson(Map<String, dynamic> json) {
-    return MarketExplorationResponseModel(
-      selectedMarket:
-          MarketInfo.fromJson(json['selectedMarket'] as Map<String, dynamic>),
-      unseenProfiles: json['unseenProfiles'] != null
-          ? ProfileList.fromJson(
-              json['unseenProfiles'] as Map<String, dynamic>)
-          : null,
-      seenProfiles: json['seenProfiles'] != null
-          ? ProfileList.fromJson(
-              json['seenProfiles'] as Map<String, dynamic>)
-          : null,
-      competitiveAnalysis: json['competitiveAnalysis'] != null
-          ? CompetitiveAnalysisModel.fromJson(
-              json['competitiveAnalysis'] as Map<String, dynamic>)
-          : null,
-      pestleAnalysis: json['pestleAnalysis'] != null
-          ? PESTLEAnalysisModel.fromJson(
-              json['pestleAnalysis'] as Map<String, dynamic>)
-          : null,
-      swotAnalysis: json['swotAnalysis'] != null
-          ? SWOTAnalysisModel.fromJson(
-              json['swotAnalysis'] as Map<String, dynamic>)
-          : null,
-      marketPlan: json['marketPlan'] != null
-          ? MarketPlanModel.fromJson(
-              json['marketPlan'] as Map<String, dynamic>)
-          : null,
-    );
+    try {
+      // Log which analysis fields are present in the response
+      final hasCompetitive = json.containsKey('competitiveAnalysis') && json['competitiveAnalysis'] != null;
+      final hasPestle = json.containsKey('pestleAnalysis') && json['pestleAnalysis'] != null;
+      final hasSwot = json.containsKey('swotAnalysis') && json['swotAnalysis'] != null;
+      final hasMarketPlan = json.containsKey('marketPlan') && json['marketPlan'] != null;
+      
+      print('📊 Parsing MarketExplorationResponseModel:');
+      print('  - competitiveAnalysis: ${hasCompetitive ? "✅" : "❌"}');
+      print('  - pestleAnalysis: ${hasPestle ? "✅" : "❌"}');
+      print('  - swotAnalysis: ${hasSwot ? "✅" : "❌"}');
+      print('  - marketPlan: ${hasMarketPlan ? "✅" : "❌"}');
+      
+      // Parse competitiveAnalysis with error handling
+      CompetitiveAnalysisModel? competitiveAnalysis;
+      if (hasCompetitive) {
+        try {
+          competitiveAnalysis = CompetitiveAnalysisModel.fromJson(
+            json['competitiveAnalysis'] as Map<String, dynamic>,
+          );
+        } catch (e) {
+          print('⚠️ Error parsing competitiveAnalysis: $e');
+          competitiveAnalysis = null;
+        }
+      }
+      
+      // Parse pestleAnalysis with error handling
+      PESTLEAnalysisModel? pestleAnalysis;
+      if (hasPestle) {
+        try {
+          pestleAnalysis = PESTLEAnalysisModel.fromJson(
+            json['pestleAnalysis'] as Map<String, dynamic>,
+          );
+        } catch (e) {
+          print('⚠️ Error parsing pestleAnalysis: $e');
+          pestleAnalysis = null;
+        }
+      }
+      
+      // Parse swotAnalysis with error handling
+      SWOTAnalysisModel? swotAnalysis;
+      if (hasSwot) {
+        try {
+          swotAnalysis = SWOTAnalysisModel.fromJson(
+            json['swotAnalysis'] as Map<String, dynamic>,
+          );
+        } catch (e) {
+          print('⚠️ Error parsing swotAnalysis: $e');
+          swotAnalysis = null;
+        }
+      }
+      
+      // Parse marketPlan with error handling
+      MarketPlanModel? marketPlan;
+      if (hasMarketPlan) {
+        try {
+          marketPlan = MarketPlanModel.fromJson(
+            json['marketPlan'] as Map<String, dynamic>,
+          );
+        } catch (e) {
+          print('⚠️ Error parsing marketPlan: $e');
+          marketPlan = null;
+        }
+      }
+      
+      return MarketExplorationResponseModel(
+        selectedMarket:
+            MarketInfo.fromJson(json['selectedMarket'] as Map<String, dynamic>),
+        unseenProfiles: json['unseenProfiles'] != null
+            ? ProfileList.fromJson(
+                json['unseenProfiles'] as Map<String, dynamic>)
+            : null,
+        seenProfiles: json['seenProfiles'] != null
+            ? ProfileList.fromJson(
+                json['seenProfiles'] as Map<String, dynamic>)
+            : null,
+        competitiveAnalysis: competitiveAnalysis,
+        pestleAnalysis: pestleAnalysis,
+        swotAnalysis: swotAnalysis,
+        marketPlan: marketPlan,
+      );
+    } catch (e) {
+      print('❌ Error parsing MarketExplorationResponseModel: $e');
+      print('JSON keys: ${json.keys.toList()}');
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toJson() {

@@ -51,10 +51,10 @@ class ExploreMarketRequestModel {
       'productId': productId,
       'marketType': marketType,
       'countryId': countryId,
-      if (unseenPage != null) 'unseenPage': unseenPage,
-      if (unseenLimit != null) 'unseenLimit': unseenLimit,
-      if (seenPage != null) 'seenPage': seenPage,
-      if (seenLimit != null) 'seenLimit': seenLimit,
+      'unseenPage': unseenPage ?? 1,  // Always include with default
+      'unseenLimit': unseenLimit ?? 10,  // Always include with default
+      'seenPage': seenPage ?? 1,  // Always include with default
+      'seenLimit': seenLimit ?? 10,  // Always include with default
       // Include deprecated fields for backward compatibility
       if (page != null) 'page': page,
       if (limit != null) 'limit': limit,

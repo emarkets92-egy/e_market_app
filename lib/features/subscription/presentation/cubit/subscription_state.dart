@@ -3,6 +3,13 @@ import '../../data/models/unlock_item_model.dart';
 import '../../data/models/market_exploration_response_model.dart';
 import '../../data/models/subscription_model.dart';
 
+// Sentinel object to represent "no value" in copyWith
+class _NoValue {
+  const _NoValue();
+}
+
+const _noValue = _NoValue();
+
 class SubscriptionState {
   final bool isLoading;
   final bool isUnlocking;
@@ -22,6 +29,7 @@ class SubscriptionState {
   final int unlocksTotalPages;
   final int unlocksCurrentPage;
   final String? error;
+  final String? successMessage;
 
   const SubscriptionState({
     this.isLoading = false,
@@ -30,11 +38,11 @@ class SubscriptionState {
     this.unseenProfiles = const [],
     this.seenProfiles = const [],
     this.unseenProfilesPage = 1,
-    this.unseenProfilesLimit = 20,
+    this.unseenProfilesLimit = 10,  // Changed from 20 to 10
     this.unseenProfilesTotal = 0,
     this.unseenProfilesTotalPages = 0,
     this.seenProfilesPage = 1,
-    this.seenProfilesLimit = 20,
+    this.seenProfilesLimit = 10,  // Changed from 20 to 10
     this.seenProfilesTotal = 0,
     this.seenProfilesTotalPages = 0,
     this.unlocks = const [],
@@ -42,6 +50,7 @@ class SubscriptionState {
     this.unlocksTotalPages = 0,
     this.unlocksCurrentPage = 1,
     this.error,
+    this.successMessage,
   });
 
   const SubscriptionState.initial()
@@ -51,18 +60,19 @@ class SubscriptionState {
       unseenProfiles = const [],
       seenProfiles = const [],
       unseenProfilesPage = 1,
-      unseenProfilesLimit = 20,
+      unseenProfilesLimit = 10,  // Changed from 20 to 10
       unseenProfilesTotal = 0,
       unseenProfilesTotalPages = 0,
       seenProfilesPage = 1,
-      seenProfilesLimit = 20,
+      seenProfilesLimit = 10,  // Changed from 20 to 10
       seenProfilesTotal = 0,
       seenProfilesTotalPages = 0,
       unlocks = const [],
       subscriptions = const [],
       unlocksTotalPages = 0,
       unlocksCurrentPage = 1,
-      error = null;
+      error = null,
+      successMessage = null;
 
   const SubscriptionState.loading()
     : isLoading = true,
@@ -71,18 +81,19 @@ class SubscriptionState {
       unseenProfiles = const [],
       seenProfiles = const [],
       unseenProfilesPage = 1,
-      unseenProfilesLimit = 20,
+      unseenProfilesLimit = 10,  // Changed from 20 to 10
       unseenProfilesTotal = 0,
       unseenProfilesTotalPages = 0,
       seenProfilesPage = 1,
-      seenProfilesLimit = 20,
+      seenProfilesLimit = 10,  // Changed from 20 to 10
       seenProfilesTotal = 0,
       seenProfilesTotalPages = 0,
       unlocks = const [],
       subscriptions = const [],
       unlocksTotalPages = 0,
       unlocksCurrentPage = 1,
-      error = null;
+      error = null,
+      successMessage = null;
 
   SubscriptionState copyWith({
     bool? isLoading,
@@ -102,7 +113,8 @@ class SubscriptionState {
     List<SubscriptionModel>? subscriptions,
     int? unlocksTotalPages,
     int? unlocksCurrentPage,
-    String? error,
+    Object? error = _noValue,
+    Object? successMessage = _noValue,
   }) {
     return SubscriptionState(
       isLoading: isLoading ?? this.isLoading,
@@ -124,7 +136,10 @@ class SubscriptionState {
       subscriptions: subscriptions ?? this.subscriptions,
       unlocksTotalPages: unlocksTotalPages ?? this.unlocksTotalPages,
       unlocksCurrentPage: unlocksCurrentPage ?? this.unlocksCurrentPage,
-      error: error ?? this.error,
+      error: error == _noValue ? this.error : error as String?,
+      successMessage: successMessage == _noValue
+          ? this.successMessage
+          : successMessage as String?,
     );
   }
 }

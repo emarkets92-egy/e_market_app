@@ -61,12 +61,63 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     ExploreMarketRequestModel request,
   ) async {
     try {
+      // Use extended timeout for exploreMarket API as it can be slow
       final response = await apiClient.post(
         Endpoints.exploreMarket,
         data: request.toJson(),
+        options: Options(
+          receiveTimeout: const Duration(
+            seconds: 60,
+          ), // Extended timeout for slow API
+        ),
       );
-      return MarketExplorationResponseModel.fromJson(response.data);
-    } on DioException {
+
+      // Log the response to debug incomplete data issues
+      print('🔍 exploreMarket API Response received');
+      print(
+        'Response keys: ${(response.data as Map<String, dynamic>).keys.toList()}',
+      );
+      print(
+        'Has competitiveAnalysis: ${(response.data as Map<String, dynamic>).containsKey('competitiveAnalysis')}',
+      );
+      print(
+        'Has pestleAnalysis: ${(response.data as Map<String, dynamic>).containsKey('pestleAnalysis')}',
+      );
+      print(
+        'Has swotAnalysis: ${(response.data as Map<String, dynamic>).containsKey('swotAnalysis')}',
+      );
+      print(
+        'Has marketPlan: ${(response.data as Map<String, dynamic>).containsKey('marketPlan')}',
+      );
+
+      // Validate response structure
+      if (response.data is! Map<String, dynamic>) {
+        throw Exception(
+          'Invalid response format: expected Map but got ${response.data.runtimeType}',
+        );
+      }
+
+      final responseData = response.data as Map<String, dynamic>;
+
+      // Check if response has at least the required fields
+      if (!responseData.containsKey('selectedMarket')) {
+        throw Exception(
+          'Invalid response: missing required field "selectedMarket"',
+        );
+      }
+
+      return MarketExplorationResponseModel.fromJson(responseData);
+    } on DioException catch (e) {
+      // Log DioException details for debugging
+      print('❌ exploreMarket API Error: ${e.type}');
+      print('Error message: ${e.message}');
+      if (e.response != null) {
+        print('Response status: ${e.response?.statusCode}');
+        print('Response data: ${e.response?.data}');
+      }
+      rethrow;
+    } catch (e) {
+      print('❌ exploreMarket Unexpected Error: $e');
       rethrow;
     }
   }
