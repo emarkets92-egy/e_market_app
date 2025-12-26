@@ -6,6 +6,7 @@ import '../cubit/subscription_state.dart';
 import '../widgets/blurred_content_widget.dart';
 import '../widgets/unlock_button.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../data/models/unlock_item_model.dart';
 
 class MarketPlanScreen extends StatelessWidget {
   final String productId;
@@ -46,10 +47,12 @@ class MarketPlanScreen extends StatelessWidget {
                       onUnlock: plan.isSeen
                           ? null
                           : () {
-                              di.sl<SubscriptionCubit>().unlockMarketPlan(
-                                productId: productId,
-                                countryId: countryId,
-                              );
+                              if (plan.id != null) {
+                                di.sl<SubscriptionCubit>().unlock(
+                                  contentType: ContentType.marketPlan,
+                                  targetId: plan.id!,
+                                );
+                              }
                             },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,10 +75,12 @@ class MarketPlanScreen extends StatelessWidget {
                           cost: plan.unlockCost,
                           currentBalance: _getBalance(context),
                           onUnlock: () {
-                            di.sl<SubscriptionCubit>().unlockMarketPlan(
-                              productId: productId,
-                              countryId: countryId,
-                            );
+                            if (plan.id != null) {
+                              di.sl<SubscriptionCubit>().unlock(
+                                contentType: ContentType.marketPlan,
+                                targetId: plan.id!,
+                              );
+                            }
                           },
                           isLoading: state.isUnlocking,
                         ),

@@ -2,17 +2,17 @@ import 'profile_model.dart';
 import 'analysis_models.dart';
 
 class MarketExplorationResponseModel {
-  final ProductInfo product;
+  final ProductInfo? product;
   final MarketInfo selectedMarket;
   final List<ProfileModel> profiles;
-  final List<CompetitiveAnalysisModel>? competitiveAnalysis;
+  final CompetitiveAnalysisModel? competitiveAnalysis;
   final PESTLEAnalysisModel? pestleAnalysis;
   final SWOTAnalysisModel? swotAnalysis;
   final MarketPlanModel? marketPlan;
   final PaginationInfo? pagination;
 
   MarketExplorationResponseModel({
-    required this.product,
+    this.product,
     required this.selectedMarket,
     required this.profiles,
     this.competitiveAnalysis,
@@ -24,17 +24,19 @@ class MarketExplorationResponseModel {
 
   factory MarketExplorationResponseModel.fromJson(Map<String, dynamic> json) {
     return MarketExplorationResponseModel(
-      product: ProductInfo.fromJson(json['product'] as Map<String, dynamic>),
+      product: json['product'] != null
+          ? ProductInfo.fromJson(json['product'] as Map<String, dynamic>)
+          : null,
       selectedMarket:
           MarketInfo.fromJson(json['selectedMarket'] as Map<String, dynamic>),
       profiles: (json['profiles'] as List<dynamic>?)
               ?.map((e) => ProfileModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      competitiveAnalysis: (json['competitiveAnalysis'] as List<dynamic>?)
-          ?.map((e) =>
-              CompetitiveAnalysisModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      competitiveAnalysis: json['competitiveAnalysis'] != null
+          ? CompetitiveAnalysisModel.fromJson(
+              json['competitiveAnalysis'] as Map<String, dynamic>)
+          : null,
       pestleAnalysis: json['pestleAnalysis'] != null
           ? PESTLEAnalysisModel.fromJson(
               json['pestleAnalysis'] as Map<String, dynamic>)
@@ -56,12 +58,11 @@ class MarketExplorationResponseModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'product': product.toJson(),
+      if (product != null) 'product': product!.toJson(),
       'selectedMarket': selectedMarket.toJson(),
       'profiles': profiles.map((e) => e.toJson()).toList(),
       if (competitiveAnalysis != null)
-        'competitiveAnalysis':
-            competitiveAnalysis!.map((e) => e.toJson()).toList(),
+        'competitiveAnalysis': competitiveAnalysis!.toJson(),
       if (pestleAnalysis != null) 'pestleAnalysis': pestleAnalysis!.toJson(),
       if (swotAnalysis != null) 'swotAnalysis': swotAnalysis!.toJson(),
       if (marketPlan != null) 'marketPlan': marketPlan!.toJson(),
@@ -73,7 +74,7 @@ class MarketExplorationResponseModel {
     ProductInfo? product,
     MarketInfo? selectedMarket,
     List<ProfileModel>? profiles,
-    List<CompetitiveAnalysisModel>? competitiveAnalysis,
+    CompetitiveAnalysisModel? competitiveAnalysis,
     PESTLEAnalysisModel? pestleAnalysis,
     SWOTAnalysisModel? swotAnalysis,
     MarketPlanModel? marketPlan,
@@ -121,32 +122,28 @@ class ProductInfo {
 }
 
 class MarketInfo {
-  final int id;
-  final String code;
-  final String name;
+  final String countryName;
+  final String productName;
   final String? marketType;
 
   MarketInfo({
-    required this.id,
-    required this.code,
-    required this.name,
+    required this.countryName,
+    required this.productName,
     this.marketType,
   });
 
   factory MarketInfo.fromJson(Map<String, dynamic> json) {
     return MarketInfo(
-      id: (json['id'] as num).toInt(),
-      code: json['code'] as String,
-      name: json['name'] as String,
+      countryName: json['countryName'] as String,
+      productName: json['productName'] as String,
       marketType: json['marketType'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'code': code,
-      'name': name,
+      'countryName': countryName,
+      'productName': productName,
       if (marketType != null) 'marketType': marketType,
     };
   }

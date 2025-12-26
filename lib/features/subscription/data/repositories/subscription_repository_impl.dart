@@ -47,46 +47,14 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   @override
-  Future<UnlockResponseModel> unlockProfileContact({
-    required String productId,
-    required String targetProfileId,
+  Future<UnlockResponseModel> unlock({
+    required ContentType contentType,
+    required String targetId,
   }) async {
     try {
-      return await remoteDataSource.unlockProfileContact(
-        productId: productId,
-        targetProfileId: targetProfileId,
-      );
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<UnlockResponseModel> unlockMarketAnalysis({
-    required String productId,
-    required int countryId,
-    required String analysisType,
-  }) async {
-    try {
-      return await remoteDataSource.unlockMarketAnalysis(
-        productId: productId,
-        countryId: countryId,
-        analysisType: analysisType,
-      );
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<UnlockResponseModel> unlockMarketPlan({
-    required String productId,
-    required int countryId,
-  }) async {
-    try {
-      return await remoteDataSource.unlockMarketPlan(
-        productId: productId,
-        countryId: countryId,
+      return await remoteDataSource.unlock(
+        contentType: contentType,
+        targetId: targetId,
       );
     } catch (e) {
       rethrow;

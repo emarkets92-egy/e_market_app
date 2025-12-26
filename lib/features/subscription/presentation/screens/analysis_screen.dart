@@ -35,7 +35,7 @@ class AnalysisScreen extends StatelessWidget {
                 _buildAnalysisCard(
                   context,
                   'Competitive Analysis',
-                  exploration.competitiveAnalysis!.isNotEmpty,
+                  exploration.competitiveAnalysis!.isSeen,
                   () => context.push(
                     '${RouteNames.competitiveAnalysis}?productId=$productId&countryId=$countryId',
                   ),

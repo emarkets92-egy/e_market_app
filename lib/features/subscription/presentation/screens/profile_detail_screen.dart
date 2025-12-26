@@ -31,14 +31,15 @@ class ProfileDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  profile.name,
+                  profile.name ?? 'Profile ${profile.id.substring(0, 8)}...',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  profile.companyName,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                if (profile.companyName != null)
+                  Text(
+                    profile.companyName!,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                 const SizedBox(height: 16),
                 if (profile.email != null) Text('Email: ${profile.email}'),
                 if (profile.phone != null) Text('Phone: ${profile.phone}'),
@@ -48,8 +49,11 @@ class ProfileDetailScreen extends StatelessWidget {
                   Text('Website: ${profile.website}'),
                 if (profile.address != null)
                   Text('Address: ${profile.address}'),
+                if (profile.shipmentRecords != null)
+                  Text('Shipment Records: ${profile.shipmentRecords}'),
                 const SizedBox(height: 8),
-                Text('Country: ${profile.country.name}'),
+                if (profile.country != null)
+                  Text('Country: ${profile.country!.name}'),
               ],
             ),
           );

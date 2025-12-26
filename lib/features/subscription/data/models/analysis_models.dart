@@ -284,6 +284,7 @@ class SWOTAnalysisModel {
 }
 
 class MarketPlanModel {
+  final String? id;
   final String? productText;
   final String? priceText;
   final String? placeText;
@@ -292,6 +293,7 @@ class MarketPlanModel {
   final int unlockCost;
 
   MarketPlanModel({
+    this.id,
     this.productText,
     this.priceText,
     this.placeText,
@@ -302,6 +304,7 @@ class MarketPlanModel {
 
   factory MarketPlanModel.fromJson(Map<String, dynamic> json) {
     return MarketPlanModel(
+      id: json['id'] as String?,
       productText: json['productText'] as String?,
       priceText: json['priceText'] as String?,
       placeText: json['placeText'] as String?,
@@ -313,6 +316,7 @@ class MarketPlanModel {
 
   Map<String, dynamic> toJson() {
     return {
+      if (id != null) 'id': id,
       if (productText != null) 'productText': productText,
       if (priceText != null) 'priceText': priceText,
       if (placeText != null) 'placeText': placeText,
@@ -323,6 +327,7 @@ class MarketPlanModel {
   }
 
   MarketPlanModel copyWith({
+    String? id,
     String? productText,
     String? priceText,
     String? placeText,
@@ -331,6 +336,7 @@ class MarketPlanModel {
     int? unlockCost,
   }) {
     return MarketPlanModel(
+      id: id ?? this.id,
       productText: productText ?? this.productText,
       priceText: priceText ?? this.priceText,
       placeText: placeText ?? this.placeText,

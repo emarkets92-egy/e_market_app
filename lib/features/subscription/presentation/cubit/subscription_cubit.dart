@@ -58,102 +58,71 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     }
   }
 
-  Future<void> unlockProfile({
-    required String productId,
-    required String targetProfileId,
+  Future<void> unlock({
+    required ContentType contentType,
+    required String targetId,
   }) async {
     emit(state.copyWith(isUnlocking: true, error: null));
 
     try {
-      final result = await _repository.unlockProfileContact(
-        productId: productId,
-        targetProfileId: targetProfileId,
+      final result = await _repository.unlock(
+        contentType: contentType,
+        targetId: targetId,
       );
 
-      // Update the profile in the list
-      final updatedProfiles = state.profiles.map((profile) {
-        if (profile.id == targetProfileId) {
-          return profile.copyWith(isSeen: true);
-        }
-        return profile;
-      }).toList();
-
-      // Update points balance
+      // Update points balance using copyWith
       di.sl<AuthCubit>().updatePoints(result.pointsBalance);
 
-      emit(
-        state.copyWith(
-          isUnlocking: false,
-          profiles: updatedProfiles,
-          error: null,
-        ),
-      );
-    } catch (e) {
-      emit(state.copyWith(isUnlocking: false, error: e.toString()));
-    }
-  }
+      // Update the state based on content type
+      if (contentType == ContentType.profileContact) {
+        // Update the profile in the list
+        final updatedProfiles = state.profiles.map((profile) {
+          if (profile.id == targetId) {
+            return profile.copyWith(isSeen: true);
+          }
+          return profile;
+        }).toList();
 
-  Future<void> unlockAnalysis({
-    required String productId,
-    required int countryId,
-    required String analysisType,
-  }) async {
-    emit(state.copyWith(isUnlocking: true, error: null));
+        emit(
+          state.copyWith(
+            isUnlocking: false,
+            profiles: updatedProfiles,
+            error: null,
+          ),
+        );
+      } else {
+        // For analysis types, update the market exploration
+        final updatedExploration = state.marketExploration?.copyWith(
+          competitiveAnalysis: contentType == ContentType.competitiveAnalysis
+              ? state.marketExploration?.competitiveAnalysis?.copyWith(
+                  isSeen: true,
+                )
+              : state.marketExploration?.competitiveAnalysis,
+          pestleAnalysis: contentType == ContentType.pestleAnalysis
+              ? state.marketExploration?.pestleAnalysis?.copyWith(
+                  isSeen: true,
+                )
+              : state.marketExploration?.pestleAnalysis,
+          swotAnalysis: contentType == ContentType.swotAnalysis
+              ? state.marketExploration?.swotAnalysis?.copyWith(
+                  isSeen: true,
+                )
+              : state.marketExploration?.swotAnalysis,
+          marketPlan: contentType == ContentType.marketPlan
+              ? state.marketExploration?.marketPlan?.copyWith(
+                  isSeen: true,
+                )
+              : state.marketExploration?.marketPlan,
+        );
 
-    try {
-      final result = await _repository.unlockMarketAnalysis(
-        productId: productId,
-        countryId: countryId,
-        analysisType: analysisType,
-      );
-
-      // Update points balance
-      di.sl<AuthCubit>().updatePoints(result.pointsBalance);
-
-      // Update market exploration with unlocked analysis
-      final updatedExploration = state.marketExploration?.copyWith(
-        // Note: This is simplified - you may need to update specific analysis based on type
-      );
-
-      emit(
-        state.copyWith(
-          isUnlocking: false,
-          marketExploration: updatedExploration ?? state.marketExploration,
-          error: null,
-        ),
-      );
-    } catch (e) {
-      emit(state.copyWith(isUnlocking: false, error: e.toString()));
-    }
-  }
-
-  Future<void> unlockMarketPlan({
-    required String productId,
-    required int countryId,
-  }) async {
-    emit(state.copyWith(isUnlocking: true, error: null));
-
-    try {
-      final result = await _repository.unlockMarketPlan(
-        productId: productId,
-        countryId: countryId,
-      );
-
-      // Update points balance
-      di.sl<AuthCubit>().updatePoints(result.pointsBalance);
-
-      // Update market exploration with unlocked market plan
-      final updatedExploration = state.marketExploration?.copyWith(
-        marketPlan: state.marketExploration?.marketPlan?.copyWith(isSeen: true),
-      );
-
-      emit(
-        state.copyWith(
-          isUnlocking: false,
-          marketExploration: updatedExploration ?? state.marketExploration,
-          error: null,
-        ),
-      );
+        emit(
+          state.copyWith(
+            isUnlocking: false,
+            marketExploration: updatedExploration ?? state.marketExploration,
+            error: null,
+          ),
+        );
+      }
     } catch (e) {
       emit(state.copyWith(isUnlocking: false, error: e.toString()));
     }

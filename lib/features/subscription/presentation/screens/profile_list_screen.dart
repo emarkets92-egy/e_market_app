@@ -6,6 +6,7 @@ import '../cubit/subscription_state.dart';
 import '../widgets/profile_card.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
+import '../../data/models/unlock_item_model.dart';
 
 class ProfileListScreen extends StatefulWidget {
   final String productId;
@@ -70,9 +71,9 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
                 profile: profile,
                 isUnlocking: state.isUnlocking,
                 onUnlock: () {
-                  di.sl<SubscriptionCubit>().unlockProfile(
-                    productId: widget.productId,
-                    targetProfileId: profile.id,
+                  di.sl<SubscriptionCubit>().unlock(
+                    contentType: ContentType.profileContact,
+                    targetId: profile.id,
                   );
                 },
               );

@@ -35,14 +35,21 @@ class ProfileCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(profile.name, style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 4),
               Text(
-                profile.companyName,
-                style: Theme.of(context).textTheme.titleMedium,
+                profile.name ?? 'Profile ${profile.id.substring(0, 8)}...',
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 4),
-              Text('Country: ${profile.country.name}'),
+              if (profile.companyName != null)
+                Text(
+                  profile.companyName!,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              const SizedBox(height: 4),
+              if (profile.country != null)
+                Text('Country: ${profile.country!.name}'),
+              if (profile.shipmentRecords != null)
+                Text('Shipment Records: ${profile.shipmentRecords}'),
               const SizedBox(height: 16),
               BlurredContentWidget(
                 isUnlocked: profile.isSeen,

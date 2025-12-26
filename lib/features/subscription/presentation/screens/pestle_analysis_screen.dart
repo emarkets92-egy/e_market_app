@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart' as di;
-import '../../../../core/constants/app_constants.dart';
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 import '../widgets/blurred_content_widget.dart';
 import '../widgets/unlock_button.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../data/models/unlock_item_model.dart';
 
 class PESTLEAnalysisScreen extends StatelessWidget {
   final String productId;
@@ -47,11 +47,12 @@ class PESTLEAnalysisScreen extends StatelessWidget {
                       onUnlock: analysis.isSeen
                           ? null
                           : () {
-                              di.sl<SubscriptionCubit>().unlockAnalysis(
-                                productId: productId,
-                                countryId: countryId,
-                                analysisType: AppConstants.analysisTypePestle,
-                              );
+                              if (analysis.id != null) {
+                                di.sl<SubscriptionCubit>().unlock(
+                                  contentType: ContentType.pestleAnalysis,
+                                  targetId: analysis.id!,
+                                );
+                              }
                             },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,11 +85,12 @@ class PESTLEAnalysisScreen extends StatelessWidget {
                           cost: analysis.unlockCost,
                           currentBalance: _getBalance(context),
                           onUnlock: () {
-                            di.sl<SubscriptionCubit>().unlockAnalysis(
-                              productId: productId,
-                              countryId: countryId,
-                              analysisType: AppConstants.analysisTypePestle,
-                            );
+                            if (analysis.id != null) {
+                              di.sl<SubscriptionCubit>().unlock(
+                                contentType: ContentType.pestleAnalysis,
+                                targetId: analysis.id!,
+                              );
+                            }
                           },
                           isLoading: state.isUnlocking,
                         ),

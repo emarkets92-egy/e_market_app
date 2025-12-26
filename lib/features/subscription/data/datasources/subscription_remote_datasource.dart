@@ -14,18 +14,9 @@ abstract class SubscriptionRemoteDataSource {
   Future<MarketExplorationResponseModel> exploreMarket(
     ExploreMarketRequestModel request,
   );
-  Future<UnlockResponseModel> unlockProfileContact({
-    required String productId,
-    required String targetProfileId,
-  });
-  Future<UnlockResponseModel> unlockMarketAnalysis({
-    required String productId,
-    required int countryId,
-    required String analysisType,
-  });
-  Future<UnlockResponseModel> unlockMarketPlan({
-    required String productId,
-    required int countryId,
+  Future<UnlockResponseModel> unlock({
+    required ContentType contentType,
+    required String targetId,
   });
   Future<UnlocksResponseModel> getUnlocks({
     ContentType? contentType,
@@ -87,51 +78,17 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
   }
 
   @override
-  Future<UnlockResponseModel> unlockProfileContact({
-    required String productId,
-    required String targetProfileId,
+  Future<UnlockResponseModel> unlock({
+    required ContentType contentType,
+    required String targetId,
   }) async {
     try {
       final response = await apiClient.post(
-        Endpoints.unlockProfileContact,
-        data: {'productId': productId, 'targetProfileId': targetProfileId},
-      );
-      return UnlockResponseModel.fromJson(response.data);
-    } on DioException {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<UnlockResponseModel> unlockMarketAnalysis({
-    required String productId,
-    required int countryId,
-    required String analysisType,
-  }) async {
-    try {
-      final response = await apiClient.post(
-        Endpoints.unlockMarketAnalysis,
+        Endpoints.unlock,
         data: {
-          'productId': productId,
-          'countryId': countryId,
-          'analysisType': analysisType,
+          'contentType': contentType.toApiString(),
+          'targetId': targetId,
         },
-      );
-      return UnlockResponseModel.fromJson(response.data);
-    } on DioException {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<UnlockResponseModel> unlockMarketPlan({
-    required String productId,
-    required int countryId,
-  }) async {
-    try {
-      final response = await apiClient.post(
-        Endpoints.unlockMarketPlan,
-        data: {'productId': productId, 'countryId': countryId},
       );
       return UnlockResponseModel.fromJson(response.data);
     } on DioException {

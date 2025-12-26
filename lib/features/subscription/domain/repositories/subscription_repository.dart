@@ -11,18 +11,9 @@ abstract class SubscriptionRepository {
   Future<MarketExplorationResponseModel> exploreMarket(
     ExploreMarketRequestModel request,
   );
-  Future<UnlockResponseModel> unlockProfileContact({
-    required String productId,
-    required String targetProfileId,
-  });
-  Future<UnlockResponseModel> unlockMarketAnalysis({
-    required String productId,
-    required int countryId,
-    required String analysisType,
-  });
-  Future<UnlockResponseModel> unlockMarketPlan({
-    required String productId,
-    required int countryId,
+  Future<UnlockResponseModel> unlock({
+    required ContentType contentType,
+    required String targetId,
   });
   Future<UnlocksResponseModel> getUnlocks({
     ContentType? contentType,

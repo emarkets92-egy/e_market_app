@@ -16,9 +16,7 @@ class Endpoints {
   // Subscriptions
   static const String subscriptions = '/subscriptions';
   static const String exploreMarket = '/subscriptions/explore-market';
-  static const String unlockProfileContact = '/subscriptions/unlock/profile-contact';
-  static const String unlockMarketAnalysis = '/subscriptions/unlock/market-analysis';
-  static const String unlockMarketPlan = '/subscriptions/unlock/market-plan';
+  static const String unlock = '/subscriptions/unlock';
   static const String pointsBalance = '/subscriptions/points/balance';
   static const String unlocks = '/subscriptions/unlocks';
   static const String pointsTransactions = '/subscriptions/points/transactions';
@@ -27,4 +25,3 @@ class Endpoints {
   static const String countries = '/localization/countries';
   static const String languages = '/localization/languages';
 }
-
