@@ -24,10 +24,14 @@ class ProfileListScreen extends StatefulWidget {
   State<ProfileListScreen> createState() => _ProfileListScreenState();
 }
 
-class _ProfileListScreenState extends State<ProfileListScreen> {
+class _ProfileListScreenState extends State<ProfileListScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     di.sl<SubscriptionCubit>().exploreMarket(
       productId: widget.productId,
       marketType: widget.marketType,
@@ -36,17 +40,66 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _loadUnseenProfiles(int page) {
+    di.sl<SubscriptionCubit>().exploreMarket(
+      productId: widget.productId,
+      marketType: widget.marketType,
+      countryId: widget.countryId,
+      unseenPage: page,
+    );
+  }
+
+  void _loadSeenProfiles(int page) {
+    di.sl<SubscriptionCubit>().exploreMarket(
+      productId: widget.productId,
+      marketType: widget.marketType,
+      countryId: widget.countryId,
+      seenPage: page,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profiles')),
+      appBar: AppBar(
+        title: const Text('Profiles'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: BlocBuilder<SubscriptionCubit, SubscriptionState>(
+            bloc: di.sl<SubscriptionCubit>(),
+            builder: (context, state) {
+              return TabBar(
+                controller: _tabController,
+                tabs: [
+                  Tab(
+                    text: 'New Profiles${state.unseenProfilesTotal > 0 ? ' (${state.unseenProfilesTotal})' : ''}',
+                  ),
+                  Tab(
+                    text: 'Unlocked${state.seenProfilesTotal > 0 ? ' (${state.seenProfilesTotal})' : ''}',
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
       body: BlocBuilder<SubscriptionCubit, SubscriptionState>(
         bloc: di.sl<SubscriptionCubit>(),
         builder: (context, state) {
-          if (state.isLoading && state.profiles.isEmpty) {
+          if (state.isLoading &&
+              state.unseenProfiles.isEmpty &&
+              state.seenProfiles.isEmpty) {
             return const LoadingIndicator();
           }
 
-          if (state.error != null && state.profiles.isEmpty) {
+          if (state.error != null &&
+              state.unseenProfiles.isEmpty &&
+              state.seenProfiles.isEmpty) {
             return AppErrorWidget(
               message: state.error!,
               onRetry: () {
@@ -59,27 +112,109 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
             );
           }
 
-          if (state.profiles.isEmpty) {
-            return const Center(child: Text('No profiles found'));
-          }
-
-          return ListView.builder(
-            itemCount: state.profiles.length,
-            itemBuilder: (context, index) {
-              final profile = state.profiles[index];
-              return ProfileCard(
-                profile: profile,
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              // Tab 1: New Profiles (Unseen)
+              _buildProfileList(
+                context: context,
+                profiles: state.unseenProfiles,
+                isLoading: state.isLoading,
+                currentPage: state.unseenProfilesPage,
+                totalPages: state.unseenProfilesTotalPages,
+                onPageChanged: _loadUnseenProfiles,
                 isUnlocking: state.isUnlocking,
-                onUnlock: () {
-                  di.sl<SubscriptionCubit>().unlock(
-                    contentType: ContentType.profileContact,
-                    targetId: profile.id,
-                  );
-                },
-              );
-            },
+              ),
+              // Tab 2: Unlocked Profiles (Seen)
+              _buildProfileList(
+                context: context,
+                profiles: state.seenProfiles,
+                isLoading: state.isLoading,
+                currentPage: state.seenProfilesPage,
+                totalPages: state.seenProfilesTotalPages,
+                onPageChanged: _loadSeenProfiles,
+                isUnlocking: state.isUnlocking,
+                isSeen: true,
+              ),
+            ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildProfileList({
+    required BuildContext context,
+    required List profiles,
+    required bool isLoading,
+    required int currentPage,
+    required int totalPages,
+    required Function(int) onPageChanged,
+    required bool isUnlocking,
+    bool isSeen = false,
+  }) {
+    if (profiles.isEmpty && !isLoading) {
+      return Center(
+        child: Text(isSeen ? 'No unlocked profiles found' : 'No new profiles found'),
+      );
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: profiles.length,
+            itemBuilder: (context, index) {
+              final profile = profiles[index];
+              return ProfileCard(
+                profile: profile,
+                isUnlocking: isUnlocking,
+                onUnlock: isSeen
+                    ? () {} // Dummy callback for seen profiles
+                    : () {
+                        di.sl<SubscriptionCubit>().unlock(
+                          contentType: ContentType.profileContact,
+                          targetId: profile.id,
+                        );
+                      },
+              );
+            },
+          ),
+        ),
+        if (totalPages > 1)
+          _buildPaginationControls(
+            currentPage: currentPage,
+            totalPages: totalPages,
+            onPageChanged: onPageChanged,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildPaginationControls({
+    required int currentPage,
+    required int totalPages,
+    required Function(int) onPageChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: currentPage > 1
+                ? () => onPageChanged(currentPage - 1)
+                : null,
+          ),
+          Text('Page $currentPage of $totalPages'),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: currentPage < totalPages
+                ? () => onPageChanged(currentPage + 1)
+                : null,
+          ),
+        ],
       ),
     );
   }

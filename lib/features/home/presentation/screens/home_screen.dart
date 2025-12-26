@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () async {
               await di.sl<AuthCubit>().logout();
               if (context.mounted) {
-                // Navigation will be handled by router redirect
+                context.go(RouteNames.login);
               }
             },
           ),

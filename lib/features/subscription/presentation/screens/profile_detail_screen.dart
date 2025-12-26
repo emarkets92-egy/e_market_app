@@ -16,13 +16,19 @@ class ProfileDetailScreen extends StatelessWidget {
       body: BlocBuilder<SubscriptionCubit, SubscriptionState>(
         bloc: di.sl<SubscriptionCubit>(),
         builder: (context, state) {
-          if (state.profiles.isEmpty) {
+          // Search in both unseen and seen profiles
+          final allProfiles = [
+            ...state.unseenProfiles,
+            ...state.seenProfiles,
+          ];
+
+          if (allProfiles.isEmpty) {
             return const Center(child: Text('Profile not found'));
           }
 
-          final profile = state.profiles.firstWhere(
+          final profile = allProfiles.firstWhere(
             (p) => p.id == profileId,
-            orElse: () => state.profiles.first, // Fallback to first profile
+            orElse: () => allProfiles.first, // Fallback to first profile
           );
 
           return SingleChildScrollView(
@@ -31,15 +37,9 @@ class ProfileDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  profile.name ?? 'Profile ${profile.id.substring(0, 8)}...',
+                  'Profile ${profile.id.substring(0, 8)}...',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                const SizedBox(height: 8),
-                if (profile.companyName != null)
-                  Text(
-                    profile.companyName!,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
                 const SizedBox(height: 16),
                 if (profile.email != null) Text('Email: ${profile.email}'),
                 if (profile.phone != null) Text('Phone: ${profile.phone}'),
@@ -51,9 +51,6 @@ class ProfileDetailScreen extends StatelessWidget {
                   Text('Address: ${profile.address}'),
                 if (profile.shipmentRecords != null)
                   Text('Shipment Records: ${profile.shipmentRecords}'),
-                const SizedBox(height: 8),
-                if (profile.country != null)
-                  Text('Country: ${profile.country!.name}'),
               ],
             ),
           );

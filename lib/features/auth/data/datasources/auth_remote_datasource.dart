@@ -23,6 +23,7 @@ abstract class AuthRemoteDataSource {
   Future<ResetPasswordResponseModel> resetPassword(
     ResetPasswordRequestModel request,
   );
+  Future<UserModel> getProfile();
   Future<UserModel> updateProfile(UpdateProfileRequestModel request);
 }
 
@@ -158,6 +159,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: request.toJson(),
       );
       return ResetPasswordResponseModel.fromJson(response.data);
+    } on DioException {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<UserModel> getProfile() async {
+    try {
+      final response = await apiClient.get(Endpoints.getProfile);
+      return UserModel.fromJson(response.data);
     } on DioException {
       rethrow;
     }

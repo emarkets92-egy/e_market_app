@@ -30,24 +30,16 @@ class ProfileCard extends StatelessWidget {
             '${RouteNames.profileDetail.replaceAll(':id', profile.id)}',
           );
         },
-        child: Padding(
+          child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                profile.name ?? 'Profile ${profile.id.substring(0, 8)}...',
+                'Profile ${profile.id.substring(0, 8)}...',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 4),
-              if (profile.companyName != null)
-                Text(
-                  profile.companyName!,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              const SizedBox(height: 4),
-              if (profile.country != null)
-                Text('Country: ${profile.country!.name}'),
               if (profile.shipmentRecords != null)
                 Text('Shipment Records: ${profile.shipmentRecords}'),
               const SizedBox(height: 16),

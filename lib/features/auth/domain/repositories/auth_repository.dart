@@ -19,6 +19,7 @@ abstract class AuthRepository {
   Future<ResetPasswordResponseModel> resetPassword(
     ResetPasswordRequestModel request,
   );
+  Future<UserModel> getProfile();
   Future<UserModel> updateProfile(UpdateProfileRequestModel request);
   Future<UserModel?> getCurrentUser();
   Future<bool> isAuthenticated();

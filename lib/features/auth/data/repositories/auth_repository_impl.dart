@@ -153,6 +153,20 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<UserModel> getProfile() async {
+    try {
+      final userModel = await remoteDataSource.getProfile();
+
+      // Save user locally
+      await localDataSource.saveUser(userModel);
+
+      return userModel;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<UserModel> updateProfile(UpdateProfileRequestModel request) async {
     try {
       final userModel = await remoteDataSource.updateProfile(request);
