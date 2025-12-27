@@ -5,22 +5,33 @@ on:
     tags:
       - 'v*'  # Triggers on tags like v1.0.0, v1.2.3, etc.
 
+permissions:
+  contents: write
+
+env:
+  FLUTTER_CHANNEL: stable
+  WINDOWS_BASE: e_market_app_Setup
+  WINDOWS_ARTIFACT: e_market_app_Setup.exe
+
 jobs:
   build-windows:
     runs-on: windows-latest
-    permissions:
-      contents: write
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.38.5'
-          channel: 'stable'
+          channel: ${{ env.FLUTTER_CHANNEL }}
           cache: true
+
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
 
       - name: Install dependencies
         run: flutter pub get
@@ -52,17 +63,66 @@ jobs:
           Write-Host ("EXE found: {0}" -f $fileInfo.FullName)
           Write-Host ("Size: {0:N2} MB" -f ($fileInfo.Length / 1MB))
 
-      - name: Upload Windows build and create release
-        uses: softprops/action-gh-release@v1
+      - name: Create Inno Setup script
+        shell: pwsh
+        run: |
+          $OutputDir = "$PWD\installer"
+          New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
+
+          $tag = "${{ github.ref_name }}"
+          $version = $tag.TrimStart('v')
+
+          $iss = @(
+            '[Setup]',
+            'AppName=e_market_app',
+            "AppVersion=$version",
+            'AppId={{F7A4B3B4-2C36-4D2C-9DA7-6B3E1A34B4A1}}',
+            'DefaultDirName={pf}\e_market_app',
+            "OutputDir=$OutputDir",
+            'OutputBaseFilename=${{ env.WINDOWS_BASE }}',
+            'Compression=lzma',
+            'SolidCompression=yes',
+            'DisableDirPage=yes',
+            'DisableProgramGroupPage=yes',
+            'ArchitecturesAllowed=x64',
+            'ArchitecturesInstallIn64BitMode=x64',
+            '',
+            '[Files]',
+            'Source:"build/windows/x64/runner/Release\*"; DestDir:"{app}"; Flags: recursesubdirs ignoreversion',
+            '',
+            '[Icons]',
+            'Name:"{autoprograms}\e_market_app"; Filename:"{app}\e_market_app.exe"'
+          ) -join "`n"
+
+          Set-Content -Path "installer.iss" -Value $iss
+
+      - name: Build Windows installer (Inno Setup)
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
+      - name: Verify installer exists
+        shell: pwsh
+        run: |
+          $installerPath = "installer\${{ env.WINDOWS_BASE }}.exe"
+          Write-Host "Looking for installer: $installerPath"
+          if (-not (Test-Path $installerPath)) {
+            Write-Error "Installer not found: $installerPath"
+            Get-ChildItem installer | Select-Object Name, Length | Format-Table
+            exit 1
+          }
+          $fileInfo = Get-Item $installerPath
+          Write-Host ("Installer found: {0}" -f $fileInfo.FullName)
+          Write-Host ("Size: {0:N2} MB" -f ($fileInfo.Length / 1MB))
+
+      - name: Upload installer and create release
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ github.ref_name }}
+          tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-          body: |
-            Windows release build for tag ${{ github.ref_name }}.
-          files: build/windows/x64/runner/Release/e_market_app.exe
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: installer/${{ env.WINDOWS_BASE }}.exe
+          allowUpdates: true
+          replacesArtifacts: true
+          generateReleaseNotes: true
+          body: Windows installer for tag ${{ github.ref_name }}.
 
