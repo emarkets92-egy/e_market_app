@@ -143,27 +143,6 @@ jobs:
             echo "Pushed version update to $BRANCH"
           fi
 
-      - name: Create GitHub Release (Draft)
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ steps.tag_version.outputs.version }}+${{ steps.build_number.outputs.build_number }}
-          body: |
-            ## Version ${{ steps.tag_version.outputs.version }}+${{ steps.build_number.outputs.build_number }}
-            
-            This release was automatically created from tag ${{ github.ref_name }}.
-            
-            ### Changes
-            - Updated app version to ${{ steps.tag_version.outputs.version }}+${{ steps.build_number.outputs.build_number }}
-            
-            ### Installation
-            Download the latest build from the assets below.
-          draft: true
-          prerelease: false
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows:
     needs: update-version
@@ -281,13 +260,50 @@ jobs:
           # Set output with filename (relative path from workspace root)
           Write-Host "archive_name=$archiveName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           Write-Host "Archive file verified: $archiveName"
+          Write-Host "Current directory: $PWD"
+          Write-Host "Archive full path: $PWD\$archiveName"
+          
+          # List all zip files to verify
+          Write-Host "All zip files in current directory:"
+          Get-ChildItem -Filter "*.zip" | ForEach-Object { Write-Host "  - $($_.Name) ($([math]::Round($_.Length/1MB, 2)) MB)" }
 
-      - name: Upload Windows build to release
+      - name: Verify archive before upload
+        shell: powershell
+        run: |
+          $archiveName = "${{ steps.create_archive.outputs.archive_name }}"
+          Write-Host "Looking for archive: $archiveName"
+          
+          if (Test-Path $archiveName) {
+            $fileInfo = Get-Item $archiveName
+            Write-Host "✓ Archive found: $($fileInfo.FullName)"
+            Write-Host "  Size: $([math]::Round($fileInfo.Length/1MB, 2)) MB"
+          } else {
+            Write-Error "✗ Archive not found: $archiveName"
+            Write-Host "Current directory: $PWD"
+            Write-Host "Files in current directory:"
+            Get-ChildItem | Select-Object Name, Length | Format-Table
+            exit 1
+          }
+
+      - name: Upload Windows build and create release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.update-version.outputs.tag_name }}
+          name: Release ${{ needs.update-version.outputs.version }}+${{ needs.update-version.outputs.build_number }}
+          body: |
+            ## Version ${{ needs.update-version.outputs.version }}+${{ needs.update-version.outputs.build_number }}
+            
+            This release was automatically created from tag ${{ needs.update-version.outputs.tag_name }}.
+            
+            ### Changes
+            - Updated app version to ${{ needs.update-version.outputs.version }}+${{ needs.update-version.outputs.build_number }}
+            
+            ### Installation
+            Download the Windows build from the assets below.
           files: ${{ steps.create_archive.outputs.archive_name }}
-          draft: false  # Publish the release after build is uploaded
+          draft: false
+          prerelease: false
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
