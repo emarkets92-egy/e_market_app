@@ -25,4 +25,7 @@ class Endpoints {
   // Localization
   static const String countries = '/localization/countries';
   static const String languages = '/localization/languages';
+
+  // Version Check
+  static const String checkVersion = '/app/version/check';
 }

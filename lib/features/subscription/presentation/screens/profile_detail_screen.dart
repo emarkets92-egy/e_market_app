@@ -53,22 +53,24 @@ class ProfileDetailScreen extends StatelessWidget {
                   Text('Address: ${profile.address}'),
                 if (profile.shipmentRecords != null)
                   Text('Shipment Records: ${profile.shipmentRecords}'),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    context.push(
-                      '${RouteNames.shipmentRecordsList.replaceAll(':profileId', profile.id)}',
-                    );
-                  },
-                  icon: const Icon(Icons.local_shipping),
-                  label: const Text('View Shipment Records'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+                if (profile.isSeen) ...[
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      context.push(
+                        '${RouteNames.shipmentRecordsList.replaceAll(':profileId', profile.id)}',
+                      );
+                    },
+                    icon: const Icon(Icons.local_shipping),
+                    label: const Text('View Shipment Records'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           );

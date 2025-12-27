@@ -12,6 +12,7 @@ import 'features/subscription/presentation/cubit/subscription_cubit.dart';
 import 'features/home/presentation/cubit/home_cubit.dart';
 import 'features/localization/presentation/cubit/localization_cubit.dart';
 import 'shared/widgets/auth_init_wrapper.dart';
+import 'shared/widgets/version_check_wrapper.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -29,8 +30,9 @@ class MyApp extends StatelessWidget {
         BlocProvider.value(value: di.sl<HomeCubit>()),
         BlocProvider.value(value: di.sl<LocalizationCubit>()),
       ],
-      child: AuthInitWrapper(
-        child: MaterialApp.router(
+      child: VersionCheckWrapper(
+        child: AuthInitWrapper(
+          child: MaterialApp.router(
           title: 'E-Market',
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
@@ -44,6 +46,7 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           routerConfig: appRouter,
+          ),
         ),
       ),
     );

@@ -33,6 +33,12 @@ import '../../features/subscription/presentation/cubit/subscription_cubit.dart';
 // Home
 import '../../features/home/presentation/cubit/home_cubit.dart';
 
+// Version
+import '../../features/version/data/datasources/version_remote_datasource.dart';
+import '../../features/version/data/repositories/version_repository_impl.dart';
+import '../../features/version/domain/repositories/version_repository.dart';
+import '../../features/version/presentation/cubit/version_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -77,6 +83,11 @@ Future<void> init() async {
     () => SubscriptionRemoteDataSourceImpl(sl<ApiClient>()),
   );
 
+  // Data Sources - Version
+  sl.registerLazySingleton<VersionRemoteDataSource>(
+    () => VersionRemoteDataSourceImpl(sl<ApiClient>()),
+  );
+
   // Repositories - Auth
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -105,6 +116,13 @@ Future<void> init() async {
     ),
   );
 
+  // Repositories - Version
+  sl.registerLazySingleton<VersionRepository>(
+    () => VersionRepositoryImpl(
+      remoteDataSource: sl<VersionRemoteDataSource>(),
+    ),
+  );
+
   // Cubits - Register as lazy singletons
   sl.registerLazySingleton<AuthCubit>(() => AuthCubit(sl<AuthRepository>()));
 
@@ -121,4 +139,8 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<HomeCubit>(() => HomeCubit());
+
+  sl.registerLazySingleton<VersionCubit>(
+    () => VersionCubit(versionRepository: sl<VersionRepository>()),
+  );
 }

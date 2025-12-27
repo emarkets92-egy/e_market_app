@@ -1,0 +1,123 @@
+name: Update Version from Tag
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on tags like v1.0.0, v1.2.3, etc.
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to commit changes
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
+          token: ${{ secrets.GITHUB_TOKEN }}  # Required for pushing commits
+
+      - name: Extract version from tag
+        id: tag_version
+        run: |
+          # Get the tag name (e.g., v1.0.0)
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          # Remove 'v' prefix if present (e.g., v1.0.0 -> 1.0.0)
+          VERSION=${TAG_NAME#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION from tag: $TAG_NAME"
+
+      - name: Get build number from tag or increment
+        id: build_number
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          # Check if tag has build number (e.g., v1.0.0+5)
+          if [[ "$TAG_NAME" == *"+"* ]]; then
+            # Extract build number from tag (e.g., v1.0.0+5 -> 5)
+            BUILD_NUMBER=$(echo "$TAG_NAME" | sed 's/.*+//' | sed 's/v//')
+          else
+            # If no build number in tag, try to get current build number from pubspec.yaml
+            CURRENT_BUILD=$(grep "^version:" pubspec.yaml | sed 's/.*+//' || echo "0")
+            if [ -n "$CURRENT_BUILD" ] && [ "$CURRENT_BUILD" != "0" ]; then
+              # Increment the build number
+              BUILD_NUMBER=$((CURRENT_BUILD + 1))
+            else
+              # Default build number is 1
+              BUILD_NUMBER=1
+            fi
+          fi
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "Build number: $BUILD_NUMBER"
+
+      - name: Update pubspec.yaml
+        run: |
+          VERSION="${{ steps.tag_version.outputs.version }}"
+          BUILD_NUMBER="${{ steps.build_number.outputs.build_number }}"
+          NEW_VERSION="${VERSION}+${BUILD_NUMBER}"
+          
+          echo "Updating pubspec.yaml version to: $NEW_VERSION"
+          
+          # Use sed to update the version line in pubspec.yaml
+          # This handles the format: version: 1.0.0+1
+          sed -i "s/^version:.*/version: $NEW_VERSION/" pubspec.yaml
+          
+          # Verify the change
+          echo "Updated version in pubspec.yaml:"
+          grep "^version:" pubspec.yaml
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Check if changes were made
+        id: check_changes
+        run: |
+          if git diff --quiet pubspec.yaml; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes to pubspec.yaml"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in pubspec.yaml"
+            git diff pubspec.yaml
+          fi
+
+      - name: Get default branch
+        id: default_branch
+        run: |
+          # Try to get default branch from remote
+          DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | awk '{print $NF}')
+          if [ -z "$DEFAULT_BRANCH" ]; then
+            # Fallback to common branch names
+            if git show-ref --verify --quiet refs/remotes/origin/main; then
+              DEFAULT_BRANCH="main"
+            elif git show-ref --verify --quiet refs/remotes/origin/master; then
+              DEFAULT_BRANCH="master"
+            else
+              DEFAULT_BRANCH="main"
+            fi
+          fi
+          echo "branch=$DEFAULT_BRANCH" >> $GITHUB_OUTPUT
+          echo "Default branch: $DEFAULT_BRANCH"
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          VERSION="${{ steps.tag_version.outputs.version }}"
+          BUILD_NUMBER="${{ steps.build_number.outputs.build_number }}"
+          BRANCH="${{ steps.default_branch.outputs.branch }}"
+          
+          # Checkout the default branch
+          git checkout $BRANCH
+          git pull origin $BRANCH || true
+          
+          # Stage the changed file
+          git add pubspec.yaml
+          
+          # Commit with a descriptive message
+          git commit -m "chore: update version to $VERSION+$BUILD_NUMBER from tag ${{ github.ref_name }}" || exit 0
+          
+          # Push the changes
+          git push origin $BRANCH
+
