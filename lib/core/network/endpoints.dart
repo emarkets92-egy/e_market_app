@@ -20,6 +20,7 @@ class Endpoints {
   static const String unlock = '/subscriptions/unlock';
   static const String pointsBalance = '/subscriptions/points/balance';
   static const String pointsTransactions = '/subscriptions/points/transactions';
+  static String shipmentRecords(String profileId) => '/subscriptions/profiles/$profileId/shipment-records';
 
   // Localization
   static const String countries = '/localization/countries';

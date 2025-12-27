@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection_container.dart' as di;
+import '../../../../config/routes/route_names.dart';
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 
@@ -51,6 +53,22 @@ class ProfileDetailScreen extends StatelessWidget {
                   Text('Address: ${profile.address}'),
                 if (profile.shipmentRecords != null)
                   Text('Shipment Records: ${profile.shipmentRecords}'),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    context.push(
+                      '${RouteNames.shipmentRecordsList.replaceAll(':profileId', profile.id)}',
+                    );
+                  },
+                  icon: const Icon(Icons.local_shipping),
+                  label: const Text('View Shipment Records'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
               ],
             ),
           );

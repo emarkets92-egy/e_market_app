@@ -72,6 +72,11 @@ class UnlockContentData {
       case ContentType.marketPlan:
         contentData = MarketPlanModel.fromJson(dataJson);
         break;
+      case ContentType.shipmentRecords:
+        // Shipment records are handled differently - unlock just marks them as seen
+        // The actual data comes from the shipment records API
+        contentData = null;
+        break;
     }
 
     return UnlockContentData(

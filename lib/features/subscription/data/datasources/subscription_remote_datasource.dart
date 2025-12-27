@@ -6,6 +6,7 @@ import '../models/explore_market_request_model.dart';
 import '../models/market_exploration_response_model.dart';
 import '../models/unlock_response_model.dart';
 import '../models/unlock_item_model.dart';
+import '../models/shipment_record_model.dart';
 
 abstract class SubscriptionRemoteDataSource {
   Future<List<SubscriptionModel>> getSubscriptions({bool activeOnly = true});
@@ -16,6 +17,13 @@ abstract class SubscriptionRemoteDataSource {
   Future<UnlockResponseModel> unlock({
     required ContentType contentType,
     required String targetId,
+  });
+  Future<ShipmentRecordsResponseModel> getShipmentRecords({
+    required String profileId,
+    int? seenPage,
+    int? seenLimit,
+    int? unseenPage,
+    int? unseenLimit,
   });
 }
 
@@ -133,6 +141,31 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         data: {'contentType': contentType.toApiString(), 'targetId': targetId},
       );
       return UnlockResponseModel.fromJson(response.data);
+    } on DioException {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ShipmentRecordsResponseModel> getShipmentRecords({
+    required String profileId,
+    int? seenPage,
+    int? seenLimit,
+    int? unseenPage,
+    int? unseenLimit,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{};
+      if (seenPage != null) queryParams['seenPage'] = seenPage;
+      if (seenLimit != null) queryParams['seenLimit'] = seenLimit;
+      if (unseenPage != null) queryParams['unseenPage'] = unseenPage;
+      if (unseenLimit != null) queryParams['unseenLimit'] = unseenLimit;
+
+      final response = await apiClient.get(
+        Endpoints.shipmentRecords(profileId),
+        queryParameters: queryParams.isNotEmpty ? queryParams : null,
+      );
+      return ShipmentRecordsResponseModel.fromJson(response.data);
     } on DioException {
       rethrow;
     }

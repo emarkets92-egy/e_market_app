@@ -15,6 +15,7 @@ import '../../features/product/presentation/screens/product_detail_screen.dart';
 import '../../features/product/presentation/screens/market_selection_screen.dart';
 import '../../features/subscription/presentation/screens/profile_list_screen.dart';
 import '../../features/subscription/presentation/screens/profile_detail_screen.dart';
+import '../../features/subscription/presentation/screens/shipment_records_list_screen.dart';
 import '../../features/subscription/presentation/screens/analysis_screen.dart';
 import '../../features/subscription/presentation/screens/competitive_analysis_screen.dart';
 import '../../features/subscription/presentation/screens/pestle_analysis_screen.dart';
@@ -121,6 +122,15 @@ final appRouter = GoRouter(
       builder: (context, state) => BlocProvider.value(
         value: di.sl<SubscriptionCubit>(),
         child: ProfileDetailScreen(profileId: state.pathParameters['id']!),
+      ),
+    ),
+    GoRoute(
+      path: RouteNames.shipmentRecordsList,
+      builder: (context, state) => BlocProvider.value(
+        value: di.sl<SubscriptionCubit>(),
+        child: ShipmentRecordsListScreen(
+          profileId: state.pathParameters['profileId']!,
+        ),
       ),
     ),
     GoRoute(

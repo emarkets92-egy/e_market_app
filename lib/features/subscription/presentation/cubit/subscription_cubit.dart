@@ -238,9 +238,66 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
           // Fallback: just set isSeen if data structure doesn't match
           emit(state.copyWith(isUnlocking: false, error: null));
         }
-      } else {
-        // Fallback: if no data returned, just update isSeen flag (backward compatibility)
-        if (contentType == ContentType.profileContact) {
+        } else if (contentType == ContentType.shipmentRecords) {
+          // Handle shipment record unlock
+          final isInUnseen = state.unseenShipmentRecords.any(
+            (record) => record.id == targetId,
+          );
+
+          if (isInUnseen) {
+            // Remove from unseen and add to seen
+            final updatedUnseenRecords = state.unseenShipmentRecords
+                .where((record) => record.id != targetId)
+                .toList();
+
+            final unlockedRecord = state.unseenShipmentRecords
+                .firstWhere((record) => record.id == targetId)
+                .copyWith(isSeen: true);
+
+            final updatedSeenRecords = [
+              ...state.seenShipmentRecords,
+              unlockedRecord,
+            ];
+
+            emit(
+              state.copyWith(
+                isUnlocking: false,
+                unseenShipmentRecords: updatedUnseenRecords,
+                seenShipmentRecords: updatedSeenRecords,
+                unseenShipmentRecordsTotal:
+                    (state.unseenShipmentRecordsTotal - 1)
+                        .clamp(0, double.infinity)
+                        .toInt(),
+                seenShipmentRecordsTotal: state.seenShipmentRecordsTotal + 1,
+                successMessage: 'Shipment record unlocked successfully!',
+                error: null,
+              ),
+            );
+
+            // Refresh shipment records to get updated data
+            if (state.currentProfileId != null) {
+              await getShipmentRecords(profileId: state.currentProfileId!);
+            }
+          } else {
+            // Record is already in seen list, update it
+            final updatedSeenRecords = state.seenShipmentRecords.map((record) {
+              if (record.id == targetId) {
+                return record.copyWith(isSeen: true);
+              }
+              return record;
+            }).toList();
+
+            emit(
+              state.copyWith(
+                isUnlocking: false,
+                seenShipmentRecords: updatedSeenRecords,
+                error: null,
+              ),
+            );
+          }
+        } else {
+          // Fallback: if no data returned, just update isSeen flag (backward compatibility)
+          if (contentType == ContentType.profileContact) {
           ProfileModel? profileInUnseen;
           try {
             profileInUnseen = state.unseenProfiles.firstWhere(
@@ -322,6 +379,59 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       }
     } catch (e) {
       emit(state.copyWith(isUnlocking: false, error: e.toString()));
+    }
+  }
+
+  Future<void> getShipmentRecords({
+    required String profileId,
+    int? seenPage,
+    int? seenLimit,
+    int? unseenPage,
+    int? unseenLimit,
+  }) async {
+    emit(state.copyWith(isLoading: true, error: null));
+
+    try {
+      final result = await _repository.getShipmentRecords(
+        profileId: profileId,
+        seenPage: seenPage ?? state.seenShipmentRecordsPage,
+        seenLimit: seenLimit ?? state.seenShipmentRecordsLimit,
+        unseenPage: unseenPage ?? state.unseenShipmentRecordsPage,
+        unseenLimit: unseenLimit ?? state.unseenShipmentRecordsLimit,
+      );
+
+      emit(
+        state.copyWith(
+          isLoading: false,
+          seenShipmentRecords: result.seenShipmentRecords?.data ?? [],
+          unseenShipmentRecords: result.unseenShipmentRecords?.data ?? [],
+          seenShipmentRecordsPage:
+              result.seenShipmentRecords?.pagination.page ??
+              state.seenShipmentRecordsPage,
+          seenShipmentRecordsLimit:
+              result.seenShipmentRecords?.pagination.limit ??
+              state.seenShipmentRecordsLimit,
+          seenShipmentRecordsTotal:
+              result.seenShipmentRecords?.pagination.total ?? 0,
+          seenShipmentRecordsTotalPages:
+              result.seenShipmentRecords?.pagination.totalPages ?? 0,
+          unseenShipmentRecordsPage:
+              result.unseenShipmentRecords?.pagination.page ??
+              state.unseenShipmentRecordsPage,
+          unseenShipmentRecordsLimit:
+              result.unseenShipmentRecords?.pagination.limit ??
+              state.unseenShipmentRecordsLimit,
+          unseenShipmentRecordsTotal:
+              result.unseenShipmentRecords?.pagination.total ?? 0,
+          unseenShipmentRecordsTotalPages:
+              result.unseenShipmentRecords?.pagination.totalPages ?? 0,
+          shipmentRecordsUnlockCost: result.unlockCost,
+          currentProfileId: profileId,
+          error: null,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 

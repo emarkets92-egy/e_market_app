@@ -3,7 +3,8 @@ enum ContentType {
   marketPlan,
   competitiveAnalysis,
   pestleAnalysis,
-  swotAnalysis;
+  swotAnalysis,
+  shipmentRecords;
 
   static ContentType? fromString(String value) {
     switch (value.toUpperCase()) {
@@ -17,6 +18,8 @@ enum ContentType {
         return ContentType.pestleAnalysis;
       case 'SWOT_ANALYSIS':
         return ContentType.swotAnalysis;
+      case 'SHIPMENT_RECORDS':
+        return ContentType.shipmentRecords;
       default:
         return null;
     }
@@ -34,6 +37,8 @@ enum ContentType {
         return 'PESTLE_ANALYSIS';
       case ContentType.swotAnalysis:
         return 'SWOT_ANALYSIS';
+      case ContentType.shipmentRecords:
+        return 'SHIPMENT_RECORDS';
     }
   }
 }

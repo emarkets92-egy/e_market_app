@@ -16,6 +16,7 @@ class RouteNames {
   // Subscription routes
   static const String profileList = '/profiles';
   static const String profileDetail = '/profiles/:id';
+  static const String shipmentRecordsList = '/profiles/:profileId/shipment-records';
   static const String analysis = '/analysis';
   static const String competitiveAnalysis = '/analysis/competitive';
   static const String pestleAnalysis = '/analysis/pestle';
