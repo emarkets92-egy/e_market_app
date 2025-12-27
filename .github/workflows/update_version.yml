@@ -225,8 +225,9 @@ jobs:
           # Clean up temp directory
           Remove-Item -Recurse -Force $tempDir
           
-          echo "ARCHIVE_NAME=$archiveName" >> $env:GITHUB_ENV
-          echo "Created archive: $archiveName (source code excluded)"
+          # Set environment variable for next step
+          Write-Host "ARCHIVE_NAME=$archiveName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Created archive: $archiveName (source code excluded)"
           
           # Verify no source code files are included
           Write-Host "Verifying no source code files in archive..."
@@ -242,12 +243,13 @@ jobs:
             Write-Warning "Warning: Found potential source files in archive:"
             $sourceFiles | ForEach-Object { Write-Warning $_.FullName }
           } else {
-            Write-Host "✓ No source code files found in archive"
+            Write-Host "No source code files found in archive"
           }
           
           # Show archive size
           $archiveSize = (Get-Item $archiveName).Length / 1MB
-          Write-Host "Archive size: $([math]::Round($archiveSize, 2)) MB"
+          $roundedSize = [math]::Round($archiveSize, 2)
+          Write-Host "Archive size: $roundedSize MB"
 
       - name: Upload Windows build to release
         uses: softprops/action-gh-release@v1
