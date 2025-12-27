@@ -1,0 +1,121 @@
+name: Windows Build & Publish Installer
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_CHANNEL: stable
+  APP_NAME: e_market_app
+  INSTALLER_BASE: EMarket_Setup
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set app version from tag
+        shell: pwsh
+        env:
+          VERSION: ${{ github.ref_name }}
+          BUILD_NUM: ${{ github.run_number }}
+        run: |
+          $v = "${env:VERSION}".TrimStart('v')
+          $b = "${env:BUILD_NUM}"
+          (Get-Content pubspec.yaml) -replace '^version: .+', "version: $v+$b" | Set-Content pubspec.yaml
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows runner
+        run: flutter build windows --release
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          if (Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe") {
+            Write-Host "Inno Setup already installed."
+          } else {
+            choco install innosetup --no-progress -y
+          }
+
+      - name: Create Inno Setup script
+        shell: pwsh
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          $v = "${env:VERSION}".TrimStart('v')
+          $OutputDir = "$PWD\installer"
+          New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
+
+          $iss = @(
+            '[Setup]',
+            "AppName=E-Market",
+            "AppVersion=$v",
+            'AppId={{E4E5A4C1-6C02-4D5B-8B8A-1B1A1E0F1234}}',
+            'DefaultDirName={pf}\E-Market',
+            "OutputDir=$OutputDir",
+            "OutputBaseFilename=${{ env.INSTALLER_BASE }}",
+            'Compression=lzma',
+            'SolidCompression=yes',
+            'DisableDirPage=yes',
+            'DisableProgramGroupPage=yes',
+            'ArchitecturesAllowed=x64',
+            'ArchitecturesInstallIn64BitMode=x64',
+            '',
+            '[Files]',
+            'Source:"build/windows/x64/runner/Release\*"; DestDir:"{app}"; Flags: recursesubdirs ignoreversion',
+            '',
+            '[Icons]',
+            'Name:"{autoprograms}\E-Market"; Filename:"{app}\${{ env.APP_NAME }}.exe"'
+          ) -join "`n"
+          Set-Content -Path "installer.iss" -Value $iss
+
+      - name: Build Windows installer (Inno Setup)
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: installer/${{ env.INSTALLER_BASE }}.exe
+
+      - name: Create/Update GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          artifacts: "installer/${{ env.INSTALLER_BASE }}.exe"
+          allowUpdates: true
+          replacesArtifacts: true
+          body: "Automated Windows installer for ${{ github.ref_name }}"
+
+      - name: Upload installer to backend (optional)
+        if: ${{ secrets.UPDATE_UPLOAD_URL != '' && secrets.UPDATE_UPLOAD_TOKEN != '' }}
+        shell: pwsh
+        env:
+          UPDATE_UPLOAD_URL: ${{ secrets.UPDATE_UPLOAD_URL }}
+          UPDATE_UPLOAD_TOKEN: ${{ secrets.UPDATE_UPLOAD_TOKEN }}
+        run: |
+          $file = "installer/${{ env.INSTALLER_BASE }}.exe"
+          Write-Host "Uploading $file to backend..."
+          curl.exe -f -X POST "$env:UPDATE_UPLOAD_URL" `
+            -H "Authorization: Bearer $env:UPDATE_UPLOAD_TOKEN" `
+            -F "file=@$file"
+
+
