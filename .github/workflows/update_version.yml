@@ -32,12 +32,12 @@ jobs:
         run: flutter build windows --release --obfuscate --split-debug-info=build/debug-info
 
       - name: Verify built EXE exists
-        shell: powershell
+        shell: pwsh
         run: |
           $exePath = "build\windows\x64\runner\Release\e_market_app.exe"
           Write-Host "Looking for EXE: $exePath"
           if (-not (Test-Path $exePath)) {
-            Write-Error "✗ EXE not found: $exePath"
+            Write-Error "EXE not found: $exePath"
             Write-Host "Current directory: $PWD"
             Write-Host "Files in build\windows\x64\runner\Release:"
             if (Test-Path "build\windows\x64\runner\Release") {
@@ -49,8 +49,8 @@ jobs:
             exit 1
           }
           $fileInfo = Get-Item $exePath
-          Write-Host "✓ EXE found: $($fileInfo.FullName)"
-          Write-Host "  Size: $([math]::Round($fileInfo.Length/1MB, 2)) MB"
+          Write-Host ("EXE found: {0}" -f $fileInfo.FullName)
+          Write-Host ("Size: {0:N2} MB" -f ($fileInfo.Length / 1MB))
 
       - name: Upload Windows build and create release
         uses: softprops/action-gh-release@v1
@@ -60,7 +60,6 @@ jobs:
           body: |
             Windows release build for tag ${{ github.ref_name }}.
           files: build/windows/x64/runner/Release/e_market_app.exe
-          fail_on_unmatched_files: true
           draft: false
           prerelease: false
           generate_release_notes: true
