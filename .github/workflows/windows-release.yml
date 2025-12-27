@@ -116,6 +116,36 @@ jobs:
             throw "Installer not found at $file"
           }
 
+          # If the release repo is empty, bootstrap it with an initial commit so GitHub can create tags/releases.
+          $hasCommits = $true
+          try {
+            gh api "repos/$repo/commits" -F per_page=1 *> $null
+          } catch {
+            $hasCommits = $false
+          }
+
+          if (-not $hasCommits) {
+            Write-Host "Release repo appears empty. Bootstrapping with an initial commit..."
+            $tmp = Join-Path $env:RUNNER_TEMP "release_repo_bootstrap"
+            if (Test-Path $tmp) { Remove-Item -Recurse -Force $tmp }
+
+            git clone "https://x-access-token:$env:GH_TOKEN@github.com/$repo.git" $tmp
+            Push-Location $tmp
+
+            git config user.email "actions@github.com"
+            git config user.name "github-actions"
+
+            "Release artifacts for E-Market." | Set-Content -Path "README.md"
+            git add README.md
+            git commit -m "chore: bootstrap repo" || $true
+
+            # Ensure a default branch exists (main).
+            git branch -M main
+            git push -u origin main
+
+            Pop-Location
+          }
+
           # Create release if it doesn't exist; otherwise upload/replace asset.
           gh release view $tag --repo $repo *> $null
           if ($LASTEXITCODE -ne 0) {
