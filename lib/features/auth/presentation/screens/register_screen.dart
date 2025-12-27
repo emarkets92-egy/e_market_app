@@ -16,7 +16,6 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
       body: BlocBuilder<LocalizationCubit, LocalizationState>(
         bloc: di.sl<LocalizationCubit>(),
         builder: (context, localizationState) {
@@ -45,12 +44,17 @@ class RegisterScreen extends StatelessWidget {
                   .map((c) => {'id': c.id, 'name': c.name})
                   .toList();
 
-              return SingleChildScrollView(
-                child: RegisterForm(
-                  onRegister: (request) {
-                    di.sl<AuthCubit>().register(request);
-                  },
-                  countries: countries,
+              return Container(
+                color: Colors.grey[50],
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: RegisterForm(
+                      onRegister: (request) {
+                        di.sl<AuthCubit>().register(request);
+                      },
+                      countries: countries,
+                    ),
+                  ),
                 ),
               );
             },
