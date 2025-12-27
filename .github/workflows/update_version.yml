@@ -6,146 +6,7 @@ on:
       - 'v*'  # Triggers on tags like v1.0.0, v1.2.3, etc.
 
 jobs:
-  update-version:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write  # Required to commit changes
-    outputs:
-      version: ${{ steps.tag_version.outputs.version }}
-      build_number: ${{ steps.build_number.outputs.build_number }}
-      tag_name: ${{ github.ref_name }}
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch all history for tags
-          # GITHUB_TOKEN is automatically provided - no secret needed
-
-      - name: Extract version from tag
-        id: tag_version
-        run: |
-          # Get the tag name (e.g., v1.0.0)
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-          # Remove 'v' prefix if present (e.g., v1.0.0 -> 1.0.0)
-          VERSION=${TAG_NAME#v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION from tag: $TAG_NAME"
-
-      - name: Get build number from tag or increment
-        id: build_number
-        run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-          # Check if tag has build number (e.g., v1.0.0+5)
-          if [[ "$TAG_NAME" == *"+"* ]]; then
-            # Extract build number from tag (e.g., v1.0.0+5 -> 5)
-            BUILD_NUMBER=$(echo "$TAG_NAME" | sed 's/.*+//' | sed 's/v//')
-          else
-            # If no build number in tag, try to get current build number from pubspec.yaml
-            CURRENT_BUILD=$(grep "^version:" pubspec.yaml | sed 's/.*+//' || echo "0")
-            if [ -n "$CURRENT_BUILD" ] && [ "$CURRENT_BUILD" != "0" ]; then
-              # Increment the build number
-              BUILD_NUMBER=$((CURRENT_BUILD + 1))
-            else
-              # Default build number is 1
-              BUILD_NUMBER=1
-            fi
-          fi
-          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
-          echo "Build number: $BUILD_NUMBER"
-
-      - name: Update pubspec.yaml
-        run: |
-          VERSION="${{ steps.tag_version.outputs.version }}"
-          BUILD_NUMBER="${{ steps.build_number.outputs.build_number }}"
-          NEW_VERSION="${VERSION}+${BUILD_NUMBER}"
-          
-          echo "Updating pubspec.yaml version to: $NEW_VERSION"
-          
-          # Use sed to update the version line in pubspec.yaml
-          # This handles the format: version: 1.0.0+1
-          sed -i "s/^version:.*/version: $NEW_VERSION/" pubspec.yaml
-          
-          # Verify the change
-          echo "Updated version in pubspec.yaml:"
-          grep "^version:" pubspec.yaml
-
-      - name: Configure Git
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-      - name: Check if changes were made
-        id: check_changes
-        run: |
-          if git diff --quiet pubspec.yaml; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "No changes to pubspec.yaml"
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Changes detected in pubspec.yaml"
-            git diff pubspec.yaml
-          fi
-
-      - name: Get default branch
-        id: default_branch
-        run: |
-          # Try to get default branch from remote
-          DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | awk '{print $NF}')
-          if [ -z "$DEFAULT_BRANCH" ]; then
-            # Fallback to common branch names
-            if git show-ref --verify --quiet refs/remotes/origin/main; then
-              DEFAULT_BRANCH="main"
-            elif git show-ref --verify --quiet refs/remotes/origin/master; then
-              DEFAULT_BRANCH="master"
-            else
-              DEFAULT_BRANCH="main"
-            fi
-          fi
-          echo "branch=$DEFAULT_BRANCH" >> $GITHUB_OUTPUT
-          echo "Default branch: $DEFAULT_BRANCH"
-
-      - name: Commit and push changes
-        if: steps.check_changes.outputs.changed == 'true'
-        run: |
-          VERSION="${{ steps.tag_version.outputs.version }}"
-          BUILD_NUMBER="${{ steps.build_number.outputs.build_number }}"
-          BRANCH="${{ steps.default_branch.outputs.branch }}"
-          
-          echo "Updating version to $VERSION+$BUILD_NUMBER on branch $BRANCH"
-          
-          # Checkout the default branch
-          git checkout $BRANCH
-          git pull origin $BRANCH || true
-          
-          # Verify pubspec.yaml was updated
-          if grep -q "version: $VERSION+$BUILD_NUMBER" pubspec.yaml; then
-            echo "Version in pubspec.yaml is correct: $VERSION+$BUILD_NUMBER"
-          else
-            echo "ERROR: Version in pubspec.yaml doesn't match expected version"
-            cat pubspec.yaml | grep "^version:"
-            exit 1
-          fi
-          
-          # Stage the changed file
-          git add pubspec.yaml
-          
-          # Check if there are changes to commit
-          if git diff --staged --quiet; then
-            echo "No changes to commit (version already matches)"
-          else
-            # Commit with a descriptive message
-            git commit -m "chore: update version to $VERSION+$BUILD_NUMBER from tag ${{ github.ref_name }}"
-            echo "Committed version update"
-            
-            # Push the changes
-            git push origin $BRANCH
-            echo "Pushed version update to $BRANCH"
-          fi
-
-
   build-windows:
-    needs: update-version
     runs-on: windows-latest
     permissions:
       contents: write
@@ -170,137 +31,36 @@ jobs:
       - name: Build Windows app
         run: flutter build windows --release --obfuscate --split-debug-info=build/debug-info
 
-      - name: Create release archive (without source code)
-        id: create_archive
+      - name: Verify built EXE exists
         shell: powershell
         run: |
-          $version = "${{ needs.update-version.outputs.version }}"
-          $buildNumber = "${{ needs.update-version.outputs.build_number }}"
-          $appName = "e_market_app"
-          $archiveName = "$appName-windows-$version+$buildNumber.zip"
-          
-          # Build output path
-          $buildPath = "build\windows\x64\runner\Release"
-          
-          if (-not (Test-Path $buildPath)) {
-            Write-Error "Build path not found: $buildPath"
-            exit 1
-          }
-          
-          # Create a temporary directory for clean archive
-          $tempDir = "temp_release"
-          if (Test-Path $tempDir) {
-            Remove-Item -Recurse -Force $tempDir
-          }
-          New-Item -ItemType Directory -Path $tempDir | Out-Null
-          
-          # Copy only necessary runtime files (exclude source code)
-          # Copy executable and DLLs
-          Copy-Item "$buildPath\*.exe" -Destination $tempDir -Force
-          Copy-Item "$buildPath\*.dll" -Destination $tempDir -Force
-          Copy-Item "$buildPath\*.pdb" -Destination $tempDir -Force -ErrorAction SilentlyContinue
-          
-          # Copy data folder (contains flutter_assets, but no source code)
-          if (Test-Path "$buildPath\data") {
-            Copy-Item "$buildPath\data" -Destination $tempDir -Recurse -Force
-          }
-          
-          # Copy lib folder (contains native libraries, not source code)
-          if (Test-Path "$buildPath\lib") {
-            Copy-Item "$buildPath\lib" -Destination $tempDir -Recurse -Force
-          }
-          
-          # Explicitly exclude any .dart files that might have been included
-          Get-ChildItem -Path $tempDir -Recurse -Filter "*.dart" | Remove-Item -Force -ErrorAction SilentlyContinue
-          
-          # Exclude other source files
-          Get-ChildItem -Path $tempDir -Recurse -Filter "*.yaml" | Where-Object { $_.Name -ne "pubspec.yaml" } | Remove-Item -Force -ErrorAction SilentlyContinue
-          Get-ChildItem -Path $tempDir -Recurse -Filter "*.json" | Where-Object { $_.Name -match "package|analysis" } | Remove-Item -Force -ErrorAction SilentlyContinue
-          
-          # Create the archive
-          Compress-Archive -Path "$tempDir\*" -DestinationPath $archiveName -Force
-          
-          # Clean up temp directory
-          Remove-Item -Recurse -Force $tempDir
-          
-          # Set output for next step
-          Write-Host "archive_name=$archiveName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          Write-Host "Created archive: $archiveName (source code excluded)"
-          Write-Host "Archive path: $PWD\$archiveName"
-          
-          # Verify no source code files are included
-          Write-Host "Verifying no source code files in archive..."
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $zip = [System.IO.Compression.ZipFile]::OpenRead($archiveName)
-          $sourceFiles = $zip.Entries | Where-Object { 
-            $_.FullName -match '\.(dart|yaml|json)$' -and 
-            $_.FullName -notmatch 'flutter_assets|pubspec\.yaml' 
-          }
-          $zip.Dispose()
-          
-          if ($sourceFiles) {
-            Write-Warning "Warning: Found potential source files in archive:"
-            $sourceFiles | ForEach-Object { Write-Warning $_.FullName }
-          } else {
-            Write-Host "No source code files found in archive"
-          }
-          
-          # Show archive size
-          $archiveSize = (Get-Item $archiveName).Length / 1MB
-          $roundedSize = [math]::Round($archiveSize, 2)
-          Write-Host "Archive size: $roundedSize MB"
-          
-          # Verify file exists
-          if (-not (Test-Path $archiveName)) {
-            Write-Error "Archive file not found: $archiveName"
-            Get-ChildItem -Filter "*.zip" | ForEach-Object { Write-Host "Found: $($_.Name)" }
-            exit 1
-          }
-          
-          # Set output with filename (relative path from workspace root)
-          Write-Host "archive_name=$archiveName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          Write-Host "Archive file verified: $archiveName"
-          Write-Host "Current directory: $PWD"
-          Write-Host "Archive full path: $PWD\$archiveName"
-          
-          # List all zip files to verify
-          Write-Host "All zip files in current directory:"
-          Get-ChildItem -Filter "*.zip" | ForEach-Object { Write-Host "  - $($_.Name) ($([math]::Round($_.Length/1MB, 2)) MB)" }
-
-      - name: Verify archive before upload
-        shell: powershell
-        run: |
-          $archiveName = "${{ steps.create_archive.outputs.archive_name }}"
-          Write-Host "Looking for archive: $archiveName"
-          
-          if (Test-Path $archiveName) {
-            $fileInfo = Get-Item $archiveName
-            Write-Host "✓ Archive found: $($fileInfo.FullName)"
-            Write-Host "  Size: $([math]::Round($fileInfo.Length/1MB, 2)) MB"
-          } else {
-            Write-Error "✗ Archive not found: $archiveName"
+          $exePath = "build\windows\x64\runner\Release\e_market_app.exe"
+          Write-Host "Looking for EXE: $exePath"
+          if (-not (Test-Path $exePath)) {
+            Write-Error "✗ EXE not found: $exePath"
             Write-Host "Current directory: $PWD"
-            Write-Host "Files in current directory:"
-            Get-ChildItem | Select-Object Name, Length | Format-Table
+            Write-Host "Files in build\windows\x64\runner\Release:"
+            if (Test-Path "build\windows\x64\runner\Release") {
+              Get-ChildItem "build\windows\x64\runner\Release" | Select-Object Name, Length | Format-Table
+            } else {
+              Write-Host "(Release directory not found)"
+              Get-ChildItem -Recurse -Depth 4 build\windows | Select-Object FullName, Length | Format-Table
+            }
             exit 1
           }
+          $fileInfo = Get-Item $exePath
+          Write-Host "✓ EXE found: $($fileInfo.FullName)"
+          Write-Host "  Size: $([math]::Round($fileInfo.Length/1MB, 2)) MB"
 
       - name: Upload Windows build and create release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ needs.update-version.outputs.tag_name }}
-          name: Release ${{ needs.update-version.outputs.version }}+${{ needs.update-version.outputs.build_number }}
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           body: |
-            ## Version ${{ needs.update-version.outputs.version }}+${{ needs.update-version.outputs.build_number }}
-            
-            This release was automatically created from tag ${{ needs.update-version.outputs.tag_name }}.
-            
-            ### Changes
-            - Updated app version to ${{ needs.update-version.outputs.version }}+${{ needs.update-version.outputs.build_number }}
-            
-            ### Installation
-            Download the Windows build from the assets below.
-          files: ${{ steps.create_archive.outputs.archive_name }}
+            Windows release build for tag ${{ github.ref_name }}.
+          files: build/windows/x64/runner/Release/e_market_app.exe
+          fail_on_unmatched_files: true
           draft: false
           prerelease: false
           generate_release_notes: true
