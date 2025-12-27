@@ -4,6 +4,7 @@ import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../config/routes/route_names.dart';
+import '../../../../config/theme.dart';
 
 class LoginForm extends StatefulWidget {
   final void Function(String email, String password) onLogin;
@@ -18,6 +19,8 @@ class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _rememberMe = false;
 
   @override
   void initState() {
@@ -41,40 +44,163 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 480),
+      margin: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(40),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Form(
+        key: _formKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Welcome heading
+            const Text(
+              'Welcome back',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please enter your details to sign in.',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 32),
+            // Email field
             AppTextField(
-              label: 'Email',
+              label: 'Email address',
+              hint: 'name@company.com',
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               validator: Validators.email,
+              prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[600]),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            // Password field
             AppTextField(
               label: 'Password',
               controller: _passwordController,
-              obscureText: true,
+              obscureText: _obscurePassword,
               validator: Validators.password,
+              prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[600]),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  color: Colors.grey[600],
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Remember me and Forgot password
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _rememberMe,
+                      onChanged: (value) {
+                        setState(() {
+                          _rememberMe = value ?? false;
+                        });
+                      },
+                    ),
+                    Text(
+                      'Remember me',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                TextButton(
+                  onPressed: () {
+                    // TODO: Implement forgot password
+                  },
+                  child: Text(
+                    'Forgot password?',
+                    style: TextStyle(
+                      color: AppTheme.primaryBlue,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24),
-            AppButton(text: 'Login', onPressed: _handleSubmit),
-            const SizedBox(height: 16),
+            // Login button
+            AppButton(
+              text: 'Login',
+              onPressed: _handleSubmit,
+              icon: Icons.arrow_forward,
+              iconOnRight: true,
+              backgroundColor: AppTheme.primaryBlue,
+              textColor: Colors.white,
+            ),
+            const SizedBox(height: 32),
+            // Sign up link
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text("Don't have an account? "),
+                Text(
+                  "Don't have an account? ",
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
                 TextButton(
                   onPressed: () {
                     context.go(RouteNames.register);
                   },
-                  child: const Text('Register'),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    'Sign up',
+                    style: TextStyle(
+                      color: AppTheme.primaryBlue,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
+            ),
+            const SizedBox(height: 24),
+            // Copyright footer
+            Text(
+              '© 2023 E Market. All rights reserved.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 12,
+              ),
             ),
           ],
         ),

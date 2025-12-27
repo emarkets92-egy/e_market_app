@@ -8,6 +8,7 @@ class AppButton extends StatelessWidget {
   final Color? backgroundColor;
   final Color? textColor;
   final IconData? icon;
+  final bool iconOnRight;
   final double? width;
 
   const AppButton({
@@ -19,6 +20,7 @@ class AppButton extends StatelessWidget {
     this.backgroundColor,
     this.textColor,
     this.icon,
+    this.iconOnRight = false,
     this.width,
   });
 
@@ -63,17 +65,31 @@ class AppButton extends StatelessWidget {
     }
 
     if (icon != null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: textColor),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(color: textColor),
-          ),
-        ],
+      final iconWidget = Icon(icon, color: textColor);
+      final textWidget = Text(
+        text,
+        style: TextStyle(color: textColor),
       );
+      
+      if (iconOnRight) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            textWidget,
+            const SizedBox(width: 8),
+            iconWidget,
+          ],
+        );
+      } else {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            iconWidget,
+            const SizedBox(width: 8),
+            textWidget,
+          ],
+        );
+      }
     }
 
     return Text(

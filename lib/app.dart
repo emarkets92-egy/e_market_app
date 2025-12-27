@@ -33,19 +33,19 @@ class MyApp extends StatelessWidget {
       child: VersionCheckWrapper(
         child: AuthInitWrapper(
           child: MaterialApp.router(
-          title: 'E-Market',
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.system,
-          locale: localeObj,
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          routerConfig: appRouter,
+            title: 'E-Market',
+            theme: AppTheme.lightTheme,
+            debugShowCheckedModeBanner: false,
+            themeMode: ThemeMode.light,
+            locale: localeObj,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            routerConfig: appRouter,
           ),
         ),
       ),
