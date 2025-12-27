@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Required to commit changes
+    outputs:
+      version: ${{ steps.tag_version.outputs.version }}
+      build_number: ${{ steps.build_number.outputs.build_number }}
+      tag_name: ${{ github.ref_name }}
     
     steps:
       - name: Checkout repository
@@ -121,7 +125,8 @@ jobs:
           # Push the changes
           git push origin $BRANCH
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release (Draft)
+        id: create_release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
@@ -136,9 +141,120 @@ jobs:
             
             ### Installation
             Download the latest build from the assets below.
-          draft: false
+          draft: true
           prerelease: false
           generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    needs: update-version
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.5'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify Flutter installation
+        run: flutter doctor -v
+
+      - name: Build Windows app
+        run: flutter build windows --release --obfuscate --split-debug-info=build/debug-info
+
+      - name: Create release archive (without source code)
+        shell: powershell
+        run: |
+          $version = "${{ needs.update-version.outputs.version }}"
+          $buildNumber = "${{ needs.update-version.outputs.build_number }}"
+          $appName = "e_market_app"
+          $archiveName = "$appName-windows-$version+$buildNumber.zip"
+          
+          # Build output path
+          $buildPath = "build\windows\x64\runner\Release"
+          
+          if (-not (Test-Path $buildPath)) {
+            Write-Error "Build path not found: $buildPath"
+            exit 1
+          }
+          
+          # Create a temporary directory for clean archive
+          $tempDir = "temp_release"
+          if (Test-Path $tempDir) {
+            Remove-Item -Recurse -Force $tempDir
+          }
+          New-Item -ItemType Directory -Path $tempDir | Out-Null
+          
+          # Copy only necessary runtime files (exclude source code)
+          # Copy executable and DLLs
+          Copy-Item "$buildPath\*.exe" -Destination $tempDir -Force
+          Copy-Item "$buildPath\*.dll" -Destination $tempDir -Force
+          Copy-Item "$buildPath\*.pdb" -Destination $tempDir -Force -ErrorAction SilentlyContinue
+          
+          # Copy data folder (contains flutter_assets, but no source code)
+          if (Test-Path "$buildPath\data") {
+            Copy-Item "$buildPath\data" -Destination $tempDir -Recurse -Force
+          }
+          
+          # Copy lib folder (contains native libraries, not source code)
+          if (Test-Path "$buildPath\lib") {
+            Copy-Item "$buildPath\lib" -Destination $tempDir -Recurse -Force
+          }
+          
+          # Explicitly exclude any .dart files that might have been included
+          Get-ChildItem -Path $tempDir -Recurse -Filter "*.dart" | Remove-Item -Force -ErrorAction SilentlyContinue
+          
+          # Exclude other source files
+          Get-ChildItem -Path $tempDir -Recurse -Filter "*.yaml" | Where-Object { $_.Name -ne "pubspec.yaml" } | Remove-Item -Force -ErrorAction SilentlyContinue
+          Get-ChildItem -Path $tempDir -Recurse -Filter "*.json" | Where-Object { $_.Name -match "package|analysis" } | Remove-Item -Force -ErrorAction SilentlyContinue
+          
+          # Create the archive
+          Compress-Archive -Path "$tempDir\*" -DestinationPath $archiveName -Force
+          
+          # Clean up temp directory
+          Remove-Item -Recurse -Force $tempDir
+          
+          echo "ARCHIVE_NAME=$archiveName" >> $env:GITHUB_ENV
+          echo "Created archive: $archiveName (source code excluded)"
+          
+          # Verify no source code files are included
+          Write-Host "Verifying no source code files in archive..."
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::OpenRead($archiveName)
+          $sourceFiles = $zip.Entries | Where-Object { 
+            $_.FullName -match '\.(dart|yaml|json)$' -and 
+            $_.FullName -notmatch 'flutter_assets|pubspec\.yaml' 
+          }
+          $zip.Dispose()
+          
+          if ($sourceFiles) {
+            Write-Warning "Warning: Found potential source files in archive:"
+            $sourceFiles | ForEach-Object { Write-Warning $_.FullName }
+          } else {
+            Write-Host "✓ No source code files found in archive"
+          }
+          
+          # Show archive size
+          $archiveSize = (Get-Item $archiveName).Length / 1MB
+          Write-Host "Archive size: $([math]::Round($archiveSize, 2)) MB"
+
+      - name: Upload Windows build to release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.update-version.outputs.tag_name }}
+          files: ${{ env.ARCHIVE_NAME }}
+          draft: false  # Publish the release after build is uploaded
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
