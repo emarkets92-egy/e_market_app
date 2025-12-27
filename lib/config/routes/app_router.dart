@@ -10,6 +10,10 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/complete_profile_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/home/presentation/screens/inbox_screen.dart';
+import '../../features/home/presentation/screens/opportunities_screen.dart';
+import '../../features/home/presentation/screens/notifications_screen.dart';
+import '../../features/home/presentation/screens/profile_screen.dart';
 import '../../features/product/presentation/screens/product_list_screen.dart';
 import '../../features/product/presentation/screens/product_detail_screen.dart';
 import '../../features/product/presentation/screens/market_selection_screen.dart';
@@ -72,6 +76,42 @@ final appRouter = GoRouter(
           BlocProvider.value(value: di.sl<SubscriptionCubit>()),
         ],
         child: const HomeScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteNames.inbox,
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: di.sl<HomeCubit>()),
+        ],
+        child: const InboxScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteNames.opportunities,
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: di.sl<HomeCubit>()),
+        ],
+        child: const OpportunitiesScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteNames.notifications,
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: di.sl<HomeCubit>()),
+        ],
+        child: const NotificationsScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteNames.profile,
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: di.sl<HomeCubit>()),
+        ],
+        child: const ProfileScreen(),
       ),
     ),
     GoRoute(

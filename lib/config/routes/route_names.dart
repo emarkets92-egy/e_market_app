@@ -7,6 +7,10 @@ class RouteNames {
   // Main routes
   static const String home = '/home';
   static const String subscriptionSelection = '/subscription-selection';
+  static const String inbox = '/inbox';
+  static const String opportunities = '/opportunities';
+  static const String notifications = '/notifications';
+  static const String profile = '/profile';
   
   // Product routes
   static const String productList = '/products';
