@@ -112,18 +112,36 @@ jobs:
           BUILD_NUMBER="${{ steps.build_number.outputs.build_number }}"
           BRANCH="${{ steps.default_branch.outputs.branch }}"
           
+          echo "Updating version to $VERSION+$BUILD_NUMBER on branch $BRANCH"
+          
           # Checkout the default branch
           git checkout $BRANCH
           git pull origin $BRANCH || true
           
+          # Verify pubspec.yaml was updated
+          if grep -q "version: $VERSION+$BUILD_NUMBER" pubspec.yaml; then
+            echo "Version in pubspec.yaml is correct: $VERSION+$BUILD_NUMBER"
+          else
+            echo "ERROR: Version in pubspec.yaml doesn't match expected version"
+            cat pubspec.yaml | grep "^version:"
+            exit 1
+          fi
+          
           # Stage the changed file
           git add pubspec.yaml
           
-          # Commit with a descriptive message
-          git commit -m "chore: update version to $VERSION+$BUILD_NUMBER from tag ${{ github.ref_name }}" || exit 0
-          
-          # Push the changes
-          git push origin $BRANCH
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit (version already matches)"
+          else
+            # Commit with a descriptive message
+            git commit -m "chore: update version to $VERSION+$BUILD_NUMBER from tag ${{ github.ref_name }}"
+            echo "Committed version update"
+            
+            # Push the changes
+            git push origin $BRANCH
+            echo "Pushed version update to $BRANCH"
+          fi
 
       - name: Create GitHub Release (Draft)
         id: create_release
@@ -174,6 +192,7 @@ jobs:
         run: flutter build windows --release --obfuscate --split-debug-info=build/debug-info
 
       - name: Create release archive (without source code)
+        id: create_archive
         shell: powershell
         run: |
           $version = "${{ needs.update-version.outputs.version }}"
@@ -225,9 +244,10 @@ jobs:
           # Clean up temp directory
           Remove-Item -Recurse -Force $tempDir
           
-          # Set environment variable for next step
-          Write-Host "ARCHIVE_NAME=$archiveName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          # Set output for next step
+          Write-Host "archive_name=$archiveName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           Write-Host "Created archive: $archiveName (source code excluded)"
+          Write-Host "Archive path: $PWD\$archiveName"
           
           # Verify no source code files are included
           Write-Host "Verifying no source code files in archive..."
@@ -250,12 +270,23 @@ jobs:
           $archiveSize = (Get-Item $archiveName).Length / 1MB
           $roundedSize = [math]::Round($archiveSize, 2)
           Write-Host "Archive size: $roundedSize MB"
+          
+          # Verify file exists
+          if (-not (Test-Path $archiveName)) {
+            Write-Error "Archive file not found: $archiveName"
+            Get-ChildItem -Filter "*.zip" | ForEach-Object { Write-Host "Found: $($_.Name)" }
+            exit 1
+          }
+          
+          # Set output with filename (relative path from workspace root)
+          Write-Host "archive_name=$archiveName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Archive file verified: $archiveName"
 
       - name: Upload Windows build to release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.update-version.outputs.tag_name }}
-          files: ${{ env.ARCHIVE_NAME }}
+          files: ${{ steps.create_archive.outputs.archive_name }}
           draft: false  # Publish the release after build is uploaded
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
