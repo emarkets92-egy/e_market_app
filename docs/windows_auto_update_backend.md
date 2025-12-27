@@ -28,7 +28,20 @@ These make the updater safer and more flexible:
 }
 ```
 
-## Hosting (you selected backend-static)
+## Hosting options
+
+### Option A: GitHub Releases (recommended for now)
+
+If you publish the installer to a dedicated public repo `bishoyabdmariam/release_e_market`,
+your backend should return a direct asset URL like:
+
+- `https://github.com/bishoyabdmariam/release_e_market/releases/download/v1.0.13/EMarket_Setup.exe`
+
+Important:
+- Use the **releases/download** URL to the `.exe` file (direct download), not the release page.
+- If your tag format is not `v1.0.13`, adjust accordingly.
+
+### Option B: Backend-static hosting
 
 Serve the installer publicly from your backend, e.g.:
 

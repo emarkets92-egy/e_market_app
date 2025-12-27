@@ -1,9 +1,10 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Windows Build & Publish Installer
 
 on:
   push:
     tags:
-      - "v*"
+      - "*"
 
 permissions:
   contents: write
@@ -12,6 +13,7 @@ env:
   FLUTTER_CHANNEL: stable
   APP_NAME: e_market_app
   INSTALLER_BASE: EMarket_Setup
+  RELEASE_REPO: bishoyabdmariam/release_e_market
 
 jobs:
   build-windows:
@@ -96,26 +98,28 @@ jobs:
           name: windows-installer
           path: installer/${{ env.INSTALLER_BASE }}.exe
 
-      - name: Create/Update GitHub Release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ github.ref_name }}
-          artifacts: "installer/${{ env.INSTALLER_BASE }}.exe"
-          allowUpdates: true
-          replacesArtifacts: true
-          body: "Automated Windows installer for ${{ github.ref_name }}"
-
-      - name: Upload installer to backend (optional)
-        if: ${{ secrets.UPDATE_UPLOAD_URL != '' && secrets.UPDATE_UPLOAD_TOKEN != '' }}
+      - name: Create/Update GitHub Release (release repo)
         shell: pwsh
         env:
-          UPDATE_UPLOAD_URL: ${{ secrets.UPDATE_UPLOAD_URL }}
-          UPDATE_UPLOAD_TOKEN: ${{ secrets.UPDATE_UPLOAD_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_REPO_TOKEN }}
+          TAG: ${{ github.ref_name }}
         run: |
+          $repo = "${{ env.RELEASE_REPO }}"
+          $tag = "$env:TAG"
           $file = "installer/${{ env.INSTALLER_BASE }}.exe"
-          Write-Host "Uploading $file to backend..."
-          curl.exe -f -X POST "$env:UPDATE_UPLOAD_URL" `
-            -H "Authorization: Bearer $env:UPDATE_UPLOAD_TOKEN" `
-            -F "file=@$file"
 
+          if ([string]::IsNullOrWhiteSpace($env:GH_TOKEN)) {
+            throw "Missing secret RELEASE_REPO_TOKEN in the main repo. Add a PAT with access to $repo."
+          }
 
+          if (!(Test-Path $file)) {
+            throw "Installer not found at $file"
+          }
+
+          # Create release if it doesn't exist; otherwise upload/replace asset.
+          gh release view $tag --repo $repo *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag $file --repo $repo --title $tag --notes "Automated Windows installer for $tag"
+          } else {
+            gh release upload $tag $file --repo $repo --clobber
+          }
