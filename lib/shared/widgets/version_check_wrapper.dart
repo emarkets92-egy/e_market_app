@@ -39,52 +39,58 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
         
         // If checking, show loading
         if (state is VersionChecking) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
+          return Directionality(
+            textDirection: TextDirection.ltr,
+            child: const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
           );
         }
         
         // If error, block the app (mandatory update)
         if (state is VersionCheckError) {
-          return Scaffold(
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Unable to check for updates',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+          return Directionality(
+            textDirection: TextDirection.ltr,
+            child: Scaffold(
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Please check your internet connection and try again.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Unable to check for updates',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () {
-                        di.sl<VersionCubit>().checkVersion();
-                      },
-                      child: const Text('Retry'),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Text(
+                        'Please check your internet connection and try again.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          di.sl<VersionCubit>().checkVersion();
+                        },
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -21,8 +21,10 @@ class UpdateRequiredScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Scaffold(
+        body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -137,6 +139,7 @@ class UpdateRequiredScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }
