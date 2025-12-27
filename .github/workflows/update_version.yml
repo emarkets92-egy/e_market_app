@@ -121,3 +121,24 @@ jobs:
           # Push the changes
           git push origin $BRANCH
 
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ steps.tag_version.outputs.version }}+${{ steps.build_number.outputs.build_number }}
+          body: |
+            ## Version ${{ steps.tag_version.outputs.version }}+${{ steps.build_number.outputs.build_number }}
+            
+            This release was automatically created from tag ${{ github.ref_name }}.
+            
+            ### Changes
+            - Updated app version to ${{ steps.tag_version.outputs.version }}+${{ steps.build_number.outputs.build_number }}
+            
+            ### Installation
+            Download the latest build from the assets below.
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
