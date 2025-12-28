@@ -97,13 +97,19 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> checkAuthStatus() async {
+    emit(state.copyWith(isLoading: true, error: null));
     try {
       final isAuthenticated = await _repository.isAuthenticated();
       if (isAuthenticated) {
         try {
           // Fetch fresh profile from API
           final user = await _repository.getProfile();
-          emit(state.copyWith(isAuthenticated: true, user: user));
+          emit(state.copyWith(
+            isLoading: false,
+            isAuthenticated: true,
+            user: user,
+            error: null,
+          ));
         } catch (e) {
           // If profile fetch fails, clear tokens and reset state
           // This handles both network errors and authentication errors

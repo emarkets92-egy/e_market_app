@@ -32,8 +32,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Load user from storage (important for hot restart)
-    di.sl<AuthCubit>().checkAuthStatus();
+    // Only check auth status if user is not already loaded (avoid redundant calls)
+    final authState = di.sl<AuthCubit>().state;
+    if (authState.user == null && !authState.isLoading) {
+      di.sl<AuthCubit>().checkAuthStatus();
+    }
     // Load subscriptions
     di.sl<SubscriptionCubit>().getSubscriptions(activeOnly: true);
   }
@@ -53,8 +56,17 @@ class _HomeScreenState extends State<HomeScreen> {
             child: BlocBuilder<AuthCubit, AuthState>(
               bloc: di.sl<AuthCubit>(),
               builder: (context, authState) {
-                if (authState.user == null) {
+                // Only show loading if user is null and we're actively loading
+                // This prevents showing loading when user is already loaded from initial check
+                if (authState.user == null && authState.isLoading) {
                   return const Center(child: CircularProgressIndicator());
+                }
+                
+                // If user is null but not loading, something went wrong - show error or redirect
+                if (authState.user == null) {
+                  return const Center(
+                    child: Text('Unable to load user. Please try again.'),
+                  );
                 }
 
                 return Column(

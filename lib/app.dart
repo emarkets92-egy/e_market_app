@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         child: AuthInitWrapper(
           child: MaterialApp.router(
             title: 'E-Market',
-            theme: AppTheme.lightTheme,
+            theme: AppTheme.lightTheme.copyWith(scaffoldBackgroundColor: Colors.white),
             debugShowCheckedModeBanner: false,
             themeMode: ThemeMode.light,
             locale: localeObj,
