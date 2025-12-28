@@ -22,52 +22,83 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final balance = _getCurrentBalance(context);
+    
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: EdgeInsets.zero, // Margin is handled by GridView spacing
       child: InkWell(
         onTap: () {
           context.push(
             '${RouteNames.profileDetail.replaceAll(':id', profile.id)}',
           );
         },
-          child: Padding(
+        child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Profile Title - always visible
               Text(
                 'Profile ${profile.id.substring(0, 8)}...',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 4),
+              // Shipment Records - always visible
               if (profile.shipmentRecords != null)
-                Text('Shipment Records: ${profile.shipmentRecords}'),
+                Text(
+                  'Shipment Records: ${profile.shipmentRecords}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.blue,
+                  ),
+                ),
               const SizedBox(height: 16),
+              // All content wrapped in BlurredContentWidget
+              // For unseen profiles, this will show blurred content
+              // For seen profiles, this will show normal content
               BlurredContentWidget(
                 isUnlocked: profile.isSeen,
                 unlockCost: profile.unlockCost,
-                currentBalance: _getCurrentBalance(context),
+                currentBalance: balance,
                 onUnlock: profile.isSeen ? null : onUnlock,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (profile.email != null) Text('Email: ${profile.email}'),
-                    if (profile.phone != null) Text('Phone: ${profile.phone}'),
+                    if (profile.email != null) 
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text('Email: ${profile.email}'),
+                      ),
+                    if (profile.phone != null) 
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text('Phone: ${profile.phone}'),
+                      ),
                     if (profile.whatsapp != null)
-                      Text('WhatsApp: ${profile.whatsapp}'),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text('WhatsApp: ${profile.whatsapp}'),
+                      ),
                     if (profile.website != null)
-                      Text('Website: ${profile.website}'),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text('Website: ${profile.website}'),
+                      ),
                     if (profile.address != null)
-                      Text('Address: ${profile.address}'),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text('Address: ${profile.address}'),
+                      ),
                   ],
                 ),
               ),
+              // Unlock button - always visible for unseen profiles (outside blurred widget)
               if (!profile.isSeen)
                 Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
+                  padding: const EdgeInsets.only(top: 16.0),
                   child: UnlockButton(
                     cost: profile.unlockCost,
-                    currentBalance: _getCurrentBalance(context),
+                    currentBalance: balance,
                     onUnlock: onUnlock,
                     isLoading: isUnlocking,
                   ),

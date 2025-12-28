@@ -4,9 +4,12 @@ import '../../../../core/di/injection_container.dart' as di;
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 import '../widgets/profile_card.dart';
+import '../widgets/profile_table_row.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
+import '../../../../shared/widgets/premium_header_bar.dart';
 import '../../data/models/unlock_item_model.dart';
+import '../../data/models/profile_model.dart';
 
 class ProfileListScreen extends StatefulWidget {
   final String productId;
@@ -28,6 +31,7 @@ class _ProfileListScreenState extends State<ProfileListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String? _lastShownSuccessMessage;
+  bool _isTableView = true; // false = card view, true = table view (default: table)
 
   @override
   void initState() {
@@ -76,33 +80,93 @@ class _ProfileListScreenState extends State<ProfileListScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profiles'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: BlocBuilder<SubscriptionCubit, SubscriptionState>(
+      body: Column(
+        children: [
+          // Premium Header Bar
+          const PremiumHeaderBar(
+            showBackButton: true,
+          ),
+          // Tab Bar
+          BlocBuilder<SubscriptionCubit, SubscriptionState>(
             bloc: di.sl<SubscriptionCubit>(),
             builder: (context, state) {
-              return TabBar(
-                controller: _tabController,
-                tabs: [
-                  Tab(
-                    text:
-                        'New Profiles${state.unseenProfilesTotal > 0 ? ' (${state.unseenProfilesTotal})' : ''}',
-                  ),
-                  Tab(
-                    text:
-                        'Unlocked${state.seenProfilesTotal > 0 ? ' (${state.seenProfilesTotal})' : ''}',
-                  ),
-                ],
+              return Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    TabBar(
+                      controller: _tabController,
+                      tabs: [
+                        Tab(
+                          text:
+                              'New Profiles${state.unseenProfilesTotal > 0 ? ' (${state.unseenProfilesTotal})' : ''}',
+                        ),
+                        Tab(
+                          text:
+                              'Unlocked${state.seenProfilesTotal > 0 ? ' (${state.seenProfilesTotal})' : ''}',
+                        ),
+                      ],
+                    ),
+                    // View Toggle
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Importers Directory',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                '${state.unseenProfilesTotal + state.seenProfilesTotal} Results',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              // View Toggle Icons
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _buildViewToggleButton(
+                                      icon: Icons.view_list,
+                                      isSelected: _isTableView,
+                                      onTap: () => setState(() => _isTableView = true),
+                                    ),
+                                    _buildViewToggleButton(
+                                      icon: Icons.grid_view,
+                                      isSelected: !_isTableView,
+                                      onTap: () => setState(() => _isTableView = false),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
-        ),
-      ),
-      body: BlocConsumer<SubscriptionCubit, SubscriptionState>(
-        bloc: di.sl<SubscriptionCubit>(),
-        listener: (context, state) {
+          // Main Content
+          Expanded(
+            child: BlocConsumer<SubscriptionCubit, SubscriptionState>(
+              bloc: di.sl<SubscriptionCubit>(),
+              listener: (context, state) {
           // Only show snackbar if this is a new success message we haven't shown yet
           if (state.successMessage != null &&
               state.successMessage != _lastShownSuccessMessage) {
@@ -122,19 +186,19 @@ class _ProfileListScreenState extends State<ProfileListScreen>
               } catch (e) {
                 // Ignore errors if cubit is disposed
               }
-            });
-          }
-          if (state.error != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.error!),
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 3),
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
+              });
+            }
+            if (state.error != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.error!),
+                  backgroundColor: Colors.red,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+              },
+              builder: (context, state) {
           if (state.isLoading &&
               state.unseenProfiles.isEmpty &&
               state.seenProfiles.isEmpty) {
@@ -156,40 +220,65 @@ class _ProfileListScreenState extends State<ProfileListScreen>
             );
           }
 
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              // Tab 1: New Profiles (Unseen)
-              _buildProfileList(
-                context: context,
-                profiles: state.unseenProfiles,
-                isLoading: state.isLoading,
-                currentPage: state.unseenProfilesPage,
-                totalPages: state.unseenProfilesTotalPages,
-                onPageChanged: _loadUnseenProfiles,
-                isUnlocking: state.isUnlocking,
-              ),
-              // Tab 2: Unlocked Profiles (Seen)
-              _buildProfileList(
-                context: context,
-                profiles: state.seenProfiles,
-                isLoading: state.isLoading,
-                currentPage: state.seenProfilesPage,
-                totalPages: state.seenProfilesTotalPages,
-                onPageChanged: _loadSeenProfiles,
-                isUnlocking: state.isUnlocking,
-                isSeen: true,
-              ),
-            ],
-          );
-        },
+                return TabBarView(
+                  controller: _tabController,
+                  children: [
+                    // Tab 1: New Profiles (Unseen)
+                    _buildProfileList(
+                      context: context,
+                      profiles: state.unseenProfiles,
+                      isLoading: state.isLoading,
+                      currentPage: state.unseenProfilesPage,
+                      totalPages: state.unseenProfilesTotalPages,
+                      onPageChanged: _loadUnseenProfiles,
+                      isUnlocking: state.isUnlocking,
+                    ),
+                    // Tab 2: Unlocked Profiles (Seen)
+                    _buildProfileList(
+                      context: context,
+                      profiles: state.seenProfiles,
+                      isLoading: state.isLoading,
+                      currentPage: state.seenProfilesPage,
+                      totalPages: state.seenProfilesTotalPages,
+                      onPageChanged: _loadSeenProfiles,
+                      isUnlocking: state.isUnlocking,
+                      isSeen: true,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildViewToggleButton({
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          icon,
+          color: isSelected ? Colors.white : Colors.grey[600],
+          size: 20,
+        ),
       ),
     );
   }
 
   Widget _buildProfileList({
     required BuildContext context,
-    required List profiles,
+    required List<ProfileModel> profiles,
     required bool isLoading,
     required int currentPage,
     required int totalPages,
@@ -217,24 +306,18 @@ class _ProfileListScreenState extends State<ProfileListScreen>
     return Column(
       children: [
         Expanded(
-          child: ListView.builder(
-            itemCount: profiles.length,
-            itemBuilder: (context, index) {
-              final profile = profiles[index];
-              return ProfileCard(
-                profile: profile,
-                isUnlocking: isUnlocking,
-                onUnlock: isSeen
-                    ? () {} // Dummy callback for seen profiles
-                    : () {
-                        di.sl<SubscriptionCubit>().unlock(
-                          contentType: ContentType.profileContact,
-                          targetId: profile.id,
-                        );
-                      },
-              );
-            },
-          ),
+          child: _isTableView
+              ? _buildTableView(
+                  profiles: profiles,
+                  isUnlocking: isUnlocking,
+                  isSeen: isSeen,
+                )
+              : _buildGridView(
+                  context: context,
+                  profiles: profiles,
+                  isUnlocking: isUnlocking,
+                  isSeen: isSeen,
+                ),
         ),
         if (totalPages > 1)
           _buildPaginationControls(
@@ -243,6 +326,96 @@ class _ProfileListScreenState extends State<ProfileListScreen>
             onPageChanged: onPageChanged,
           ),
       ],
+    );
+  }
+
+  Widget _buildGridView({
+    required BuildContext context,
+    required List<ProfileModel> profiles,
+    required bool isUnlocking,
+    required bool isSeen,
+  }) {
+    // Calculate number of columns based on screen width
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth > 800 ? 3 : 2;
+    
+    // Use a larger aspect ratio to make cards wider and take less vertical space
+    // Higher aspect ratio = wider cards relative to height = less vertical space
+    final childAspectRatio = screenWidth > 800 ? 1.5 : 1.3;
+
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: childAspectRatio,
+      ),
+      itemCount: profiles.length,
+      itemBuilder: (context, index) {
+        final profile = profiles[index];
+        return ProfileCard(
+          profile: profile,
+          isUnlocking: isUnlocking,
+          onUnlock: isSeen
+              ? () {} // Dummy callback for seen profiles
+              : () {
+                  di.sl<SubscriptionCubit>().unlock(
+                    contentType: ContentType.profileContact,
+                    targetId: profile.id,
+                  );
+                },
+        );
+      },
+    );
+  }
+
+  Widget _buildTableView({
+    required List<ProfileModel> profiles,
+    required bool isUnlocking,
+    required bool isSeen,
+  }) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // Table Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              border: Border(
+                bottom: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+            child: const Row(
+              children: [
+                SizedBox(width: 80, child: Text('PROFILE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+                SizedBox(width: 16),
+                Expanded(flex: 2, child: Text('IMPORTER NAME', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+                SizedBox(width: 16),
+                Expanded(flex: 2, child: Text('EMAIL', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+                SizedBox(width: 16),
+                Expanded(flex: 1, child: Text('WHATSAPP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+              ],
+            ),
+          ),
+          // Table Rows
+          ...profiles.map((profile) {
+            return ProfileTableRow(
+              profile: profile,
+              isUnlocking: isUnlocking,
+              onUnlock: isSeen
+                  ? () {}
+                  : () {
+                      di.sl<SubscriptionCubit>().unlock(
+                        contentType: ContentType.profileContact,
+                        targetId: profile.id,
+                      );
+                    },
+            );
+          }),
+        ],
+      ),
     );
   }
 
