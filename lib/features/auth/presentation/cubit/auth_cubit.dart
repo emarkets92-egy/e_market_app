@@ -224,4 +224,10 @@ class AuthCubit extends Cubit<AuthState> {
       emit(state.copyWith(user: updatedUser));
     }
   }
+
+  /// Force logout when authentication fails (e.g., 401 errors)
+  /// This clears the state without making an API call
+  void forceLogout() {
+    emit(const AuthState.initial());
+  }
 }

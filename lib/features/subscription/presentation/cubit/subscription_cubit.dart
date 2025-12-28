@@ -10,6 +10,11 @@ import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class SubscriptionCubit extends Cubit<SubscriptionState> {
   final SubscriptionRepository _repository;
+  
+  // Store last exploreMarket parameters to refresh after unlock
+  String? _lastProductId;
+  String? _lastMarketType;
+  int? _lastCountryId;
 
   SubscriptionCubit(this._repository)
     : super(const SubscriptionState.initial());
@@ -42,6 +47,11 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     int? seenPage,
     int? seenLimit,
   }) async {
+    // Store parameters for later use (e.g., refreshing after unlock)
+    _lastProductId = productId;
+    _lastMarketType = marketType;
+    _lastCountryId = countryId;
+    
     emit(state.copyWith(isLoading: true, error: null));
 
     try {
@@ -123,53 +133,60 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
         // Update the state based on content type with actual unlocked data
         if (contentType == ContentType.profileContact &&
             result.data!.contentData is ProfileModel) {
-          final unlockedProfile = result.data!.contentData as ProfileModel;
-
           // Check if profile is in unseen list
           final isInUnseen = state.unseenProfiles.any(
             (profile) => profile.id == targetId,
           );
 
           if (isInUnseen) {
-            // Remove from unseen and add to seen with unlocked data
+            // Remove from unseen
             final updatedUnseenProfiles = state.unseenProfiles
                 .where((profile) => profile.id != targetId)
                 .toList();
-
-            final updatedSeenProfiles = [
-              ...state.seenProfiles,
-              unlockedProfile,
-            ];
 
             emit(
               state.copyWith(
                 isUnlocking: false,
                 unseenProfiles: updatedUnseenProfiles,
-                seenProfiles: updatedSeenProfiles,
                 unseenProfilesTotal: (state.unseenProfilesTotal - 1)
                     .clamp(0, double.infinity)
                     .toInt(),
-                seenProfilesTotal: state.seenProfilesTotal + 1,
                 successMessage: 'Profile unlocked successfully!',
                 error: null,
               ),
             );
-          } else {
-            // Profile is already in seen list, update it with unlocked data
-            final updatedSeenProfiles = state.seenProfiles.map((profile) {
-              if (profile.id == targetId) {
-                return unlockedProfile;
-              }
-              return profile;
-            }).toList();
 
-            emit(
-              state.copyWith(
-                isUnlocking: false,
-                seenProfiles: updatedSeenProfiles,
-                error: null,
-              ),
-            );
+            // Refresh seen profiles from page 1 to show newly unlocked item at the top
+            // (backend sorts by unlockedAt DESC, so new items appear first)
+            if (_lastProductId != null && _lastMarketType != null && _lastCountryId != null) {
+              await exploreMarket(
+                productId: _lastProductId!,
+                marketType: _lastMarketType!,
+                countryId: _lastCountryId!,
+                seenPage: 1, // Reset to page 1 to see newly unlocked item
+                // Keep current unseen page to maintain position
+                unseenPage: state.unseenProfilesPage,
+              );
+            }
+          } else {
+            // Profile is already in seen list, refresh from page 1 to update order
+            if (_lastProductId != null && _lastMarketType != null && _lastCountryId != null) {
+              await exploreMarket(
+                productId: _lastProductId!,
+                marketType: _lastMarketType!,
+                countryId: _lastCountryId!,
+                seenPage: 1, // Reset to page 1 to see updated order
+                // Keep current unseen page to maintain position
+                unseenPage: state.unseenProfilesPage,
+              );
+            } else {
+              emit(
+                state.copyWith(
+                  isUnlocking: false,
+                  error: null,
+                ),
+              );
+            }
           }
         } else if (contentType == ContentType.competitiveAnalysis &&
             result.data!.contentData is CompetitiveAnalysisModel) {
@@ -245,55 +262,47 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
           );
 
           if (isInUnseen) {
-            // Remove from unseen and add to seen
+            // Remove from unseen
             final updatedUnseenRecords = state.unseenShipmentRecords
                 .where((record) => record.id != targetId)
                 .toList();
-
-            final unlockedRecord = state.unseenShipmentRecords
-                .firstWhere((record) => record.id == targetId)
-                .copyWith(isSeen: true);
-
-            final updatedSeenRecords = [
-              ...state.seenShipmentRecords,
-              unlockedRecord,
-            ];
 
             emit(
               state.copyWith(
                 isUnlocking: false,
                 unseenShipmentRecords: updatedUnseenRecords,
-                seenShipmentRecords: updatedSeenRecords,
                 unseenShipmentRecordsTotal:
                     (state.unseenShipmentRecordsTotal - 1)
                         .clamp(0, double.infinity)
                         .toInt(),
-                seenShipmentRecordsTotal: state.seenShipmentRecordsTotal + 1,
                 successMessage: 'Shipment record unlocked successfully!',
                 error: null,
               ),
             );
 
-            // Refresh shipment records to get updated data
+            // Refresh shipment records from page 1 to show newly unlocked item at the top
+            // (backend sorts by unlockedAt DESC, so new items appear first)
             if (state.currentProfileId != null) {
-              await getShipmentRecords(profileId: state.currentProfileId!);
+              await getShipmentRecords(
+                profileId: state.currentProfileId!,
+                seenPage: 1, // Reset to page 1 to see newly unlocked item
+              );
             }
           } else {
-            // Record is already in seen list, update it
-            final updatedSeenRecords = state.seenShipmentRecords.map((record) {
-              if (record.id == targetId) {
-                return record.copyWith(isSeen: true);
-              }
-              return record;
-            }).toList();
-
-            emit(
-              state.copyWith(
-                isUnlocking: false,
-                seenShipmentRecords: updatedSeenRecords,
-                error: null,
-              ),
-            );
+            // Record is already in seen list, refresh from page 1 to update order
+            if (state.currentProfileId != null) {
+              await getShipmentRecords(
+                profileId: state.currentProfileId!,
+                seenPage: 1, // Reset to page 1 to see updated order
+              );
+            } else {
+              emit(
+                state.copyWith(
+                  isUnlocking: false,
+                  error: null,
+                ),
+              );
+            }
           }
         } else {
           // Fallback: if no data returned, just update isSeen flag (backward compatibility)

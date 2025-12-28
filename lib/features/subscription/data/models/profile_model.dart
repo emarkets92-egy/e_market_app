@@ -8,6 +8,7 @@ class ProfileModel {
   final int? shipmentRecords;
   final bool isSeen;
   final int unlockCost;
+  final DateTime? unlockedAt;
 
   ProfileModel({
     required this.id,
@@ -19,6 +20,7 @@ class ProfileModel {
     this.shipmentRecords,
     required this.isSeen,
     required this.unlockCost,
+    this.unlockedAt,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -36,6 +38,9 @@ class ProfileModel {
       unlockCost: json['unlockCost'] != null
           ? (json['unlockCost'] as num).toInt()
           : 0, // Default to 0 if not provided (e.g., in unlock response)
+      unlockedAt: json['unlockedAt'] != null
+          ? DateTime.parse(json['unlockedAt'] as String)
+          : null,
     );
   }
 
@@ -50,6 +55,7 @@ class ProfileModel {
       if (shipmentRecords != null) 'shipmentRecords': shipmentRecords,
       'isSeen': isSeen,
       'unlockCost': unlockCost,
+      if (unlockedAt != null) 'unlockedAt': unlockedAt!.toIso8601String(),
     };
   }
 
@@ -63,6 +69,7 @@ class ProfileModel {
     int? shipmentRecords,
     bool? isSeen,
     int? unlockCost,
+    DateTime? unlockedAt,
   }) {
     return ProfileModel(
       id: id ?? this.id,
@@ -74,6 +81,7 @@ class ProfileModel {
       shipmentRecords: shipmentRecords ?? this.shipmentRecords,
       isSeen: isSeen ?? this.isSeen,
       unlockCost: unlockCost ?? this.unlockCost,
+      unlockedAt: unlockedAt ?? this.unlockedAt,
     );
   }
 }

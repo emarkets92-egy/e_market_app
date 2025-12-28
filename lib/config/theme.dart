@@ -25,7 +25,8 @@ class AppTheme {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Colors.black),
+        actionsIconTheme: IconThemeData(color: Colors.black),
       ),
       cardTheme: CardThemeData(
         elevation: 0,

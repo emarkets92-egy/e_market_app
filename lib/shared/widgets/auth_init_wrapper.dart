@@ -41,12 +41,30 @@ class _AuthInitWrapperState extends State<AuthInitWrapper> {
             if (context.mounted) {
               try {
                 // Check if GoRouter is available in context
-                GoRouter.of(context);
-                context.go(RouteNames.login);
+                final router = GoRouter.of(context);
+                // Get current location from the router state
+                final currentLocation = router.routerDelegate.currentConfiguration.uri.path;
+                // Only navigate if we're not already on login or register page
+                if (currentLocation != RouteNames.login && 
+                    currentLocation != RouteNames.register &&
+                    currentLocation != RouteNames.completeProfile) {
+                  router.go(RouteNames.login);
+                }
               } catch (e) {
-                // If router is not available yet, the redirect in app_router.dart
-                // will handle navigation when the router is ready
-                print('GoRouter not available yet, redirect will handle navigation');
+                // If router is not available yet, try to navigate after a short delay
+                // This handles the case where router is not initialized yet
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  if (context.mounted) {
+                    try {
+                      final router = GoRouter.of(context);
+                      router.go(RouteNames.login);
+                    } catch (e2) {
+                      // If still not available, the redirect in app_router.dart
+                      // will handle navigation when the router is ready
+                      print('GoRouter not available yet, redirect will handle navigation');
+                    }
+                  }
+                });
               }
             }
           });

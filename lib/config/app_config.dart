@@ -1,7 +1,10 @@
 class AppConfig {
   // API Configuration
-  static const String apiBaseUrl =
-      'http://192.168.1.6:3000'; // Placeholder - configure later
+  // local
+  static const String apiBaseUrl = 'http://192.168.1.6:3000';
+
+  // production
+  // static const String apiBaseUrl = 'https://e-market-backend-vaph.onrender.com';
 
   // Timeouts
   static const Duration connectTimeout = Duration(seconds: 30);

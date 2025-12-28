@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import '../storage/secure_storage.dart';
 import 'api_error_mapper.dart';
 import '../../config/app_config.dart';
+import '../di/injection_container.dart' as di;
+import '../../features/auth/presentation/cubit/auth_cubit.dart';
 
 class AuthInterceptor extends Interceptor {
   bool _isRefreshing = false;
@@ -46,6 +48,8 @@ class AuthInterceptor extends Interceptor {
         final refreshToken = await SecureStorage.getRefreshToken();
         if (refreshToken == null) {
           await SecureStorage.clearAll();
+          // Notify AuthCubit to update state and trigger navigation
+          _notifyAuthFailure();
           handler.next(err);
           _isRefreshing = false;
           _processPendingRequests(err, null);
@@ -101,6 +105,8 @@ class AuthInterceptor extends Interceptor {
       } catch (e) {
         // Refresh failed, clear tokens and fail the request
         await SecureStorage.clearAll();
+        // Notify AuthCubit to update state and trigger navigation
+        _notifyAuthFailure();
         handler.next(err);
         _processPendingRequests(err, null);
       } finally {
@@ -145,6 +151,21 @@ class AuthInterceptor extends Interceptor {
       }
     }
     _pendingRequests.clear();
+  }
+
+  /// Notify AuthCubit when authentication fails
+  /// This ensures the app state is updated and navigation to login happens
+  void _notifyAuthFailure() {
+    try {
+      // Check if AuthCubit is registered in the dependency injection container
+      if (di.sl.isRegistered<AuthCubit>()) {
+        final authCubit = di.sl<AuthCubit>();
+        authCubit.forceLogout();
+      }
+    } catch (e) {
+      // If AuthCubit is not available yet, the router redirect will handle navigation
+      print('AuthCubit not available yet: $e');
+    }
   }
 }
 

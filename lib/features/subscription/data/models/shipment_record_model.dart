@@ -19,6 +19,7 @@ class ShipmentRecordModel {
   final double? value;
   final bool isSeen;
   final int unlockCost;
+  final DateTime? unlockedAt;
 
   ShipmentRecordModel({
     required this.id,
@@ -39,6 +40,7 @@ class ShipmentRecordModel {
     this.value,
     required this.isSeen,
     required this.unlockCost,
+    this.unlockedAt,
   });
 
   factory ShipmentRecordModel.fromJson(
@@ -68,6 +70,9 @@ class ShipmentRecordModel {
       unlockCost: json['unlockCost'] != null
           ? (json['unlockCost'] as num).toInt()
           : 0,
+      unlockedAt: json['unlockedAt'] != null
+          ? DateTime.parse(json['unlockedAt'] as String)
+          : null,
     );
   }
 
@@ -91,6 +96,7 @@ class ShipmentRecordModel {
       if (value != null) 'value': value,
       'isSeen': isSeen,
       'unlockCost': unlockCost,
+      if (unlockedAt != null) 'unlockedAt': unlockedAt!.toIso8601String(),
     };
   }
 
@@ -113,6 +119,7 @@ class ShipmentRecordModel {
     double? value,
     bool? isSeen,
     int? unlockCost,
+    DateTime? unlockedAt,
   }) {
     return ShipmentRecordModel(
       id: id ?? this.id,
@@ -133,6 +140,7 @@ class ShipmentRecordModel {
       value: value ?? this.value,
       isSeen: isSeen ?? this.isSeen,
       unlockCost: unlockCost ?? this.unlockCost,
+      unlockedAt: unlockedAt ?? this.unlockedAt,
     );
   }
 }

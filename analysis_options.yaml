@@ -1,3 +1,5 @@
 include: package:flutter_lints/flutter.yaml
 linter:
   rules:
+formatter:
+  page_width: 160 # Or any other desired value
