@@ -9,18 +9,6 @@ import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../subscription/presentation/cubit/subscription_cubit.dart';
 import '../widgets/sidebar_navigation.dart';
 
-String _formatNumber(int number) {
-  final String numberStr = number.toString();
-  final StringBuffer buffer = StringBuffer();
-  for (int i = 0; i < numberStr.length; i++) {
-    if (i > 0 && (numberStr.length - i) % 3 == 0) {
-      buffer.write(',');
-    }
-    buffer.write(numberStr[i]);
-  }
-  return buffer.toString();
-}
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -47,10 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Row(
         children: [
           // Sidebar Navigation
-          const SidebarNavigation(
-            hasUnreadNotifications: false,
-          ),
-          
+          const SidebarNavigation(hasUnreadNotifications: false),
+
           // Main Content Area
           Expanded(
             child: BlocBuilder<AuthCubit, AuthState>(
@@ -61,19 +47,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (authState.user == null && authState.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                
+
                 // If user is null but not loading, something went wrong - show error or redirect
                 if (authState.user == null) {
-                  return const Center(
-                    child: Text('Unable to load user. Please try again.'),
-                  );
+                  return const Center(child: Text('Unable to load user. Please try again.'));
                 }
 
                 return Column(
                   children: [
                     // Top Header
                     _TopHeader(),
-                    
+
                     // Main Content
                     Expanded(
                       child: SingleChildScrollView(
@@ -83,20 +67,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             // Welcome Section
                             _WelcomeSection(userName: authState.user?.name ?? 'Exporter'),
-                            
+
                             const SizedBox(height: 32),
-                            
+
                             // Export Products Card
                             _ExportProductsCard(
                               onTap: () {
                                 context.push(RouteNames.subscriptionSelection);
                               },
                             ),
-                            
+
                             const SizedBox(height: 32),
-                            
-                            // Recent Market Activity
-                            _RecentMarketActivity(),
+
+                            // Service Cards
+                            const _ServiceCards(),
                           ],
                         ),
                       ),
@@ -117,51 +101,10 @@ class _TopHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[200]!),
-        ),
-      ),
+      decoration: BoxDecoration(color: Colors.white),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          BlocBuilder<AuthCubit, AuthState>(
-            bloc: di.sl<AuthCubit>(),
-            builder: (context, state) {
-              final points = state.user?.points ?? 0;
-              return Row(
-                children: [
-                  const Icon(Icons.stars, color: Colors.amber, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Points: ${_formatNumber(points)}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryBlue,
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(width: 24),
-          Row(
-            children: [
-              Icon(Icons.workspace_premium, color: Colors.amber[700], size: 20),
-              const SizedBox(width: 8),
-              const Text(
-                'Gold Member',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryBlue,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 16),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
@@ -185,35 +128,33 @@ class _WelcomeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+    return Center(
+      child: Column(
+        children: [
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+              children: [
+                const TextSpan(
+                  text: 'Welcome back, ',
+                  style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+                TextSpan(
+                  text: '$userName.',
+                  style: const TextStyle(color: AppTheme.primaryBlue),
+                ),
+              ],
             ),
-            children: [
-              const TextSpan(text: 'Welcome back, '),
-              TextSpan(
-                text: userName,
-                style: const TextStyle(color: AppTheme.primaryBlue),
-              ),
-              const TextSpan(text: '.'),
-            ],
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Your gateway to global trade. Manage your products and discover new opportunities seamlessly.',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
+          const SizedBox(height: 16),
+          Text(
+            'Your gateway to global trade. Manage your products and discover new\nopportunities seamlessly.',
+            style: TextStyle(fontSize: 18, color: Colors.grey[600], height: 1.5),
+            textAlign: TextAlign.center,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -225,259 +166,117 @@ class _ExportProductsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue,
-                borderRadius: BorderRadius.circular(12),
+    return Center(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.5,
+          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE0E7FF), // Light indigo/blue
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(color: AppTheme.primaryBlue, shape: BoxShape.circle),
+                child: const Icon(Icons.inventory_2_outlined, color: Colors.white, size: 48),
               ),
-              child: const Icon(
-                Icons.inventory_2_outlined,
-                color: Colors.white,
-                size: 40,
+              const SizedBox(height: 10),
+              const Text(
+                'Export Products',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
               ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Export Products',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryBlue,
+              const SizedBox(height: 16),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Text(
+                  'Manage your inventory, update listings, and prepare shipments for global delivery with our comprehensive tools.',
+                  style: TextStyle(fontSize: 16, color: Colors.grey[700], height: 1.5),
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Manage your inventory, update listings, and prepare shipments for global delivery with our comprehensive tools.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Container(
-              width: double.infinity,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppTheme.lightBlue.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _RecentMarketActivity extends StatelessWidget {
+class _ServiceCards extends StatelessWidget {
+  const _ServiceCards();
+
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Row(
-              children: [
-                Text(
-                  'Recent Market Activity',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryBlue,
-                  ),
-                ),
-                SizedBox(width: 8),
-                Icon(
-                  Icons.trending_up,
-                  color: AppTheme.primaryBlue,
-                  size: 20,
-                ),
-              ],
-            ),
-            TextButton(
-              onPressed: () {},
-              child: const Text(
-                'View Report',
-                style: TextStyle(color: AppTheme.lightBlue),
-              ),
-            ),
-          ],
+        Expanded(
+          child: _ServiceCardItem(
+            title: 'Marketing Plan',
+            description: 'We help you build a sales and marketing plan tailored to your product and target markets.',
+            icon: Icons.verified_user_outlined,
+          ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _StatCard(
-                label: 'TOTAL REVENUE',
-                value: '\$124,500',
-                trend: '+12%',
-                trendColor: Colors.green,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _StatCard(
-                label: 'ACTIVE SHIPMENTS',
-                value: '42',
-                subtitle: 'Processing',
-                trend: null,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _LiveTrackerCard(),
-            ),
-          ],
+        const SizedBox(width: 24),
+        Expanded(
+          child: _ServiceCardItem(
+            title: 'Market Analysis',
+            description: 'SWOT and PESTEL analysis plus competitive insights to enter markets confidently.',
+            icon: Icons.analytics_outlined,
+          ),
+        ),
+        const SizedBox(width: 24),
+        Expanded(
+          child: _ServiceCardItem(
+            title: 'Target Market',
+            description: 'Identify the countries with the highest demand for your product using HS Codes and data analysis',
+            icon: Icons.public,
+          ),
         ),
       ],
     );
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final String? subtitle;
-  final String? trend;
-  final Color? trendColor;
+class _ServiceCardItem extends StatelessWidget {
+  final String title;
+  final String description;
+  final IconData icon;
 
-  const _StatCard({
-    required this.label,
-    required this.value,
-    this.subtitle,
-    this.trend,
-    this.trendColor,
-  });
+  const _ServiceCardItem({required this.title, required this.description, required this.icon});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(32),
+      height: 250,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+        color: const Color(0xFFEFF6FF), // Very light blue
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFDBEAFE)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryBlue,
-                ),
-              ),
-              if (trend != null) ...[
-                const SizedBox(width: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.arrow_upward,
-                      size: 16,
-                      color: trendColor ?? Colors.green,
-                    ),
-                    Text(
-                      trend!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: trendColor ?? Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-          if (subtitle != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              subtitle!,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _LiveTrackerCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Stack(
-        children: [
-          // Placeholder for map
           Container(
-            width: double.infinity,
-            height: 120,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              Icons.public,
-              size: 48,
-              color: Colors.grey[400],
-            ),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: AppTheme.lightBlue.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            child: Icon(icon, color: AppTheme.primaryBlue, size: 32),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[800],
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Live Tracker'),
-            ),
+          const SizedBox(height: 24),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            description,
+            style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.5),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
