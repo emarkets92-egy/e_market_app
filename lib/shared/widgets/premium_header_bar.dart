@@ -72,8 +72,8 @@ class PremiumHeaderBar extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
-                          Icons.stars,
-                          color: Colors.amber,
+                          Icons.account_balance_wallet,
+                          color: AppTheme.primaryBlue,
                           size: 24,
                         ),
                         const SizedBox(width: 12),

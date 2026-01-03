@@ -2,63 +2,61 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection_container.dart' as di;
-import '../../../../config/routes/route_names.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/premium_header_bar.dart';
-import '../../../../shared/widgets/app_button.dart';
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 import '../../data/models/subscription_model.dart';
 import '../../../../features/localization/data/models/country_model.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../data/models/unlock_item_model.dart';
+import '../widgets/subscription_profile_table_row.dart';
+import '../widgets/subscription_profile_card.dart';
 
 class SubscriptionSelectionScreen extends StatefulWidget {
   const SubscriptionSelectionScreen({super.key});
 
   @override
-  State<SubscriptionSelectionScreen> createState() =>
-      _SubscriptionSelectionScreenState();
+  State<SubscriptionSelectionScreen> createState() => _SubscriptionSelectionScreenState();
 }
 
-class _SubscriptionSelectionScreenState
-    extends State<SubscriptionSelectionScreen> {
+class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScreen> {
   SubscriptionModel? _selectedProduct;
-  String? _selectedMarketType; // 'targetMarkets', 'otherMarkets', 'both', or 'importerMarkets'
-  CountryModel? _selectedCountry;
+  String? _selectedMarketType;
+  CountryModel? _selectedCountry; // This maps to "Import Country"
+  String _selectedViewType = 'new'; // 'new' or 'unlocked'
+  bool _isTableView = true; // Toggle between Table and Card view
 
   @override
   void initState() {
     super.initState();
-    // Fetch active subscriptions
     di.sl<SubscriptionCubit>().getSubscriptions(activeOnly: true);
   }
 
   void _onSelectionChanged() {
     if (_selectedProduct != null && _selectedMarketType != null && _selectedCountry != null) {
-      // Determine the actual market type to use
       String marketTypeToUse = _selectedMarketType!;
       if (_selectedMarketType == 'both') {
-        // For "both", we need to check which market type the country belongs to
         final targetMarkets = _selectedProduct!.targetMarkets ?? [];
         final otherMarkets = _selectedProduct!.otherMarkets ?? [];
-        
+
         if (targetMarkets.any((c) => c.id == _selectedCountry!.id)) {
           marketTypeToUse = AppConstants.marketTypeTarget;
         } else if (otherMarkets.any((c) => c.id == _selectedCountry!.id)) {
           marketTypeToUse = AppConstants.marketTypeOther;
         } else {
-          // Country not found in either, use target as default
           marketTypeToUse = AppConstants.marketTypeTarget;
         }
       }
-      
-      // Trigger exploreMarket API call when all selections are made
+
       di.sl<SubscriptionCubit>().exploreMarket(
         productId: _selectedProduct!.productId,
         marketType: marketTypeToUse,
         countryId: _selectedCountry!.id,
+        unseenPage: 1, // Reset to page 1 on new filter
+        seenPage: 1,
       );
     }
   }
@@ -69,11 +67,9 @@ class _SubscriptionSelectionScreenState
     }
 
     if (_selectedMarketType == 'both') {
-      // Combine target and other markets
       final target = _selectedProduct!.targetMarkets ?? [];
       final other = _selectedProduct!.otherMarkets ?? [];
       final combined = [...target, ...other];
-      // Remove duplicates
       final uniqueCountries = <int, CountryModel>{};
       for (var country in combined) {
         uniqueCountries[country.id] = country;
@@ -95,7 +91,7 @@ class _SubscriptionSelectionScreenState
       final userTypeId = context.read<AuthCubit>().state.user?.userTypeId;
       return userTypeId == AppConstants.userTypeExporter;
     } catch (e) {
-      return true; // Default to exporter
+      return true;
     }
   }
 
@@ -110,23 +106,13 @@ class _SubscriptionSelectionScreenState
 
     final types = <String>[];
     final isExporter = _isExporter(context);
-    
+
     if (isExporter) {
-      // For exporters: show target, other, and both if both exist
-      if (hasTarget) {
-        types.add(AppConstants.marketTypeTarget);
-      }
-      if (hasOther) {
-        types.add(AppConstants.marketTypeOther);
-      }
-      if (hasTarget && hasOther) {
-        types.add('both');
-      }
+      if (hasTarget) types.add(AppConstants.marketTypeTarget);
+      if (hasOther) types.add(AppConstants.marketTypeOther);
+      if (hasTarget && hasOther) types.add('both');
     } else {
-      // Importer - only show importer markets
-      if (hasImporter) {
-        types.add(AppConstants.marketTypeImporter);
-      }
+      if (hasImporter) types.add(AppConstants.marketTypeImporter);
     }
 
     return types;
@@ -150,16 +136,24 @@ class _SubscriptionSelectionScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA), // Light background like in design
       body: Column(
         children: [
-          // Premium Header Bar
-          const PremiumHeaderBar(
-            showBackButton: true,
-          ),
-          // Main Content
+          const PremiumHeaderBar(showBackButton: true),
           Expanded(
-            child: BlocBuilder<SubscriptionCubit, SubscriptionState>(
+            child: BlocConsumer<SubscriptionCubit, SubscriptionState>(
               bloc: di.sl<SubscriptionCubit>(),
+              listener: (context, state) {
+                if (state.successMessage != null) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.successMessage!), backgroundColor: Colors.green, duration: const Duration(seconds: 2)));
+                  di.sl<SubscriptionCubit>().clearSuccessMessage();
+                }
+                if (state.error != null && state.marketExploration != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.error!), backgroundColor: Colors.red));
+                }
+              },
               builder: (context, state) {
                 if (state.isLoading && state.subscriptions.isEmpty) {
                   return const LoadingIndicator();
@@ -174,65 +168,98 @@ class _SubscriptionSelectionScreenState
                   );
                 }
 
-                if (state.subscriptions.isEmpty) {
-                  return Center(
+                // Main Content
+                return SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.inbox_outlined,
-                          size: 64,
-                          color: Colors.grey,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No active subscriptions found',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Please subscribe to products to browse markets',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Colors.grey,
+                        // Filter Bar
+                        _buildFilterBar(context, state.subscriptions),
+
+                        const SizedBox(height: 32),
+
+                        // Results Section
+                        if (_selectedProduct != null && _selectedCountry != null) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Importers Directory',
+                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    '${_selectedViewType == 'new' ? state.unseenProfilesTotal : state.seenProfilesTotal} Results',
+                                    style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w500),
+                                  ),
+                                ],
                               ),
-                          textAlign: TextAlign.center,
-                        ),
+                              // View Toggle Buttons
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.grey[300]!),
+                                ),
+                                child: Row(
+                                  children: [
+                                    _buildViewToggleButton(
+                                      icon: Icons.table_rows_outlined,
+                                      isSelected: _isTableView,
+                                      onTap: () => setState(() => _isTableView = true),
+                                    ),
+                                    Container(width: 1, height: 24, color: Colors.grey[300]),
+                                    _buildViewToggleButton(
+                                      icon: Icons.grid_view_outlined,
+                                      isSelected: !_isTableView,
+                                      onTap: () => setState(() => _isTableView = false),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Table Header (Only for Table View)
+                          if (_isTableView)
+                            _buildTableHeader(),
+
+                          // Content
+                          if (state.isLoading && state.marketExploration == null)
+                            const Center(
+                              child: Padding(padding: EdgeInsets.all(32.0), child: CircularProgressIndicator()),
+                            )
+                          else if ((_selectedViewType == 'new' && state.unseenProfiles.isEmpty) ||
+                              (_selectedViewType == 'unlocked' && state.seenProfiles.isEmpty))
+                            _buildEmptyState()
+                          else
+                            _isTableView ? _buildTableContent(state) : _buildGridContent(state),
+
+                          // Pagination
+                          _buildPagination(state),
+                        ] else ...[
+                          // Prompt to select
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 64.0),
+                              child: Column(
+                                children: [
+                                  Icon(Icons.filter_list, size: 48, color: Colors.grey),
+                                  SizedBox(height: 16),
+                                  Text('Please select filters to view importers', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
-                  );
-                }
-
-                return Column(
-                  children: [
-                    // Dropdown Filters
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          // Product Dropdown
-                          _buildProductDropdown(state.subscriptions),
-                          const SizedBox(height: 16),
-                          // Market Type Dropdown
-                          if (_selectedProduct != null)
-                            _buildMarketTypeDropdown(context),
-                          const SizedBox(height: 16),
-                          // Country Dropdown
-                          if (_selectedProduct != null && _selectedMarketType != null)
-                            _buildCountryDropdown(),
-                        ],
-                      ),
-                    ),
-                    // Action Buttons at the bottom when all selections are made
-                    if (_selectedProduct != null &&
-                        _selectedCountry != null &&
-                        _selectedMarketType != null)
-                      _buildActionButtons(
-                        productId: _selectedProduct!.productId,
-                        countryId: _selectedCountry!.id,
-                        marketType: _selectedMarketType!,
-                        state: state,
-                      ),
-                  ],
+                  ),
                 );
               },
             ),
@@ -242,9 +269,89 @@ class _SubscriptionSelectionScreenState
     );
   }
 
+  Widget _buildViewToggleButton({required IconData icon, required bool isSelected, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.transparent,
+        child: Icon(
+          icon,
+          size: 20,
+          color: isSelected ? Colors.blue : Colors.grey,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterBar(BuildContext context, List<SubscriptionModel> subscriptions) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Responsive layout: stack if width is small
+          if (constraints.maxWidth < 800) {
+            return Column(
+              children: [
+                _buildDropdownItem(label: 'PRODUCT', child: _buildProductDropdown(subscriptions)),
+                const SizedBox(height: 16),
+                _buildDropdownItem(label: 'MARKET TYPE', child: _buildMarketTypeDropdown(context)),
+                const SizedBox(height: 16),
+                _buildDropdownItem(label: 'IMPORT COUNTRY', child: _buildCountryDropdown()),
+                const SizedBox(height: 16),
+                _buildDropdownItem(label: 'STATUS', child: _buildViewTypeDropdown()),
+              ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _buildDropdownItem(label: 'PRODUCT', child: _buildProductDropdown(subscriptions)),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildDropdownItem(label: 'MARKET TYPE', child: _buildMarketTypeDropdown(context)),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildDropdownItem(label: 'IMPORT COUNTRY', child: _buildCountryDropdown()),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildDropdownItem(label: 'STATUS', child: _buildViewTypeDropdown()),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDropdownItem({required String label, required Widget child}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey[600], letterSpacing: 0.5),
+        ),
+        const SizedBox(height: 8),
+        child,
+      ],
+    );
+  }
+
   Widget _buildProductDropdown(List<SubscriptionModel> subscriptions) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -254,41 +361,23 @@ class _SubscriptionSelectionScreenState
         child: DropdownButton<SubscriptionModel>(
           isExpanded: true,
           value: _selectedProduct,
-          hint: const Text('Select Product'),
+          hint: const Text('Select the product', style: TextStyle(fontSize: 14)),
+          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.blue),
           items: subscriptions.map((subscription) {
-            // Build display text with target market info
-            final targetMarkets = subscription.targetMarkets ?? [];
-            final targetMarketsText = targetMarkets.isNotEmpty
-                ? ' (${targetMarkets.length} Target Markets)'
-                : '';
-            
             return DropdownMenuItem<SubscriptionModel>(
               value: subscription,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    subscription.productName,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  if (targetMarketsText.isNotEmpty)
-                    Text(
-                      targetMarketsText,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                ],
+              child: Text(
+                subscription.productName,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                overflow: TextOverflow.ellipsis,
               ),
             );
           }).toList(),
           onChanged: (SubscriptionModel? value) {
             setState(() {
               _selectedProduct = value;
-              _selectedMarketType = null; // Reset market type
-              _selectedCountry = null; // Reset country
+              _selectedMarketType = null;
+              _selectedCountry = null;
             });
             _onSelectionChanged();
           },
@@ -299,19 +388,89 @@ class _SubscriptionSelectionScreenState
 
   Widget _buildMarketTypeDropdown(BuildContext context) {
     final availableTypes = _getAvailableMarketTypes(context);
-    
-    if (availableTypes.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        child: const Text(
-          'No market types available for this product',
-          style: TextStyle(color: Colors.grey),
-        ),
-      );
-    }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: _selectedProduct == null ? Colors.grey[50] : const Color(0xFFF0F7FF), // Blue tint when active
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: _selectedProduct == null ? Colors.grey[300]! : Colors.blue.withOpacity(0.3)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          isExpanded: true,
+          value: _selectedMarketType,
+          hint: Text('Select the market', style: TextStyle(fontSize: 14, color: _selectedProduct == null ? Colors.grey : Colors.blue[700])), // Default hint
+          icon: Icon(
+            _selectedMarketType == null ? Icons.lock_outline : Icons.keyboard_arrow_down,
+            color: _selectedProduct == null ? Colors.grey : Colors.blue,
+            size: 20,
+          ),
+          items: availableTypes.map((type) {
+            return DropdownMenuItem<String>(
+              value: type,
+              child: Text(_getMarketTypeLabel(type), style: const TextStyle(fontSize: 14)),
+            );
+          }).toList(),
+          onChanged: _selectedProduct == null
+              ? null
+              : (String? value) {
+                  setState(() {
+                    _selectedMarketType = value;
+                    _selectedCountry = null;
+                  });
+                  _onSelectionChanged();
+                },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCountryDropdown() {
+    final availableCountries = _getAvailableCountries();
+    final isEnabled = _selectedProduct != null && _selectedMarketType != null;
+
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: isEnabled ? Colors.white : Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<CountryModel>(
+          isExpanded: true,
+          value: _selectedCountry,
+          hint: Text(
+            availableCountries.isEmpty && isEnabled ? 'No countries' : 'Select the country', // Match design default if needed
+            style: const TextStyle(fontSize: 14),
+          ),
+          icon: Icon(Icons.flag_outlined, color: isEnabled ? Colors.blue : Colors.grey, size: 20),
+          items: availableCountries.map((country) {
+            return DropdownMenuItem<CountryModel>(
+              value: country,
+              child: Text(country.name, style: const TextStyle(fontSize: 14), overflow: TextOverflow.ellipsis),
+            );
+          }).toList(),
+          onChanged: isEnabled
+              ? (CountryModel? value) {
+                  setState(() {
+                    _selectedCountry = value;
+                  });
+                  _onSelectionChanged();
+                }
+              : null,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildViewTypeDropdown() {
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -320,196 +479,198 @@ class _SubscriptionSelectionScreenState
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           isExpanded: true,
-          value: _selectedMarketType,
-          hint: const Text('Select Market Type'),
-          items: availableTypes.map((type) {
-            return DropdownMenuItem<String>(
-              value: type,
-              child: Text(_getMarketTypeLabel(type)),
-            );
-          }).toList(),
-          onChanged: (String? value) {
-            setState(() {
-              _selectedMarketType = value;
-              _selectedCountry = null; // Reset country when market type changes
-            });
-            _onSelectionChanged();
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCountryDropdown() {
-    final availableCountries = _getAvailableCountries();
-    
-    if (availableCountries.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        child: const Text(
-          'No countries available for this selection',
-          style: TextStyle(color: Colors.grey),
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<CountryModel>(
-          isExpanded: true,
-          value: _selectedCountry,
-          hint: const Text('Select Country'),
-          items: availableCountries.map((country) {
-            return DropdownMenuItem<CountryModel>(
-              value: country,
-              child: Row(
-                children: [
-                  if (country.flagEmoji != null)
-                    Text(
-                      country.flagEmoji!,
-                      style: const TextStyle(fontSize: 20),
-                    )
-                  else
-                    const Icon(Icons.flag, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(country.name),
-                        Text(
-                          'Code: ${country.code}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-          onChanged: (CountryModel? value) {
-            setState(() {
-              _selectedCountry = value;
-            });
-            _onSelectionChanged();
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButtons({
-    required String productId,
-    required int countryId,
-    required String marketType,
-    required SubscriptionState state,
-  }) {
-    // Show loading while fetching market data
-    if (state.isLoading && state.marketExploration == null) {
-      return const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: LoadingIndicator(message: 'Loading market data...'),
-      );
-    }
-
-    // Show error if there's an error and no data
-    if (state.error != null && state.marketExploration == null) {
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              'Error loading market data',
-              style: Theme.of(context).textTheme.titleMedium,
+          value: _selectedViewType,
+          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.blue),
+          items: const [
+            DropdownMenuItem(
+              value: 'new',
+              child: Text('New Profiles', style: TextStyle(fontSize: 14)),
             ),
-            const SizedBox(height: 8),
-            Text(
-              state.error!,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                di.sl<SubscriptionCubit>().exploreMarket(
-                  productId: productId,
-                  marketType: marketType,
-                  countryId: countryId,
-                );
-              },
-              child: const Text('Retry'),
+            DropdownMenuItem(
+              value: 'unlocked',
+              child: Text('Unlocked Profiles', style: TextStyle(fontSize: 14)),
             ),
           ],
+          onChanged: (String? value) {
+            if (value != null) {
+              setState(() {
+                _selectedViewType = value;
+              });
+            }
+          },
         ),
-      );
-    }
+      ),
+    );
+  }
 
-    // Get user type from auth
-    final isExporter = _isExporter(context);
+  Widget _buildTableHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: const BoxDecoration(color: Colors.transparent),
+      child: const Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(
+              'IMPORTER NAME',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'EMAIL',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'PHONE',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'WEBSITE',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          SizedBox(width: 16),
+          SizedBox(
+            width: 160,
+            child: Text(
+              'ACTIONS',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTableContent(SubscriptionState state) {
+    // Show profiles based on selection
+    final profiles = _selectedViewType == 'new' ? state.unseenProfiles : state.seenProfiles;
+
+    if (profiles.isEmpty) return _buildEmptyState();
 
     return Container(
-      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Colors.grey[200]!),
-        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        children: profiles.map((profile) {
+          return InkWell(
+            onTap: () {
+              context.push('/profiles/${profile.id}');
+            },
+            child: SubscriptionProfileTableRow(
+              profile: profile,
+              isUnlocking: state.isUnlocking,
+              onUnlock: () {
+                di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
+              },
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildGridContent(SubscriptionState state) {
+    final profiles = _selectedViewType == 'new' ? state.unseenProfiles : state.seenProfiles;
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 400,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+        childAspectRatio: 1.5,
+      ),
+      itemCount: profiles.length,
+      itemBuilder: (context, index) {
+        final profile = profiles[index];
+        return SubscriptionProfileCard(
+          profile: profile,
+          isUnlocking: state.isUnlocking,
+          onUnlock: () {
+            di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(48),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      child: const Column(
         children: [
-          if (isExporter && marketType == AppConstants.marketTypeTarget) ...[
-            AppButton(
-              text: 'Importer List',
-              onPressed: () {
-                context.push(
-                  '${RouteNames.profileList}?productId=$productId&countryId=$countryId&marketType=$marketType',
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            AppButton(
-              text: 'Analysis',
-              onPressed: () {
-                context.push(
-                  '${RouteNames.analysis}?productId=$productId&countryId=$countryId',
-                );
-              },
-            ),
-          ] else if (isExporter && marketType == AppConstants.marketTypeOther) ...[
-            AppButton(
-              text: 'Importer List',
-              onPressed: () {
-                context.push(
-                  '${RouteNames.profileList}?productId=$productId&countryId=$countryId&marketType=$marketType',
-                );
-              },
-            ),
-          ] else ...[
-            // Importer
-            AppButton(
-              text: 'Exporter List',
-              onPressed: () {
-                context.push(
-                  '${RouteNames.profileList}?productId=$productId&countryId=$countryId&marketType=$marketType',
-                );
-              },
-            ),
-          ],
+          Icon(Icons.search_off, size: 48, color: Colors.grey),
+          SizedBox(height: 16),
+          Text('No importers found matching your criteria', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPagination(SubscriptionState state) {
+    final currentPage = _selectedViewType == 'new' ? state.unseenProfilesPage : state.seenProfilesPage;
+    final totalPages = _selectedViewType == 'new' ? state.unseenProfilesTotalPages : state.seenProfilesTotalPages;
+
+    if (totalPages <= 1) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          OutlinedButton(
+            onPressed: currentPage > 1
+                ? () {
+                    di.sl<SubscriptionCubit>().exploreMarket(
+                      productId: _selectedProduct!.productId,
+                      marketType: _selectedMarketType!,
+                      countryId: _selectedCountry!.id,
+                      unseenPage: _selectedViewType == 'new' ? currentPage - 1 : null,
+                      seenPage: _selectedViewType == 'unlocked' ? currentPage - 1 : null,
+                    );
+                  }
+                : null,
+            style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+            child: const Text('Previous'),
+          ),
+          const SizedBox(width: 16),
+          Text('Page $currentPage of $totalPages'),
+          const SizedBox(width: 16),
+          OutlinedButton(
+            onPressed: currentPage < totalPages
+                ? () {
+                    di.sl<SubscriptionCubit>().exploreMarket(
+                      productId: _selectedProduct!.productId,
+                      marketType: _selectedMarketType!,
+                      countryId: _selectedCountry!.id,
+                      unseenPage: _selectedViewType == 'new' ? currentPage + 1 : null,
+                      seenPage: _selectedViewType == 'unlocked' ? currentPage + 1 : null,
+                    );
+                  }
+                : null,
+            style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+            child: const Text('Next'),
+          ),
         ],
       ),
     );
   }
 }
-

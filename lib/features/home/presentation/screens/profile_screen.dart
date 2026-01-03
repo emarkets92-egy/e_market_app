@@ -12,15 +12,10 @@ class ProfileScreen extends StatelessWidget {
         children: [
           const SidebarNavigation(),
           const Expanded(
-            child: ComingSoonScreen(
-              title: 'Profile',
-              icon: Icons.person_outline,
-              description: 'Manage your account settings and preferences coming soon.',
-            ),
+            child: ComingSoonScreen(title: 'Profile', icon: Icons.person_outline, description: 'Manage your account settings and preferences coming soon.'),
           ),
         ],
       ),
     );
   }
 }
-
