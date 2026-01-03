@@ -11,20 +11,9 @@ import '../models/shipment_record_model.dart';
 abstract class SubscriptionRemoteDataSource {
   Future<List<SubscriptionModel>> getSubscriptions({bool activeOnly = true});
   Future<void> subscribe(String productId);
-  Future<MarketExplorationResponseModel> exploreMarket(
-    ExploreMarketRequestModel request,
-  );
-  Future<UnlockResponseModel> unlock({
-    required ContentType contentType,
-    required String targetId,
-  });
-  Future<ShipmentRecordsResponseModel> getShipmentRecords({
-    required String profileId,
-    int? seenPage,
-    int? seenLimit,
-    int? unseenPage,
-    int? unseenLimit,
-  });
+  Future<MarketExplorationResponseModel> exploreMarket(ExploreMarketRequestModel request);
+  Future<UnlockResponseModel> unlock({required ContentType contentType, required String targetId});
+  Future<ShipmentRecordsResponseModel> getShipmentRecords({required String profileId, int? seenPage, int? seenLimit, int? unseenPage, int? unseenLimit});
 }
 
 class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
@@ -33,18 +22,11 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
   SubscriptionRemoteDataSourceImpl(this.apiClient);
 
   @override
-  Future<List<SubscriptionModel>> getSubscriptions({
-    bool activeOnly = true,
-  }) async {
+  Future<List<SubscriptionModel>> getSubscriptions({bool activeOnly = true}) async {
     try {
-      final response = await apiClient.get(
-        Endpoints.subscriptions,
-        queryParameters: {'activeOnly': activeOnly},
-      );
+      final response = await apiClient.get(Endpoints.subscriptions, queryParameters: {'activeOnly': activeOnly});
       if (response.data is List) {
-        return (response.data as List)
-            .map((json) => SubscriptionModel.fromJson(json))
-            .toList();
+        return (response.data as List).map((json) => SubscriptionModel.fromJson(json)).toList();
       }
       return [];
     } on DioException {
@@ -55,63 +37,42 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
   @override
   Future<void> subscribe(String productId) async {
     try {
-      await apiClient.post(
-        Endpoints.subscriptions,
-        data: {'productId': productId},
-      );
+      await apiClient.post(Endpoints.subscriptions, data: {'productId': productId});
     } on DioException {
       rethrow;
     }
   }
 
   @override
-  Future<MarketExplorationResponseModel> exploreMarket(
-    ExploreMarketRequestModel request,
-  ) async {
+  Future<MarketExplorationResponseModel> exploreMarket(ExploreMarketRequestModel request) async {
     try {
       // Use extended timeout for exploreMarket API as it can be slow
       final response = await apiClient.post(
         Endpoints.exploreMarket,
         data: request.toJson(),
         options: Options(
-          receiveTimeout: const Duration(
-            seconds: 60,
-          ), // Extended timeout for slow API
+          receiveTimeout: const Duration(seconds: 60), // Extended timeout for slow API
         ),
       );
 
       // Log the response to debug incomplete data issues
       print('🔍 exploreMarket API Response received');
-      print(
-        'Response keys: ${(response.data as Map<String, dynamic>).keys.toList()}',
-      );
-      print(
-        'Has competitiveAnalysis: ${(response.data as Map<String, dynamic>).containsKey('competitiveAnalysis')}',
-      );
-      print(
-        'Has pestleAnalysis: ${(response.data as Map<String, dynamic>).containsKey('pestleAnalysis')}',
-      );
-      print(
-        'Has swotAnalysis: ${(response.data as Map<String, dynamic>).containsKey('swotAnalysis')}',
-      );
-      print(
-        'Has marketPlan: ${(response.data as Map<String, dynamic>).containsKey('marketPlan')}',
-      );
+      print('Response keys: ${(response.data as Map<String, dynamic>).keys.toList()}');
+      print('Has competitiveAnalysis: ${(response.data as Map<String, dynamic>).containsKey('competitiveAnalysis')}');
+      print('Has pestleAnalysis: ${(response.data as Map<String, dynamic>).containsKey('pestleAnalysis')}');
+      print('Has swotAnalysis: ${(response.data as Map<String, dynamic>).containsKey('swotAnalysis')}');
+      print('Has marketPlan: ${(response.data as Map<String, dynamic>).containsKey('marketPlan')}');
 
       // Validate response structure
       if (response.data is! Map<String, dynamic>) {
-        throw Exception(
-          'Invalid response format: expected Map but got ${response.data.runtimeType}',
-        );
+        throw Exception('Invalid response format: expected Map but got ${response.data.runtimeType}');
       }
 
       final responseData = response.data as Map<String, dynamic>;
 
       // Check if response has at least the required fields
       if (!responseData.containsKey('selectedMarket')) {
-        throw Exception(
-          'Invalid response: missing required field "selectedMarket"',
-        );
+        throw Exception('Invalid response: missing required field "selectedMarket"');
       }
 
       return MarketExplorationResponseModel.fromJson(responseData);
@@ -131,15 +92,9 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
   }
 
   @override
-  Future<UnlockResponseModel> unlock({
-    required ContentType contentType,
-    required String targetId,
-  }) async {
+  Future<UnlockResponseModel> unlock({required ContentType contentType, required String targetId}) async {
     try {
-      final response = await apiClient.post(
-        Endpoints.unlock,
-        data: {'contentType': contentType.toApiString(), 'targetId': targetId},
-      );
+      final response = await apiClient.post(Endpoints.unlock, data: {'contentType': contentType.toApiString(), 'targetId': targetId});
       return UnlockResponseModel.fromJson(response.data);
     } on DioException {
       rethrow;
@@ -147,13 +102,7 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
   }
 
   @override
-  Future<ShipmentRecordsResponseModel> getShipmentRecords({
-    required String profileId,
-    int? seenPage,
-    int? seenLimit,
-    int? unseenPage,
-    int? unseenLimit,
-  }) async {
+  Future<ShipmentRecordsResponseModel> getShipmentRecords({required String profileId, int? seenPage, int? seenLimit, int? unseenPage, int? unseenLimit}) async {
     try {
       final queryParams = <String, dynamic>{};
       if (seenPage != null) queryParams['seenPage'] = seenPage;
@@ -161,10 +110,7 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
       if (unseenPage != null) queryParams['unseenPage'] = unseenPage;
       if (unseenLimit != null) queryParams['unseenLimit'] = unseenLimit;
 
-      final response = await apiClient.get(
-        Endpoints.shipmentRecords(profileId),
-        queryParameters: queryParams.isNotEmpty ? queryParams : null,
-      );
+      final response = await apiClient.get(Endpoints.shipmentRecords(profileId), queryParameters: queryParams.isNotEmpty ? queryParams : null);
       return ShipmentRecordsResponseModel.fromJson(response.data);
     } on DioException {
       rethrow;

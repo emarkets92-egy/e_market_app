@@ -41,19 +41,13 @@ class SubscriptionModel {
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
       targetMarkets: json['targetMarkets'] != null
-          ? (json['targetMarkets'] as List<dynamic>)
-                .map((e) => CountryModel.fromJson(e as Map<String, dynamic>))
-                .toList()
+          ? (json['targetMarkets'] as List<dynamic>).map((e) => CountryModel.fromJson(e as Map<String, dynamic>)).toList()
           : null,
       otherMarkets: json['otherMarkets'] != null
-          ? (json['otherMarkets'] as List<dynamic>)
-                .map((e) => CountryModel.fromJson(e as Map<String, dynamic>))
-                .toList()
+          ? (json['otherMarkets'] as List<dynamic>).map((e) => CountryModel.fromJson(e as Map<String, dynamic>)).toList()
           : null,
       importerMarkets: json['importerMarkets'] != null
-          ? (json['importerMarkets'] as List<dynamic>)
-                .map((e) => CountryModel.fromJson(e as Map<String, dynamic>))
-                .toList()
+          ? (json['importerMarkets'] as List<dynamic>).map((e) => CountryModel.fromJson(e as Map<String, dynamic>)).toList()
           : null,
     );
   }
@@ -69,12 +63,9 @@ class SubscriptionModel {
       'active': active,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
-      if (targetMarkets != null)
-        'targetMarkets': targetMarkets!.map((e) => e.toJson()).toList(),
-      if (otherMarkets != null)
-        'otherMarkets': otherMarkets!.map((e) => e.toJson()).toList(),
-      if (importerMarkets != null)
-        'importerMarkets': importerMarkets!.map((e) => e.toJson()).toList(),
+      if (targetMarkets != null) 'targetMarkets': targetMarkets!.map((e) => e.toJson()).toList(),
+      if (otherMarkets != null) 'otherMarkets': otherMarkets!.map((e) => e.toJson()).toList(),
+      if (importerMarkets != null) 'importerMarkets': importerMarkets!.map((e) => e.toJson()).toList(),
     };
   }
 }

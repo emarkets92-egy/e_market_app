@@ -13,24 +13,17 @@ class ProfileCard extends StatelessWidget {
   final VoidCallback onUnlock;
   final bool isUnlocking;
 
-  const ProfileCard({
-    super.key,
-    required this.profile,
-    required this.onUnlock,
-    this.isUnlocking = false,
-  });
+  const ProfileCard({super.key, required this.profile, required this.onUnlock, this.isUnlocking = false});
 
   @override
   Widget build(BuildContext context) {
     final balance = _getCurrentBalance(context);
-    
+
     return Card(
       margin: EdgeInsets.zero, // Margin is handled by GridView spacing
       child: InkWell(
         onTap: () {
-          context.push(
-            '${RouteNames.profileDetail.replaceAll(':id', profile.id)}',
-          );
+          context.push('${RouteNames.profileDetail.replaceAll(':id', profile.id)}');
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -38,19 +31,13 @@ class ProfileCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Profile Title - always visible
-              Text(
-                'Profile ${profile.id.substring(0, 8)}...',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text('Profile ${profile.id.substring(0, 8)}...', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 4),
               // Shipment Records - always visible
               if (profile.shipmentRecords != null)
                 Text(
                   'Shipment Records: ${profile.shipmentRecords}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.blue,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.blue),
                 ),
               const SizedBox(height: 16),
               // All content wrapped in BlurredContentWidget
@@ -64,31 +51,11 @@ class ProfileCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (profile.email != null) 
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text('Email: ${profile.email}'),
-                      ),
-                    if (profile.phone != null) 
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text('Phone: ${profile.phone}'),
-                      ),
-                    if (profile.whatsapp != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text('WhatsApp: ${profile.whatsapp}'),
-                      ),
-                    if (profile.website != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text('Website: ${profile.website}'),
-                      ),
-                    if (profile.address != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text('Address: ${profile.address}'),
-                      ),
+                    if (profile.email != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Email: ${profile.email}')),
+                    if (profile.phone != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Phone: ${profile.phone}')),
+                    if (profile.whatsapp != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('WhatsApp: ${profile.whatsapp}')),
+                    if (profile.website != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Website: ${profile.website}')),
+                    if (profile.address != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Address: ${profile.address}')),
                   ],
                 ),
               ),
@@ -96,12 +63,7 @@ class ProfileCard extends StatelessWidget {
               if (!profile.isSeen)
                 Padding(
                   padding: const EdgeInsets.only(top: 16.0),
-                  child: UnlockButton(
-                    cost: profile.unlockCost,
-                    currentBalance: balance,
-                    onUnlock: onUnlock,
-                    isLoading: isUnlocking,
-                  ),
+                  child: UnlockButton(cost: profile.unlockCost, currentBalance: balance, onUnlock: onUnlock, isLoading: isUnlocking),
                 ),
             ],
           ),

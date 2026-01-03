@@ -43,10 +43,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               message: state.error!,
               onRetry: () {
                 final locale = LocalStorage.getLocale();
-                di.sl<ProductCubit>().getProductDetails(
-                  widget.productId,
-                  locale: locale,
-                );
+                di.sl<ProductCubit>().getProductDetails(widget.productId, locale: locale);
               },
             );
           }
@@ -61,19 +58,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  product.name,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                if (product.hscode != null) ...[
-                  const SizedBox(height: 8),
-                  Text('HS Code: ${product.hscode}'),
-                ],
+                Text(product.name, style: Theme.of(context).textTheme.headlineMedium),
+                if (product.hscode != null) ...[const SizedBox(height: 8), Text('HS Code: ${product.hscode}')],
                 const SizedBox(height: 24),
-                const Text(
-                  'Available Markets',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                const Text('Available Markets', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 _buildMarketsList(context, product),
               ],
@@ -90,39 +78,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final markets = <Map<String, dynamic>>[];
 
     if (product.targetMarkets.isNotEmpty) {
-      markets.addAll(
-        product.targetMarkets.map(
-          (id) => {
-            'id': id,
-            'type': AppConstants.marketTypeTarget,
-            'label': 'Target Market',
-          },
-        ),
-      );
+      markets.addAll(product.targetMarkets.map((id) => {'id': id, 'type': AppConstants.marketTypeTarget, 'label': 'Target Market'}));
     }
 
     if (product.otherMarkets.isNotEmpty) {
-      markets.addAll(
-        product.otherMarkets.map(
-          (id) => {
-            'id': id,
-            'type': AppConstants.marketTypeOther,
-            'label': 'Other Market',
-          },
-        ),
-      );
+      markets.addAll(product.otherMarkets.map((id) => {'id': id, 'type': AppConstants.marketTypeOther, 'label': 'Other Market'}));
     }
 
     if (product.importerMarkets.isNotEmpty) {
-      markets.addAll(
-        product.importerMarkets.map(
-          (id) => {
-            'id': id,
-            'type': AppConstants.marketTypeImporter,
-            'label': 'Importer Market',
-          },
-        ),
-      );
+      markets.addAll(product.importerMarkets.map((id) => {'id': id, 'type': AppConstants.marketTypeImporter, 'label': 'Importer Market'}));
     }
 
     if (markets.isEmpty) {
@@ -141,9 +105,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             title: Text('${market['label']} - Country ID: ${market['id']}'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
-              context.push(
-                '${RouteNames.marketSelection}?productId=${product.id}&countryId=${market['id']}&marketType=${market['type']}',
-              );
+              context.push('${RouteNames.marketSelection}?productId=${product.id}&countryId=${market['id']}&marketType=${market['type']}');
             },
           ),
         );

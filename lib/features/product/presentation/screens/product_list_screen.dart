@@ -43,12 +43,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
     }
     final locale = LocalStorage.getLocale();
     di.sl<ProductCubit>().searchProducts(
-      hscode: _hscodeController.text.trim().isEmpty
-          ? null
-          : _hscodeController.text.trim(),
-      name: _nameController.text.trim().isEmpty
-          ? null
-          : _nameController.text.trim(),
+      hscode: _hscodeController.text.trim().isEmpty ? null : _hscodeController.text.trim(),
+      name: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
       page: _currentPage,
       locale: locale,
     );
@@ -65,11 +61,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       appBar: AppBar(title: const Text('Products')),
       body: Column(
         children: [
-          ProductSearchBar(
-            hscodeController: _hscodeController,
-            nameController: _nameController,
-            onSearch: () => _loadProducts(refresh: true),
-          ),
+          ProductSearchBar(hscodeController: _hscodeController, nameController: _nameController, onSearch: () => _loadProducts(refresh: true)),
           Expanded(
             child: BlocBuilder<ProductCubit, ProductState>(
               bloc: di.sl<ProductCubit>(),
@@ -79,10 +71,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 }
 
                 if (state.error != null && state.products.isEmpty) {
-                  return AppErrorWidget(
-                    message: state.error!,
-                    onRetry: () => _loadProducts(refresh: true),
-                  );
+                  return AppErrorWidget(message: state.error!, onRetry: () => _loadProducts(refresh: true));
                 }
 
                 if (state.products.isEmpty) {

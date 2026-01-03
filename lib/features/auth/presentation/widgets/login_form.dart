@@ -51,13 +51,7 @@ class _LoginFormState extends State<LoginForm> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 4))],
       ),
       child: Form(
         key: _formKey,
@@ -68,20 +62,10 @@ class _LoginFormState extends State<LoginForm> {
             // Welcome heading
             const Text(
               'Welcome back',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Please enter your details to sign in.',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
-            ),
+            Text('Please enter your details to sign in.', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
             const SizedBox(height: 32),
             // Email field
             AppTextField(
@@ -101,10 +85,7 @@ class _LoginFormState extends State<LoginForm> {
               validator: Validators.password,
               prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[600]),
               suffixIcon: IconButton(
-                icon: Icon(
-                  _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  color: Colors.grey[600],
-                ),
+                icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: Colors.grey[600]),
                 onPressed: () {
                   setState(() {
                     _obscurePassword = !_obscurePassword;
@@ -127,26 +108,14 @@ class _LoginFormState extends State<LoginForm> {
                         });
                       },
                     ),
-                    Text(
-                      'Remember me',
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 14,
-                      ),
-                    ),
+                    Text('Remember me', style: TextStyle(color: Colors.grey[700], fontSize: 14)),
                   ],
                 ),
                 TextButton(
                   onPressed: () {
                     // TODO: Implement forgot password
                   },
-                  child: Text(
-                    'Forgot password?',
-                    style: TextStyle(
-                      color: AppTheme.primaryBlue,
-                      fontSize: 14,
-                    ),
-                  ),
+                  child: Text('Forgot password?', style: TextStyle(color: AppTheme.primaryBlue, fontSize: 14)),
                 ),
               ],
             ),
@@ -165,29 +134,15 @@ class _LoginFormState extends State<LoginForm> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  "Don't have an account? ",
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
+                Text("Don't have an account? ", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
                 TextButton(
                   onPressed: () {
                     context.go(RouteNames.register);
                   },
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   child: Text(
                     'Sign up',
-                    style: TextStyle(
-                      color: AppTheme.primaryBlue,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(color: AppTheme.primaryBlue, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -197,10 +152,7 @@ class _LoginFormState extends State<LoginForm> {
             Text(
               '© 2023 E Market. All rights reserved.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.grey[500], fontSize: 12),
             ),
           ],
         ),

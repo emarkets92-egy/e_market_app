@@ -5,11 +5,7 @@ class AuthResponseModel {
   final String refreshToken;
   final UserModel user;
 
-  AuthResponseModel({
-    required this.accessToken,
-    required this.refreshToken,
-    required this.user,
-  });
+  AuthResponseModel({required this.accessToken, required this.refreshToken, required this.user});
 
   factory AuthResponseModel.fromJson(Map<String, dynamic> json) {
     return AuthResponseModel(
@@ -20,10 +16,6 @@ class AuthResponseModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'accessToken': accessToken,
-      'refreshToken': refreshToken,
-      'user': user.toJson(),
-    };
+    return {'accessToken': accessToken, 'refreshToken': refreshToken, 'user': user.toJson()};
   }
 }

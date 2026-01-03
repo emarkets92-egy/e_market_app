@@ -12,11 +12,7 @@ class PESTLEAnalysisScreen extends StatelessWidget {
   final String productId;
   final int countryId;
 
-  const PESTLEAnalysisScreen({
-    super.key,
-    required this.productId,
-    required this.countryId,
-  });
+  const PESTLEAnalysisScreen({super.key, required this.productId, required this.countryId});
 
   @override
   Widget build(BuildContext context) {
@@ -48,33 +44,18 @@ class PESTLEAnalysisScreen extends StatelessWidget {
                           ? null
                           : () {
                               if (analysis.id != null) {
-                                di.sl<SubscriptionCubit>().unlock(
-                                  contentType: ContentType.pestleAnalysis,
-                                  targetId: analysis.id!,
-                                );
+                                di.sl<SubscriptionCubit>().unlock(contentType: ContentType.pestleAnalysis, targetId: analysis.id!);
                               }
                             },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (analysis.political != null)
-                            _buildSection('Political', analysis.political!),
-                          if (analysis.economic != null)
-                            _buildSection('Economic', analysis.economic!),
-                          if (analysis.social != null)
-                            _buildSection('Social', analysis.social!),
-                          if (analysis.technological != null)
-                            _buildSection(
-                              'Technological',
-                              analysis.technological!,
-                            ),
-                          if (analysis.legal != null)
-                            _buildSection('Legal', analysis.legal!),
-                          if (analysis.environmental != null)
-                            _buildSection(
-                              'Environmental',
-                              analysis.environmental!,
-                            ),
+                          if (analysis.political != null) _buildSection('Political', analysis.political!),
+                          if (analysis.economic != null) _buildSection('Economic', analysis.economic!),
+                          if (analysis.social != null) _buildSection('Social', analysis.social!),
+                          if (analysis.technological != null) _buildSection('Technological', analysis.technological!),
+                          if (analysis.legal != null) _buildSection('Legal', analysis.legal!),
+                          if (analysis.environmental != null) _buildSection('Environmental', analysis.environmental!),
                         ],
                       ),
                     ),
@@ -86,10 +67,7 @@ class PESTLEAnalysisScreen extends StatelessWidget {
                           currentBalance: _getBalance(context),
                           onUnlock: () {
                             if (analysis.id != null) {
-                              di.sl<SubscriptionCubit>().unlock(
-                                contentType: ContentType.pestleAnalysis,
-                                targetId: analysis.id!,
-                              );
+                              di.sl<SubscriptionCubit>().unlock(contentType: ContentType.pestleAnalysis, targetId: analysis.id!);
                             }
                           },
                           isLoading: state.isUnlocking,
@@ -111,10 +89,7 @@ class PESTLEAnalysisScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(content),
         ],

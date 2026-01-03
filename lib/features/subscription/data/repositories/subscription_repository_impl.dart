@@ -13,13 +13,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   SubscriptionRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<List<SubscriptionModel>> getSubscriptions({
-    bool activeOnly = true,
-  }) async {
+  Future<List<SubscriptionModel>> getSubscriptions({bool activeOnly = true}) async {
     try {
-      final result = await remoteDataSource.getSubscriptions(
-        activeOnly: activeOnly,
-      );
+      final result = await remoteDataSource.getSubscriptions(activeOnly: activeOnly);
       return result;
     } catch (e) {
       rethrow;
@@ -36,9 +32,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   @override
-  Future<MarketExplorationResponseModel> exploreMarket(
-    ExploreMarketRequestModel request,
-  ) async {
+  Future<MarketExplorationResponseModel> exploreMarket(ExploreMarketRequestModel request) async {
     try {
       return await remoteDataSource.exploreMarket(request);
     } catch (e) {
@@ -47,28 +41,16 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   @override
-  Future<UnlockResponseModel> unlock({
-    required ContentType contentType,
-    required String targetId,
-  }) async {
+  Future<UnlockResponseModel> unlock({required ContentType contentType, required String targetId}) async {
     try {
-      return await remoteDataSource.unlock(
-        contentType: contentType,
-        targetId: targetId,
-      );
+      return await remoteDataSource.unlock(contentType: contentType, targetId: targetId);
     } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<ShipmentRecordsResponseModel> getShipmentRecords({
-    required String profileId,
-    int? seenPage,
-    int? seenLimit,
-    int? unseenPage,
-    int? unseenLimit,
-  }) async {
+  Future<ShipmentRecordsResponseModel> getShipmentRecords({required String profileId, int? seenPage, int? seenLimit, int? unseenPage, int? unseenLimit}) async {
     try {
       return await remoteDataSource.getShipmentRecords(
         profileId: profileId,

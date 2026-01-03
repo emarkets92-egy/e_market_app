@@ -15,10 +15,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthLocalDataSource localDataSource;
 
-  AuthRepositoryImpl({
-    required this.remoteDataSource,
-    required this.localDataSource,
-  });
+  AuthRepositoryImpl({required this.remoteDataSource, required this.localDataSource});
 
   @override
   Future<AuthResponseModel> login(String email, String password) async {
@@ -32,9 +29,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final response = await remoteDataSource.login(request);
       print('[LOGIN REPOSITORY] Received response from remote data source');
-      print(
-        '[LOGIN REPOSITORY] User: ${response.user.email} (ID: ${response.user.id})',
-      );
+      print('[LOGIN REPOSITORY] User: ${response.user.email} (ID: ${response.user.id})');
 
       // Save tokens locally
       print('[LOGIN REPOSITORY] Saving tokens to local storage...');
@@ -75,9 +70,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthResponseModel> completeProfile(
-    RegisterRequestModel request,
-  ) async {
+  Future<AuthResponseModel> completeProfile(RegisterRequestModel request) async {
     try {
       final response = await remoteDataSource.completeProfile(request);
 
@@ -131,9 +124,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<ForgotPasswordResponseModel> forgotPassword(
-    ForgotPasswordRequestModel request,
-  ) async {
+  Future<ForgotPasswordResponseModel> forgotPassword(ForgotPasswordRequestModel request) async {
     try {
       return await remoteDataSource.forgotPassword(request);
     } catch (e) {
@@ -142,9 +133,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<ResetPasswordResponseModel> resetPassword(
-    ResetPasswordRequestModel request,
-  ) async {
+  Future<ResetPasswordResponseModel> resetPassword(ResetPasswordRequestModel request) async {
     try {
       return await remoteDataSource.resetPassword(request);
     } catch (e) {

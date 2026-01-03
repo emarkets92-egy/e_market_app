@@ -9,10 +9,7 @@ import '../../config/routes/route_names.dart';
 class AuthInitWrapper extends StatefulWidget {
   final Widget child;
 
-  const AuthInitWrapper({
-    super.key,
-    required this.child,
-  });
+  const AuthInitWrapper({super.key, required this.child});
 
   @override
   State<AuthInitWrapper> createState() => _AuthInitWrapperState();
@@ -45,9 +42,7 @@ class _AuthInitWrapperState extends State<AuthInitWrapper> {
                 // Get current location from the router state
                 final currentLocation = router.routerDelegate.currentConfiguration.uri.path;
                 // Only navigate if we're not already on login or register page
-                if (currentLocation != RouteNames.login && 
-                    currentLocation != RouteNames.register &&
-                    currentLocation != RouteNames.completeProfile) {
+                if (currentLocation != RouteNames.login && currentLocation != RouteNames.register && currentLocation != RouteNames.completeProfile) {
                   router.go(RouteNames.login);
                 }
               } catch (e) {
@@ -74,4 +69,3 @@ class _AuthInitWrapperState extends State<AuthInitWrapper> {
     );
   }
 }
-

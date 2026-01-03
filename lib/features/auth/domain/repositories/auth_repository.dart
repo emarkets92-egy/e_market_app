@@ -13,12 +13,8 @@ abstract class AuthRepository {
   Future<AuthResponseModel> completeProfile(RegisterRequestModel request);
   Future<AuthResponseModel> refreshToken(String refreshToken);
   Future<void> logout();
-  Future<ForgotPasswordResponseModel> forgotPassword(
-    ForgotPasswordRequestModel request,
-  );
-  Future<ResetPasswordResponseModel> resetPassword(
-    ResetPasswordRequestModel request,
-  );
+  Future<ForgotPasswordResponseModel> forgotPassword(ForgotPasswordRequestModel request);
+  Future<ResetPasswordResponseModel> resetPassword(ResetPasswordRequestModel request);
   Future<UserModel> getProfile();
   Future<UserModel> updateProfile(UpdateProfileRequestModel request);
   Future<UserModel?> getCurrentUser();

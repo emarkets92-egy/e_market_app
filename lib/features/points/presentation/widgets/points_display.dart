@@ -17,12 +17,7 @@ class PointsDisplay extends StatelessWidget {
           children: [
             const Icon(Icons.stars, color: Colors.amber),
             const SizedBox(width: 4),
-            Text(
-              '$points',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
+            Text('$points', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
           ],
         );
       },

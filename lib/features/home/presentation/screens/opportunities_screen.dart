@@ -23,4 +23,3 @@ class OpportunitiesScreen extends StatelessWidget {
     );
   }
 }
-

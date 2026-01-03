@@ -18,4 +18,3 @@ class VersionRepositoryImpl implements VersionRepository {
     }
   }
 }
-

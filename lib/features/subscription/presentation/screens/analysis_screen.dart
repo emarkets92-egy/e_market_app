@@ -101,12 +101,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     constraints: const BoxConstraints(),
                   ),
                   const SizedBox(width: 16),
-                  Image.asset(
-                    'assets/logo 1.png',
-                    width: 40,
-                    height: 40,
-                    fit: BoxFit.contain,
-                  ),
+                  Image.asset('assets/logo 1.png', width: 40, height: 40, fit: BoxFit.contain),
                 ],
               ),
               // Right side - Points, Company, Notifications, Profile
@@ -269,11 +264,24 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         children: [
                           _buildCompetitiveCard('TOTAL IMPORTS', analysis.totalImports ?? 'N/A', Icons.trending_up, Colors.blue),
                           const SizedBox(height: 16),
-                          _buildCompetitiveCard('TOTAL IMPORT FROM EGYPT', analysis.totalExportsFromSelectedCountry ?? 'N/A', Icons.flag, Colors.green, rank: analysis.rank),
+                          _buildCompetitiveCard(
+                            'TOTAL IMPORT FROM EGYPT',
+                            analysis.totalExportsFromSelectedCountry ?? 'N/A',
+                            Icons.flag,
+                            Colors.green,
+                            rank: analysis.rank,
+                          ),
                           const SizedBox(height: 16),
                           _buildCompetitiveCard('TOP COMPETITOR', analysis.competingCountryName ?? 'N/A', Icons.star, Colors.orange),
                           const SizedBox(height: 16),
-                          _buildCompetitiveCard('EXPORT OPPORTUNITY', analysis.competingCountryExports ?? 'N/A', Icons.insights, Colors.purple, subtitle: 'Potential market gap identified', rank: analysis.competingCountryRank != null ? int.tryParse(analysis.competingCountryRank!) : null),
+                          _buildCompetitiveCard(
+                            'EXPORT OPPORTUNITY',
+                            analysis.competingCountryExports ?? 'N/A',
+                            Icons.insights,
+                            Colors.purple,
+                            subtitle: 'Potential market gap identified',
+                            rank: analysis.competingCountryRank != null ? int.tryParse(analysis.competingCountryRank!) : null,
+                          ),
                         ],
                       );
                     }
@@ -281,28 +289,45 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                       children: [
                         Expanded(child: _buildCompetitiveCard('TOTAL IMPORTS', analysis.totalImports ?? 'N/A', Icons.trending_up, Colors.blue)),
                         const SizedBox(width: 16),
-                        Expanded(child: _buildCompetitiveCard('TOTAL IMPORT FROM EGYPT', analysis.totalExportsFromSelectedCountry ?? 'N/A', Icons.flag, Colors.green, rank: analysis.rank)),
+                        Expanded(
+                          child: _buildCompetitiveCard(
+                            'TOTAL IMPORT FROM EGYPT',
+                            analysis.totalExportsFromSelectedCountry ?? 'N/A',
+                            Icons.flag,
+                            Colors.green,
+                            rank: analysis.rank,
+                          ),
+                        ),
                         const SizedBox(width: 16),
                         Expanded(child: _buildCompetitiveCard('TOP COMPETITOR', analysis.competingCountryName ?? 'N/A', Icons.star, Colors.orange)),
                         const SizedBox(width: 16),
-                        Expanded(child: _buildCompetitiveCard('EXPORT OPPORTUNITY', analysis.competingCountryExports ?? 'N/A', Icons.insights, Colors.purple, subtitle: 'Potential market gap identified', rank: analysis.competingCountryRank != null ? int.tryParse(analysis.competingCountryRank!) : null)),
+                        Expanded(
+                          child: _buildCompetitiveCard(
+                            'EXPORT OPPORTUNITY',
+                            analysis.competingCountryExports ?? 'N/A',
+                            Icons.insights,
+                            Colors.purple,
+                            subtitle: 'Potential market gap identified',
+                            rank: analysis.competingCountryRank != null ? int.tryParse(analysis.competingCountryRank!) : null,
+                          ),
+                        ),
                       ],
                     );
                   },
                 ),
               ),
-                      if (!analysis.isSeen)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16.0),
-                          child: UnlockButton(
-                            cost: analysis.unlockCost,
-                            currentBalance: _getBalance(context),
-                            onUnlock: () {
-                              di.sl<SubscriptionCubit>().unlock(contentType: ContentType.competitiveAnalysis, targetId: analysis.id);
-                            },
-                            isLoading: state.isUnlocking,
-                          ),
-                        ),
+              if (!analysis.isSeen)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: UnlockButton(
+                    cost: analysis.unlockCost,
+                    currentBalance: _getBalance(context),
+                    onUnlock: () {
+                      di.sl<SubscriptionCubit>().unlock(contentType: ContentType.competitiveAnalysis, targetId: analysis.id);
+                    },
+                    isLoading: state.isUnlocking,
+                  ),
+                ),
             ],
           ),
         );
@@ -346,10 +371,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               if (rank != null)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                  decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
                   child: Text(
                     '#$rank',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color),
@@ -357,18 +379,11 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 ),
             ],
           ),
-          if (subtitle != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-            ),
-          ],
+          if (subtitle != null) ...[const SizedBox(height: 4), Text(subtitle, style: TextStyle(fontSize: 11, color: Colors.grey[600]))],
         ],
       ),
     );
   }
-
 
   Widget _buildPESTLEAnalysisTab(BuildContext context, dynamic exploration) {
     final analysis = exploration.pestleAnalysis;
@@ -402,17 +417,41 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     if (constraints.maxWidth < 800) {
                       return Column(
                         children: [
-                          if (analysis.political != null) _buildPestleCard('Political', analysis.political!, 'Stable', Colors.green, 70, 'Govt. Stability Index'),
+                          if (analysis.political != null)
+                            _buildPestleCard('Political', analysis.political!, 'Stable', Colors.green, 70, 'Govt. Stability Index'),
                           const SizedBox(height: 16),
-                          if (analysis.economic != null) _buildPestleCard('Economic', analysis.economic!, 'Growing', Colors.blue, null, null, inflationRate: '2.4%', currencyTrend: 'Stable (EUR)'),
+                          if (analysis.economic != null)
+                            _buildPestleCard(
+                              'Economic',
+                              analysis.economic!,
+                              'Growing',
+                              Colors.blue,
+                              null,
+                              null,
+                              inflationRate: '2.4%',
+                              currencyTrend: 'Stable (EUR)',
+                            ),
                           const SizedBox(height: 16),
-                          if (analysis.social != null) _buildPestleCard('Social', analysis.social!, 'Evolving', Colors.grey, 80, 'Eco-Consciousness Score', scoreSegments: 5, filledSegments: 4),
+                          if (analysis.social != null)
+                            _buildPestleCard(
+                              'Social',
+                              analysis.social!,
+                              'Evolving',
+                              Colors.grey,
+                              80,
+                              'Eco-Consciousness Score',
+                              scoreSegments: 5,
+                              filledSegments: 4,
+                            ),
                           const SizedBox(height: 16),
-                          if (analysis.technological != null) _buildPestleCard('Technological', analysis.technological!, 'Advanced', Colors.purple, 80, 'Innovation Index'),
+                          if (analysis.technological != null)
+                            _buildPestleCard('Technological', analysis.technological!, 'Advanced', Colors.purple, 80, 'Innovation Index'),
                           const SizedBox(height: 16),
-                          if (analysis.legal != null) _buildPestleCard('Legal', analysis.legal!, 'Complex', Colors.red, 60, 'Compliance Difficulty', progressColor: Colors.orange),
+                          if (analysis.legal != null)
+                            _buildPestleCard('Legal', analysis.legal!, 'Complex', Colors.red, 60, 'Compliance Difficulty', progressColor: Colors.orange),
                           const SizedBox(height: 16),
-                          if (analysis.environmental != null) _buildPestleCard('Environmental', analysis.environmental!, 'Critical', Colors.green, 90, 'Sustainability Pressure'),
+                          if (analysis.environmental != null)
+                            _buildPestleCard('Environmental', analysis.environmental!, 'Critical', Colors.green, 90, 'Sustainability Pressure'),
                         ],
                       );
                     }
@@ -421,22 +460,62 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (analysis.political != null) Expanded(child: _buildPestleCard('Political', analysis.political!, 'Stable', Colors.green, 70, 'Govt. Stability Index')),
+                            if (analysis.political != null)
+                              Expanded(child: _buildPestleCard('Political', analysis.political!, 'Stable', Colors.green, 70, 'Govt. Stability Index')),
                             const SizedBox(width: 16),
-                            if (analysis.economic != null) Expanded(child: _buildPestleCard('Economic', analysis.economic!, 'Growing', Colors.blue, null, null, inflationRate: '2.4%', currencyTrend: 'Stable (EUR)')),
+                            if (analysis.economic != null)
+                              Expanded(
+                                child: _buildPestleCard(
+                                  'Economic',
+                                  analysis.economic!,
+                                  'Growing',
+                                  Colors.blue,
+                                  null,
+                                  null,
+                                  inflationRate: '2.4%',
+                                  currencyTrend: 'Stable (EUR)',
+                                ),
+                              ),
                             const SizedBox(width: 16),
-                            if (analysis.social != null) Expanded(child: _buildPestleCard('Social', analysis.social!, 'Evolving', Colors.grey, 80, 'Eco-Consciousness Score', scoreSegments: 5, filledSegments: 4)),
+                            if (analysis.social != null)
+                              Expanded(
+                                child: _buildPestleCard(
+                                  'Social',
+                                  analysis.social!,
+                                  'Evolving',
+                                  Colors.grey,
+                                  80,
+                                  'Eco-Consciousness Score',
+                                  scoreSegments: 5,
+                                  filledSegments: 4,
+                                ),
+                              ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (analysis.technological != null) Expanded(child: _buildPestleCard('Technological', analysis.technological!, 'Advanced', Colors.purple, 80, 'Innovation Index')),
+                            if (analysis.technological != null)
+                              Expanded(child: _buildPestleCard('Technological', analysis.technological!, 'Advanced', Colors.purple, 80, 'Innovation Index')),
                             const SizedBox(width: 16),
-                            if (analysis.legal != null) Expanded(child: _buildPestleCard('Legal', analysis.legal!, 'Complex', Colors.red, 60, 'Compliance Difficulty', progressColor: Colors.orange)),
+                            if (analysis.legal != null)
+                              Expanded(
+                                child: _buildPestleCard(
+                                  'Legal',
+                                  analysis.legal!,
+                                  'Complex',
+                                  Colors.red,
+                                  60,
+                                  'Compliance Difficulty',
+                                  progressColor: Colors.orange,
+                                ),
+                              ),
                             const SizedBox(width: 16),
-                            if (analysis.environmental != null) Expanded(child: _buildPestleCard('Environmental', analysis.environmental!, 'Critical', Colors.green, 90, 'Sustainability Pressure')),
+                            if (analysis.environmental != null)
+                              Expanded(
+                                child: _buildPestleCard('Environmental', analysis.environmental!, 'Critical', Colors.green, 90, 'Sustainability Pressure'),
+                              ),
                           ],
                         ),
                       ],
@@ -485,7 +564,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
 
     for (var line in lines) {
       final trimmed = line.trim();
-      if (trimmed.toLowerCase().contains('potential') || 
+      if (trimmed.toLowerCase().contains('potential') ||
           trimmed.toLowerCase().contains('risk') ||
           trimmed.toLowerCase().contains('vulnerability') ||
           trimmed.toLowerCase().contains('strict') ||
@@ -503,13 +582,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -518,91 +591,74 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+              Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: BoxDecoration(color: statusColor.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
                 child: Text(
                   status,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: statusColor,
-                  ),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: statusColor),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Content Points
-          ...positivePoints.take(3).map((point) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    point,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+          ...positivePoints
+              .take(3)
+              .map(
+                (point) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(point, style: const TextStyle(fontSize: 13, color: Colors.black87)),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          )),
-          ...negativePoints.take(2).map((point) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    point,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+              ),
+          ...negativePoints
+              .take(2)
+              .map(
+                (point) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(point, style: const TextStyle(fontSize: 13, color: Colors.black87)),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          )),
-          
+              ),
+
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 12),
-          
+
           // Bottom Metrics
           if (inflationRate != null && currencyTrend != null)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Inflation Rate $inflationRate',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
+                Text('Inflation Rate $inflationRate', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                 const SizedBox(height: 4),
-                Text(
-                  'Currency Trend $currencyTrend',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
+                Text('Currency Trend $currencyTrend', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
               ],
             )
           else if (scoreSegments != null && filledSegments != null)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  progressLabel ?? '',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
+                Text(progressLabel ?? '', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                 const SizedBox(height: 8),
                 Row(
                   children: List.generate(scoreSegments, (index) {
@@ -610,12 +666,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                       child: Container(
                         height: 6,
                         margin: EdgeInsets.only(right: index < scoreSegments - 1 ? 4 : 0),
-                        decoration: BoxDecoration(
-                          color: index < filledSegments
-                              ? Colors.green
-                              : Colors.grey[300],
-                          borderRadius: BorderRadius.circular(3),
-                        ),
+                        decoration: BoxDecoration(color: index < filledSegments ? Colors.green : Colors.grey[300], borderRadius: BorderRadius.circular(3)),
                       ),
                     );
                   }),
@@ -626,10 +677,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  progressLabel,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
+                Text(progressLabel, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
@@ -637,9 +685,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     value: progressValue / 100,
                     minHeight: 8,
                     backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      progressColor ?? statusColor,
-                    ),
+                    valueColor: AlwaysStoppedAnimation<Color>(progressColor ?? statusColor),
                   ),
                 ),
               ],
@@ -698,14 +744,16 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                           children: [
                             if (analysis.strengths != null) Expanded(child: _buildSwotCard('Strengths', analysis.strengths!, Colors.green, Icons.trending_up)),
                             const SizedBox(width: 16),
-                            if (analysis.weaknesses != null) Expanded(child: _buildSwotCard('Weaknesses', analysis.weaknesses!, Colors.red, Icons.trending_down)),
+                            if (analysis.weaknesses != null)
+                              Expanded(child: _buildSwotCard('Weaknesses', analysis.weaknesses!, Colors.red, Icons.trending_down)),
                           ],
                         ),
                         const SizedBox(height: 16),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (analysis.opportunities != null) Expanded(child: _buildSwotCard('Opportunities', analysis.opportunities!, Colors.blue, Icons.lightbulb)),
+                            if (analysis.opportunities != null)
+                              Expanded(child: _buildSwotCard('Opportunities', analysis.opportunities!, Colors.blue, Icons.lightbulb)),
                             const SizedBox(width: 16),
                             if (analysis.threats != null) Expanded(child: _buildSwotCard('Threats', analysis.threats!, Colors.orange, Icons.warning)),
                           ],
@@ -739,20 +787,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   Widget _buildSwotCard(String title, String content, Color color, IconData icon) {
     // Parse content to extract points
     final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -762,50 +804,43 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
                 child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Content Points
-          ...lines.take(5).map((point) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.circle, color: color, size: 8),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    point.trim(),
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+          ...lines
+              .take(5)
+              .map(
+                (point) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.circle, color: color, size: 8),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(point.trim(), style: const TextStyle(fontSize: 13, color: Colors.black87)),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          )),
+              ),
         ],
       ),
     );
   }
 
-
   int _getBalance(BuildContext context) {
     return di.sl<AuthCubit>().state.user?.points ?? 0;
   }
-
 
   Widget _buildMarketPlanTab(BuildContext context, dynamic exploration) {
     final marketPlan = exploration.marketPlan;
@@ -854,18 +889,22 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (marketPlan.productText != null) Expanded(child: _buildMarketPlanCard('Product', marketPlan.productText!, Colors.blue, Icons.inventory_2)),
+                            if (marketPlan.productText != null)
+                              Expanded(child: _buildMarketPlanCard('Product', marketPlan.productText!, Colors.blue, Icons.inventory_2)),
                             const SizedBox(width: 16),
-                            if (marketPlan.priceText != null) Expanded(child: _buildMarketPlanCard('Price', marketPlan.priceText!, Colors.green, Icons.attach_money)),
+                            if (marketPlan.priceText != null)
+                              Expanded(child: _buildMarketPlanCard('Price', marketPlan.priceText!, Colors.green, Icons.attach_money)),
                           ],
                         ),
                         const SizedBox(height: 16),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (marketPlan.placeText != null) Expanded(child: _buildMarketPlanCard('Place', marketPlan.placeText!, Colors.orange, Icons.location_on)),
+                            if (marketPlan.placeText != null)
+                              Expanded(child: _buildMarketPlanCard('Place', marketPlan.placeText!, Colors.orange, Icons.location_on)),
                             const SizedBox(width: 16),
-                            if (marketPlan.promotionText != null) Expanded(child: _buildMarketPlanCard('Promotion', marketPlan.promotionText!, Colors.purple, Icons.campaign)),
+                            if (marketPlan.promotionText != null)
+                              Expanded(child: _buildMarketPlanCard('Promotion', marketPlan.promotionText!, Colors.purple, Icons.campaign)),
                           ],
                         ),
                       ],
@@ -897,20 +936,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   Widget _buildMarketPlanCard(String title, String content, Color color, IconData icon) {
     // Parse content to extract points
     final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -920,46 +953,36 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
                 child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Content Points
           if (lines.length > 1)
-            ...lines.map((point) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.circle, color: color, size: 8),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      point.trim(),
-                      style: const TextStyle(fontSize: 13, color: Colors.black87),
+            ...lines.map(
+              (point) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.circle, color: color, size: 8),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(point.trim(), style: const TextStyle(fontSize: 13, color: Colors.black87)),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ))
+            )
           else
-            Text(
-              content,
-              style: const TextStyle(fontSize: 13, color: Colors.black87),
-            ),
+            Text(content, style: const TextStyle(fontSize: 13, color: Colors.black87)),
         ],
       ),
     );

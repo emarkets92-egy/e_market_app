@@ -28,9 +28,7 @@ class CompleteProfileScreen extends StatelessWidget {
             bloc: di.sl<AuthCubit>(),
             listener: (context, state) {
               if (state.error != null) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(state.error!)));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.error!)));
               }
               if (state.isAuthenticated && state.user != null) {
                 context.go(RouteNames.home);
@@ -41,9 +39,7 @@ class CompleteProfileScreen extends StatelessWidget {
                 return const LoadingIndicator();
               }
 
-              final countries = localizationState.countries
-                  .map((c) => {'id': c.id, 'name': c.name})
-                  .toList();
+              final countries = localizationState.countries.map((c) => {'id': c.id, 'name': c.name}).toList();
 
               return SingleChildScrollView(
                 child: RegisterForm(

@@ -5,12 +5,7 @@ class ProductSearchBar extends StatelessWidget {
   final TextEditingController nameController;
   final VoidCallback onSearch;
 
-  const ProductSearchBar({
-    super.key,
-    required this.hscodeController,
-    required this.nameController,
-    required this.onSearch,
-  });
+  const ProductSearchBar({super.key, required this.hscodeController, required this.nameController, required this.onSearch});
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +15,7 @@ class ProductSearchBar extends StatelessWidget {
         children: [
           TextField(
             controller: hscodeController,
-            decoration: const InputDecoration(
-              labelText: 'HS Code',
-              hintText: 'Enter HS Code',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'HS Code', hintText: 'Enter HS Code', prefixIcon: Icon(Icons.search), border: OutlineInputBorder()),
             onSubmitted: (_) => onSearch(),
           ),
           const SizedBox(height: 8),
@@ -40,14 +30,9 @@ class ProductSearchBar extends StatelessWidget {
             onSubmitted: (_) => onSearch(),
           ),
           const SizedBox(height: 8),
-          ElevatedButton.icon(
-            onPressed: onSearch,
-            icon: const Icon(Icons.search),
-            label: const Text('Search'),
-          ),
+          ElevatedButton.icon(onPressed: onSearch, icon: const Icon(Icons.search), label: const Text('Search')),
         ],
       ),
     );
   }
 }
-

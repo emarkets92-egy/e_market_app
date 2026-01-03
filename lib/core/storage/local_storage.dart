@@ -43,4 +43,3 @@ class LocalStorage {
     await prefs.clear();
   }
 }
-

@@ -14,14 +14,10 @@ class ProductCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         title: Text(product.name),
-        subtitle: product.hscode != null
-            ? Text('HS Code: ${product.hscode}')
-            : null,
+        subtitle: product.hscode != null ? Text('HS Code: ${product.hscode}') : null,
         trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () {
-          context.push(
-            '${RouteNames.productDetail.replaceAll(':id', product.id)}',
-          );
+          context.push('${RouteNames.productDetail.replaceAll(':id', product.id)}');
         },
       ),
     );

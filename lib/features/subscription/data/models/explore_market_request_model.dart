@@ -29,18 +29,10 @@ class ExploreMarketRequestModel {
       productId: json['productId'] as String,
       marketType: json['marketType'] as String,
       countryId: (json['countryId'] as num).toInt(),
-      unseenPage: json['unseenPage'] != null
-          ? (json['unseenPage'] as num).toInt()
-          : null,
-      unseenLimit: json['unseenLimit'] != null
-          ? (json['unseenLimit'] as num).toInt()
-          : null,
-      seenPage: json['seenPage'] != null
-          ? (json['seenPage'] as num).toInt()
-          : null,
-      seenLimit: json['seenLimit'] != null
-          ? (json['seenLimit'] as num).toInt()
-          : null,
+      unseenPage: json['unseenPage'] != null ? (json['unseenPage'] as num).toInt() : null,
+      unseenLimit: json['unseenLimit'] != null ? (json['unseenLimit'] as num).toInt() : null,
+      seenPage: json['seenPage'] != null ? (json['seenPage'] as num).toInt() : null,
+      seenLimit: json['seenLimit'] != null ? (json['seenLimit'] as num).toInt() : null,
       page: json['page'] != null ? (json['page'] as num).toInt() : null,
       limit: json['limit'] != null ? (json['limit'] as num).toInt() : null,
     );
@@ -51,10 +43,10 @@ class ExploreMarketRequestModel {
       'productId': productId,
       'marketType': marketType,
       'countryId': countryId,
-      'unseenPage': unseenPage ?? 1,  // Always include with default
-      'unseenLimit': unseenLimit ?? 10,  // Always include with default
-      'seenPage': seenPage ?? 1,  // Always include with default
-      'seenLimit': seenLimit ?? 10,  // Always include with default
+      'unseenPage': unseenPage ?? 1, // Always include with default
+      'unseenLimit': unseenLimit ?? 10, // Always include with default
+      'seenPage': seenPage ?? 1, // Always include with default
+      'seenLimit': seenLimit ?? 10, // Always include with default
       // Include deprecated fields for backward compatibility
       if (page != null) 'page': page,
       if (limit != null) 'limit': limit,

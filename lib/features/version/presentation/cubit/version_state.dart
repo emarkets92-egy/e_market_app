@@ -20,12 +20,7 @@ class VersionUpdateRequired extends VersionState {
   final String? downloadUrl;
   final String? releaseNotes;
 
-  const VersionUpdateRequired({
-    required this.currentVersion,
-    required this.latestVersion,
-    this.downloadUrl,
-    this.releaseNotes,
-  });
+  const VersionUpdateRequired({required this.currentVersion, required this.latestVersion, this.downloadUrl, this.releaseNotes});
 }
 
 class VersionCheckError extends VersionState {
@@ -33,4 +28,3 @@ class VersionCheckError extends VersionState {
 
   const VersionCheckError({required this.message});
 }
-

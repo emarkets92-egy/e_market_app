@@ -30,9 +30,7 @@ class RegisterScreen extends StatelessWidget {
                 context.go(RouteNames.home);
               }
               if (state.error != null) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(state.error!)));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.error!)));
               }
             },
             builder: (context, state) {
@@ -40,9 +38,7 @@ class RegisterScreen extends StatelessWidget {
                 return const LoadingIndicator();
               }
 
-              final countries = localizationState.countries
-                  .map((c) => {'id': c.id, 'name': c.name})
-                  .toList();
+              final countries = localizationState.countries.map((c) => {'id': c.id, 'name': c.name}).toList();
 
               return Container(
                 color: Colors.grey[50],

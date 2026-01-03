@@ -9,13 +9,7 @@ class UnlockResponseModel {
   final int pointsBalance;
   final UnlockContentData? data;
 
-  UnlockResponseModel({
-    required this.unlocked,
-    required this.cost,
-    required this.message,
-    required this.pointsBalance,
-    this.data,
-  });
+  UnlockResponseModel({required this.unlocked, required this.cost, required this.message, required this.pointsBalance, this.data});
 
   factory UnlockResponseModel.fromJson(Map<String, dynamic> json) {
     return UnlockResponseModel(
@@ -23,20 +17,12 @@ class UnlockResponseModel {
       cost: (json['cost'] as num).toInt(),
       message: json['message'] as String,
       pointsBalance: (json['pointsBalance'] as num).toInt(),
-      data: json['data'] != null
-          ? UnlockContentData.fromJson(json['data'] as Map<String, dynamic>)
-          : null,
+      data: json['data'] != null ? UnlockContentData.fromJson(json['data'] as Map<String, dynamic>) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'unlocked': unlocked,
-      'cost': cost,
-      'message': message,
-      'pointsBalance': pointsBalance,
-      if (data != null) 'data': data!.toJson(),
-    };
+    return {'unlocked': unlocked, 'cost': cost, 'message': message, 'pointsBalance': pointsBalance, if (data != null) 'data': data!.toJson()};
   }
 }
 
@@ -44,15 +30,11 @@ class UnlockContentData {
   final ContentType contentType;
   final dynamic contentData; // Can be ProfileModel, CompetitiveAnalysisModel, etc.
 
-  UnlockContentData({
-    required this.contentType,
-    required this.contentData,
-  });
+  UnlockContentData({required this.contentType, required this.contentData});
 
   factory UnlockContentData.fromJson(Map<String, dynamic> json) {
     final contentTypeString = json['contentType'] as String;
-    final contentType = ContentType.fromString(contentTypeString) ??
-        ContentType.profileContact;
+    final contentType = ContentType.fromString(contentTypeString) ?? ContentType.profileContact;
     final dataJson = json['data'] as Map<String, dynamic>;
 
     dynamic contentData;
@@ -79,17 +61,11 @@ class UnlockContentData {
         break;
     }
 
-    return UnlockContentData(
-      contentType: contentType,
-      contentData: contentData,
-    );
+    return UnlockContentData(contentType: contentType, contentData: contentData);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'contentType': contentType.toApiString(),
-      'data': _contentDataToJson(contentData),
-    };
+    return {'contentType': contentType.toApiString(), 'data': _contentDataToJson(contentData)};
   }
 
   dynamic _contentDataToJson(dynamic contentData) {

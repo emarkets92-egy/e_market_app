@@ -20,15 +20,10 @@ class LocalizationRemoteDataSourceImpl implements LocalizationRemoteDataSource {
         queryParams['locale'] = locale;
       }
 
-      final response = await apiClient.get(
-        Endpoints.countries,
-        queryParameters: queryParams,
-      );
+      final response = await apiClient.get(Endpoints.countries, queryParameters: queryParams);
 
       if (response.data is List) {
-        return (response.data as List)
-            .map((json) => CountryModel.fromJson(json))
-            .toList();
+        return (response.data as List).map((json) => CountryModel.fromJson(json)).toList();
       }
       return [];
     } on DioException {
@@ -36,4 +31,3 @@ class LocalizationRemoteDataSourceImpl implements LocalizationRemoteDataSource {
     }
   }
 }
-

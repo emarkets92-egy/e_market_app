@@ -4,8 +4,6 @@ class ResetPasswordResponseModel {
   ResetPasswordResponseModel({required this.message});
 
   factory ResetPasswordResponseModel.fromJson(Map<String, dynamic> json) {
-    return ResetPasswordResponseModel(
-      message: json['message'] as String,
-    );
+    return ResetPasswordResponseModel(message: json['message'] as String);
   }
 }

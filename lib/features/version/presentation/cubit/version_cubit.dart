@@ -10,23 +10,25 @@ class VersionCubit extends Cubit<VersionState> {
 
   Future<void> checkVersion() async {
     emit(VersionChecking());
-    
+
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       final currentVersion = packageInfo.version;
-      
+
       final result = await versionRepository.checkVersion();
-      
+
       // Compare versions - if current is less than minimum, update is required
       final needsUpdate = _compareVersions(currentVersion, result.minimumVersion) < 0;
-      
+
       if (needsUpdate && result.forceUpdate) {
-        emit(VersionUpdateRequired(
-          currentVersion: currentVersion,
-          latestVersion: result.latestVersion,
-          downloadUrl: result.downloadUrl,
-          releaseNotes: result.releaseNotes,
-        ));
+        emit(
+          VersionUpdateRequired(
+            currentVersion: currentVersion,
+            latestVersion: result.latestVersion,
+            downloadUrl: result.downloadUrl,
+            releaseNotes: result.releaseNotes,
+          ),
+        );
       } else {
         emit(VersionUpToDate());
       }
@@ -42,7 +44,7 @@ class VersionCubit extends Cubit<VersionState> {
   int _compareVersions(String version1, String version2) {
     final v1Parts = version1.split('.').map((v) => int.tryParse(v) ?? 0).toList();
     final v2Parts = version2.split('.').map((v) => int.tryParse(v) ?? 0).toList();
-    
+
     // Ensure both have at least 3 parts
     while (v1Parts.length < 3) {
       v1Parts.add(0);
@@ -50,15 +52,14 @@ class VersionCubit extends Cubit<VersionState> {
     while (v2Parts.length < 3) {
       v2Parts.add(0);
     }
-    
+
     for (int i = 0; i < 3; i++) {
       final v1 = i < v1Parts.length ? v1Parts[i] : 0;
       final v2 = i < v2Parts.length ? v2Parts[i] : 0;
-      
+
       if (v1 < v2) return -1;
       if (v1 > v2) return 1;
     }
     return 0;
   }
 }
-

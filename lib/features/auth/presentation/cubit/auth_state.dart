@@ -74,14 +74,10 @@ class AuthState {
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       user: user ?? this.user,
       error: error ?? this.error,
-      isForgotPasswordLoading:
-          isForgotPasswordLoading ?? this.isForgotPasswordLoading,
-      isForgotPasswordSuccess:
-          isForgotPasswordSuccess ?? this.isForgotPasswordSuccess,
-      isResetPasswordLoading:
-          isResetPasswordLoading ?? this.isResetPasswordLoading,
-      isResetPasswordSuccess:
-          isResetPasswordSuccess ?? this.isResetPasswordSuccess,
+      isForgotPasswordLoading: isForgotPasswordLoading ?? this.isForgotPasswordLoading,
+      isForgotPasswordSuccess: isForgotPasswordSuccess ?? this.isForgotPasswordSuccess,
+      isResetPasswordLoading: isResetPasswordLoading ?? this.isResetPasswordLoading,
+      isResetPasswordSuccess: isResetPasswordSuccess ?? this.isResetPasswordSuccess,
     );
   }
 }

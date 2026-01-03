@@ -50,20 +50,12 @@ class UnlockItemModel {
   final int cost;
   final DateTime createdAt;
 
-  UnlockItemModel({
-    required this.id,
-    required this.contentType,
-    required this.contentKey,
-    required this.cost,
-    required this.createdAt,
-  });
+  UnlockItemModel({required this.id, required this.contentType, required this.contentKey, required this.cost, required this.createdAt});
 
   factory UnlockItemModel.fromJson(Map<String, dynamic> json) {
     return UnlockItemModel(
       id: json['id'] as String,
-      contentType:
-          ContentType.fromString(json['contentType'] as String) ??
-          ContentType.profileContact,
+      contentType: ContentType.fromString(json['contentType'] as String) ?? ContentType.profileContact,
       contentKey: json['contentKey'] as String,
       cost: (json['cost'] as num).toInt(),
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -71,12 +63,6 @@ class UnlockItemModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'contentType': contentType.toApiString(),
-      'contentKey': contentKey,
-      'cost': cost,
-      'createdAt': createdAt.toIso8601String(),
-    };
+    return {'id': id, 'contentType': contentType.toApiString(), 'contentKey': contentKey, 'cost': cost, 'createdAt': createdAt.toIso8601String()};
   }
 }

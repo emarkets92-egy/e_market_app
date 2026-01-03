@@ -37,4 +37,3 @@ const Map<String, String> strings = {
   'unlock_cost': 'تكلفة الفتح',
   'credits': 'نقاط',
 };
-

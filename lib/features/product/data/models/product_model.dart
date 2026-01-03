@@ -23,21 +23,9 @@ class ProductModel {
       name: json['name'] as String,
       hscode: json['hscode'] as String?,
       categoryId: (json['categoryId'] as num?)?.toInt(),
-      targetMarkets:
-          (json['targetMarkets'] as List<dynamic>?)
-              ?.map((e) => (e as num).toInt())
-              .toList() ??
-          [],
-      otherMarkets:
-          (json['otherMarkets'] as List<dynamic>?)
-              ?.map((e) => (e as num).toInt())
-              .toList() ??
-          [],
-      importerMarkets:
-          (json['importerMarkets'] as List<dynamic>?)
-              ?.map((e) => (e as num).toInt())
-              .toList() ??
-          [],
+      targetMarkets: (json['targetMarkets'] as List<dynamic>?)?.map((e) => (e as num).toInt()).toList() ?? [],
+      otherMarkets: (json['otherMarkets'] as List<dynamic>?)?.map((e) => (e as num).toInt()).toList() ?? [],
+      importerMarkets: (json['importerMarkets'] as List<dynamic>?)?.map((e) => (e as num).toInt()).toList() ?? [],
     );
   }
 

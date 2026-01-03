@@ -25,17 +25,8 @@ class AuthCubit extends Cubit<AuthState> {
       print('[LOGIN CUBIT] Repository login completed successfully');
       print('[LOGIN CUBIT] User authenticated: ${result.user.email}');
 
-      emit(
-        state.copyWith(
-          isLoading: false,
-          user: result.user,
-          isAuthenticated: true,
-          error: null,
-        ),
-      );
-      print(
-        '[LOGIN CUBIT] State updated: isAuthenticated = true, isLoading = false',
-      );
+      emit(state.copyWith(isLoading: false, user: result.user, isAuthenticated: true, error: null));
+      print('[LOGIN CUBIT] State updated: isAuthenticated = true, isLoading = false');
       print('[LOGIN CUBIT] Login flow completed successfully');
     } catch (e, stackTrace) {
       print('[LOGIN CUBIT] Login failed');
@@ -43,16 +34,8 @@ class AuthCubit extends Cubit<AuthState> {
       print('[LOGIN CUBIT] Error message: $e');
       print('[LOGIN CUBIT] Stack trace: $stackTrace');
 
-      emit(
-        state.copyWith(
-          isLoading: false,
-          error: e.toString(),
-          isAuthenticated: false,
-        ),
-      );
-      print(
-        '[LOGIN CUBIT] State updated: isAuthenticated = false, isLoading = false, error = ${e.toString()}',
-      );
+      emit(state.copyWith(isLoading: false, error: e.toString(), isAuthenticated: false));
+      print('[LOGIN CUBIT] State updated: isAuthenticated = false, isLoading = false, error = ${e.toString()}');
     }
   }
 
@@ -61,22 +44,9 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final result = await _repository.register(request);
-      emit(
-        state.copyWith(
-          isLoading: false,
-          user: result.user,
-          isAuthenticated: true,
-          error: null,
-        ),
-      );
+      emit(state.copyWith(isLoading: false, user: result.user, isAuthenticated: true, error: null));
     } catch (e) {
-      emit(
-        state.copyWith(
-          isLoading: false,
-          error: e.toString(),
-          isAuthenticated: false,
-        ),
-      );
+      emit(state.copyWith(isLoading: false, error: e.toString(), isAuthenticated: false));
     }
   }
 
@@ -104,12 +74,7 @@ class AuthCubit extends Cubit<AuthState> {
         try {
           // Fetch fresh profile from API
           final user = await _repository.getProfile();
-          emit(state.copyWith(
-            isLoading: false,
-            isAuthenticated: true,
-            user: user,
-            error: null,
-          ));
+          emit(state.copyWith(isLoading: false, isAuthenticated: true, user: user, error: null));
         } catch (e) {
           // If profile fetch fails, clear tokens and reset state
           // This handles both network errors and authentication errors
@@ -137,12 +102,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final user = await _repository.getProfile();
-      emit(state.copyWith(
-        isLoading: false,
-        user: user,
-        isAuthenticated: true,
-        error: null,
-      ));
+      emit(state.copyWith(isLoading: false, user: user, isAuthenticated: true, error: null));
     } catch (e) {
       // If profile fetch fails, clear tokens and reset state
       await _repository.logout();
@@ -151,65 +111,26 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> forgotPassword(String email) async {
-    emit(
-      state.copyWith(
-        isForgotPasswordLoading: true,
-        error: null,
-        isForgotPasswordSuccess: false,
-      ),
-    );
+    emit(state.copyWith(isForgotPasswordLoading: true, error: null, isForgotPasswordSuccess: false));
 
     try {
       final request = ForgotPasswordRequestModel(email: email);
       await _repository.forgotPassword(request);
-      emit(
-        state.copyWith(
-          isForgotPasswordLoading: false,
-          isForgotPasswordSuccess: true,
-          error: null,
-        ),
-      );
+      emit(state.copyWith(isForgotPasswordLoading: false, isForgotPasswordSuccess: true, error: null));
     } catch (e) {
-      emit(
-        state.copyWith(
-          isForgotPasswordLoading: false,
-          isForgotPasswordSuccess: false,
-          error: e.toString(),
-        ),
-      );
+      emit(state.copyWith(isForgotPasswordLoading: false, isForgotPasswordSuccess: false, error: e.toString()));
     }
   }
 
   Future<void> resetPassword(String token, String newPassword) async {
-    emit(
-      state.copyWith(
-        isResetPasswordLoading: true,
-        error: null,
-        isResetPasswordSuccess: false,
-      ),
-    );
+    emit(state.copyWith(isResetPasswordLoading: true, error: null, isResetPasswordSuccess: false));
 
     try {
-      final request = ResetPasswordRequestModel(
-        token: token,
-        newPassword: newPassword,
-      );
+      final request = ResetPasswordRequestModel(token: token, newPassword: newPassword);
       await _repository.resetPassword(request);
-      emit(
-        state.copyWith(
-          isResetPasswordLoading: false,
-          isResetPasswordSuccess: true,
-          error: null,
-        ),
-      );
+      emit(state.copyWith(isResetPasswordLoading: false, isResetPasswordSuccess: true, error: null));
     } catch (e) {
-      emit(
-        state.copyWith(
-          isResetPasswordLoading: false,
-          isResetPasswordSuccess: false,
-          error: e.toString(),
-        ),
-      );
+      emit(state.copyWith(isResetPasswordLoading: false, isResetPasswordSuccess: false, error: e.toString()));
     }
   }
 

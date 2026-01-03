@@ -44,16 +44,10 @@ class AppTextField extends StatelessWidget {
       maxLines: maxLines,
       maxLength: maxLength,
       enabled: enabled,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
-      ),
+      decoration: InputDecoration(labelText: label, hintText: hint, prefixIcon: prefixIcon, suffixIcon: suffixIcon),
       onChanged: onChanged,
       onFieldSubmitted: onSubmitted,
       focusNode: focusNode,
     );
   }
 }
-

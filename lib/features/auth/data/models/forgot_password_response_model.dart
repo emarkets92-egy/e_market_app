@@ -4,8 +4,6 @@ class ForgotPasswordResponseModel {
   ForgotPasswordResponseModel({required this.message});
 
   factory ForgotPasswordResponseModel.fromJson(Map<String, dynamic> json) {
-    return ForgotPasswordResponseModel(
-      message: json['message'] as String,
-    );
+    return ForgotPasswordResponseModel(message: json['message'] as String);
   }
 }

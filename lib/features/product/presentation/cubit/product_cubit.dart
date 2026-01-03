@@ -7,32 +7,12 @@ class ProductCubit extends Cubit<ProductState> {
 
   ProductCubit(this._repository) : super(const ProductState.initial());
 
-  Future<void> searchProducts({
-    String? hscode,
-    String? name,
-    int page = 1,
-    int limit = 20,
-    String? locale,
-  }) async {
+  Future<void> searchProducts({String? hscode, String? name, int page = 1, int limit = 20, String? locale}) async {
     emit(state.copyWith(isLoading: true, error: null));
 
     try {
-      final result = await _repository.searchProducts(
-        hscode: hscode,
-        name: name,
-        page: page,
-        limit: limit,
-        locale: locale,
-      );
-      emit(
-        state.copyWith(
-          isLoading: false,
-          products: result.data,
-          totalPages: result.meta.totalPages,
-          currentPage: page,
-          error: null,
-        ),
-      );
+      final result = await _repository.searchProducts(hscode: hscode, name: name, page: page, limit: limit, locale: locale);
+      emit(state.copyWith(isLoading: false, products: result.data, totalPages: result.meta.totalPages, currentPage: page, error: null));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
@@ -42,13 +22,8 @@ class ProductCubit extends Cubit<ProductState> {
     emit(state.copyWith(isLoading: true, error: null));
 
     try {
-      final product = await _repository.getProductDetails(
-        productId,
-        locale: locale,
-      );
-      emit(
-        state.copyWith(isLoading: false, selectedProduct: product, error: null),
-      );
+      final product = await _repository.getProductDetails(productId, locale: locale);
+      emit(state.copyWith(isLoading: false, selectedProduct: product, error: null));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }

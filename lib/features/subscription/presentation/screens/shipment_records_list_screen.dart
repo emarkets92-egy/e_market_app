@@ -14,18 +14,13 @@ import '../../../auth/presentation/cubit/auth_cubit.dart';
 class ShipmentRecordsListScreen extends StatefulWidget {
   final String profileId;
 
-  const ShipmentRecordsListScreen({
-    super.key,
-    required this.profileId,
-  });
+  const ShipmentRecordsListScreen({super.key, required this.profileId});
 
   @override
-  State<ShipmentRecordsListScreen> createState() =>
-      _ShipmentRecordsListScreenState();
+  State<ShipmentRecordsListScreen> createState() => _ShipmentRecordsListScreenState();
 }
 
-class _ShipmentRecordsListScreenState
-    extends State<ShipmentRecordsListScreen> with SingleTickerProviderStateMixin {
+class _ShipmentRecordsListScreenState extends State<ShipmentRecordsListScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String? _lastShownSuccessMessage;
 
@@ -44,17 +39,11 @@ class _ShipmentRecordsListScreenState
   }
 
   void _loadUnseenShipmentRecords(int page) {
-    di.sl<SubscriptionCubit>().getShipmentRecords(
-      profileId: widget.profileId,
-      unseenPage: page,
-    );
+    di.sl<SubscriptionCubit>().getShipmentRecords(profileId: widget.profileId, unseenPage: page);
   }
 
   void _loadSeenShipmentRecords(int page) {
-    di.sl<SubscriptionCubit>().getShipmentRecords(
-      profileId: widget.profileId,
-      seenPage: page,
-    );
+    di.sl<SubscriptionCubit>().getShipmentRecords(profileId: widget.profileId, seenPage: page);
   }
 
   @override
@@ -70,14 +59,8 @@ class _ShipmentRecordsListScreenState
               return TabBar(
                 controller: _tabController,
                 tabs: [
-                  Tab(
-                    text:
-                        'New Records${state.unseenShipmentRecordsTotal > 0 ? ' (${state.unseenShipmentRecordsTotal})' : ''}',
-                  ),
-                  Tab(
-                    text:
-                        'Unlocked${state.seenShipmentRecordsTotal > 0 ? ' (${state.seenShipmentRecordsTotal})' : ''}',
-                  ),
+                  Tab(text: 'New Records${state.unseenShipmentRecordsTotal > 0 ? ' (${state.unseenShipmentRecordsTotal})' : ''}'),
+                  Tab(text: 'Unlocked${state.seenShipmentRecordsTotal > 0 ? ' (${state.seenShipmentRecordsTotal})' : ''}'),
                 ],
               );
             },
@@ -88,16 +71,11 @@ class _ShipmentRecordsListScreenState
         bloc: di.sl<SubscriptionCubit>(),
         listener: (context, state) {
           // Only show snackbar if this is a new success message we haven't shown yet
-          if (state.successMessage != null &&
-              state.successMessage != _lastShownSuccessMessage) {
+          if (state.successMessage != null && state.successMessage != _lastShownSuccessMessage) {
             _lastShownSuccessMessage = state.successMessage;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.successMessage!),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 2),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.successMessage!), backgroundColor: Colors.green, duration: const Duration(seconds: 2)));
             // Clear the success message after showing using post-frame callback
             // to avoid triggering listener again immediately
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -109,31 +87,21 @@ class _ShipmentRecordsListScreenState
             });
           }
           if (state.error != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.error!),
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 3),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.error!), backgroundColor: Colors.red, duration: const Duration(seconds: 3)));
           }
         },
         builder: (context, state) {
-          if (state.isLoading &&
-              state.unseenShipmentRecords.isEmpty &&
-              state.seenShipmentRecords.isEmpty) {
+          if (state.isLoading && state.unseenShipmentRecords.isEmpty && state.seenShipmentRecords.isEmpty) {
             return const LoadingIndicator();
           }
 
-          if (state.error != null &&
-              state.unseenShipmentRecords.isEmpty &&
-              state.seenShipmentRecords.isEmpty) {
+          if (state.error != null && state.unseenShipmentRecords.isEmpty && state.seenShipmentRecords.isEmpty) {
             return AppErrorWidget(
               message: state.error!,
               onRetry: () {
-                di.sl<SubscriptionCubit>().getShipmentRecords(
-                  profileId: widget.profileId,
-                );
+                di.sl<SubscriptionCubit>().getShipmentRecords(profileId: widget.profileId);
               },
             );
           }
@@ -192,11 +160,7 @@ class _ShipmentRecordsListScreenState
         });
         return const Center(child: CircularProgressIndicator());
       }
-      return Center(
-        child: Text(
-          isSeen ? 'No unlocked records found' : 'No new records found',
-        ),
-      );
+      return Center(child: Text(isSeen ? 'No unlocked records found' : 'No new records found'));
     }
 
     return Column(
@@ -214,21 +178,13 @@ class _ShipmentRecordsListScreenState
                 onUnlock: isSeen
                     ? () {} // Dummy callback for seen records
                     : () {
-                        di.sl<SubscriptionCubit>().unlock(
-                          contentType: ContentType.shipmentRecords,
-                          targetId: record.id,
-                        );
+                        di.sl<SubscriptionCubit>().unlock(contentType: ContentType.shipmentRecords, targetId: record.id);
                       },
               );
             },
           ),
         ),
-        if (totalPages > 1)
-          _buildPaginationControls(
-            currentPage: currentPage,
-            totalPages: totalPages,
-            onPageChanged: onPageChanged,
-          ),
+        if (totalPages > 1) _buildPaginationControls(currentPage: currentPage, totalPages: totalPages, onPageChanged: onPageChanged),
       ],
     );
   }
@@ -247,10 +203,7 @@ class _ShipmentRecordsListScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '${_getMonthName(record.month)} ${record.year}',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('${_getMonthName(record.month)} ${record.year}', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
             BlurredContentWidget(
               isUnlocked: record.isSeen,
@@ -260,24 +213,15 @@ class _ShipmentRecordsListScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (record.exporterName != null)
-                    Text('Exporter: ${record.exporterName}'),
-                  if (record.countryOfOrigin != null)
-                    Text('Country of Origin: ${record.countryOfOrigin}'),
-                  if (record.netWeight != null)
-                    Text(
-                        'Net Weight: ${record.netWeight} ${record.netWeightUnit ?? ''}'),
-                  if (record.portOfArrival != null)
-                    Text('Port of Arrival: ${record.portOfArrival}'),
-                  if (record.portOfDeparture != null)
-                    Text('Port of Departure: ${record.portOfDeparture}'),
-                  if (record.notifyParty != null)
-                    Text('Notify Party: ${record.notifyParty}'),
-                  if (record.notifyAddress != null)
-                    Text('Notify Address: ${record.notifyAddress}'),
+                  if (record.exporterName != null) Text('Exporter: ${record.exporterName}'),
+                  if (record.countryOfOrigin != null) Text('Country of Origin: ${record.countryOfOrigin}'),
+                  if (record.netWeight != null) Text('Net Weight: ${record.netWeight} ${record.netWeightUnit ?? ''}'),
+                  if (record.portOfArrival != null) Text('Port of Arrival: ${record.portOfArrival}'),
+                  if (record.portOfDeparture != null) Text('Port of Departure: ${record.portOfDeparture}'),
+                  if (record.notifyParty != null) Text('Notify Party: ${record.notifyParty}'),
+                  if (record.notifyAddress != null) Text('Notify Address: ${record.notifyAddress}'),
                   if (record.hsCode != null) Text('HS Code: ${record.hsCode}'),
-                  if (record.quantity != null)
-                    Text('Quantity: ${record.quantity}'),
+                  if (record.quantity != null) Text('Quantity: ${record.quantity}'),
                   if (record.value != null) Text('Value: ${record.value}'),
                 ],
               ),
@@ -285,12 +229,7 @@ class _ShipmentRecordsListScreenState
             if (!record.isSeen)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
-                child: UnlockButton(
-                  cost: unlockCost,
-                  currentBalance: _getCurrentBalance(context),
-                  onUnlock: onUnlock,
-                  isLoading: isUnlocking,
-                ),
+                child: UnlockButton(cost: unlockCost, currentBalance: _getCurrentBalance(context), onUnlock: onUnlock, isLoading: isUnlocking),
               ),
           ],
         ),
@@ -298,29 +237,15 @@ class _ShipmentRecordsListScreenState
     );
   }
 
-  Widget _buildPaginationControls({
-    required int currentPage,
-    required int totalPages,
-    required Function(int) onPageChanged,
-  }) {
+  Widget _buildPaginationControls({required int currentPage, required int totalPages, required Function(int) onPageChanged}) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: currentPage > 1
-                ? () => onPageChanged(currentPage - 1)
-                : null,
-          ),
+          IconButton(icon: const Icon(Icons.chevron_left), onPressed: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null),
           Text('Page $currentPage of $totalPages'),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: currentPage < totalPages
-                ? () => onPageChanged(currentPage + 1)
-                : null,
-          ),
+          IconButton(icon: const Icon(Icons.chevron_right), onPressed: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null),
         ],
       ),
     );
@@ -335,21 +260,7 @@ class _ShipmentRecordsListScreenState
   }
 
   String _getMonthName(int month) {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return months[month - 1];
   }
 }
-

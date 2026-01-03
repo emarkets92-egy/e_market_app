@@ -12,11 +12,7 @@ class CompetitiveAnalysisScreen extends StatelessWidget {
   final String productId;
   final int countryId;
 
-  const CompetitiveAnalysisScreen({
-    super.key,
-    required this.productId,
-    required this.countryId,
-  });
+  const CompetitiveAnalysisScreen({super.key, required this.productId, required this.countryId});
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +23,7 @@ class CompetitiveAnalysisScreen extends StatelessWidget {
         builder: (context, state) {
           final exploration = state.marketExploration;
           if (exploration == null || exploration.competitiveAnalysis == null) {
-            return const Center(
-              child: Text('No competitive analysis available'),
-            );
+            return const Center(child: Text('No competitive analysis available'));
           }
 
           final analysis = exploration.competitiveAnalysis!;
@@ -43,41 +37,25 @@ class CompetitiveAnalysisScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      analysis.marketName ?? 'Competitive Analysis',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text(analysis.marketName ?? 'Competitive Analysis', style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 8),
                     BlurredContentWidget(
                       isUnlocked: analysis.isSeen,
                       unlockCost: analysis.unlockCost,
                       currentBalance: _getBalance(context),
-                        onUnlock: analysis.isSeen
-                            ? null
-                            : () {
-                                di.sl<SubscriptionCubit>().unlock(
-                                  contentType: ContentType.competitiveAnalysis,
-                                  targetId: analysis.id,
-                                );
-                              },
+                      onUnlock: analysis.isSeen
+                          ? null
+                          : () {
+                              di.sl<SubscriptionCubit>().unlock(contentType: ContentType.competitiveAnalysis, targetId: analysis.id);
+                            },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (analysis.totalImports != null)
-                            Text('Total Imports: ${analysis.totalImports}'),
-                          if (analysis.totalExportsFromSelectedCountry != null)
-                            Text(
-                              'Total Exports: ${analysis.totalExportsFromSelectedCountry}',
-                            ),
-                          if (analysis.rank != null)
-                            Text('Rank: ${analysis.rank}'),
-                          if (analysis.totalImports == null &&
-                              analysis.totalExportsFromSelectedCountry ==
-                                  null &&
-                              analysis.rank == null)
-                            const Text(
-                              'Analysis data will be available after unlocking',
-                            ),
+                          if (analysis.totalImports != null) Text('Total Imports: ${analysis.totalImports}'),
+                          if (analysis.totalExportsFromSelectedCountry != null) Text('Total Exports: ${analysis.totalExportsFromSelectedCountry}'),
+                          if (analysis.rank != null) Text('Rank: ${analysis.rank}'),
+                          if (analysis.totalImports == null && analysis.totalExportsFromSelectedCountry == null && analysis.rank == null)
+                            const Text('Analysis data will be available after unlocking'),
                         ],
                       ),
                     ),
@@ -88,10 +66,7 @@ class CompetitiveAnalysisScreen extends StatelessWidget {
                           cost: analysis.unlockCost,
                           currentBalance: _getBalance(context),
                           onUnlock: () {
-                            di.sl<SubscriptionCubit>().unlock(
-                              contentType: ContentType.competitiveAnalysis,
-                              targetId: analysis.id,
-                            );
+                            di.sl<SubscriptionCubit>().unlock(contentType: ContentType.competitiveAnalysis, targetId: analysis.id);
                           },
                           isLoading: state.isUnlocking,
                         ),

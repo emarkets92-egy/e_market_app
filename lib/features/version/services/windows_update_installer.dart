@@ -5,24 +5,12 @@ import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
 class WindowsUpdateInstaller {
-  WindowsUpdateInstaller({
-    Dio? dio,
-  }) : _dio = dio ??
-            Dio(
-              BaseOptions(
-                connectTimeout: const Duration(seconds: 10),
-                receiveTimeout: const Duration(minutes: 5),
-                followRedirects: true,
-              ),
-            );
+  WindowsUpdateInstaller({Dio? dio})
+    : _dio = dio ?? Dio(BaseOptions(connectTimeout: const Duration(seconds: 10), receiveTimeout: const Duration(minutes: 5), followRedirects: true));
 
   final Dio _dio;
 
-  static const List<String> defaultSilentArgs = <String>[
-    '/SILENT',
-    '/VERYSILENT',
-    '/NORESTART',
-  ];
+  static const List<String> defaultSilentArgs = <String>['/SILENT', '/VERYSILENT', '/NORESTART'];
 
   void _validateWindowsUrl(String url) {
     final uri = Uri.tryParse(url);
@@ -30,9 +18,7 @@ class WindowsUpdateInstaller {
       throw Exception('Invalid download URL.');
     }
     if (!url.toLowerCase().endsWith('.exe')) {
-      throw Exception(
-        'downloadUrl must be a direct .exe link (not a web page): $url',
-      );
+      throw Exception('downloadUrl must be a direct .exe link (not a web page): $url');
     }
   }
 
@@ -45,8 +31,7 @@ class WindowsUpdateInstaller {
     _validateWindowsUrl(downloadUrl);
 
     final tempDir = await getTemporaryDirectory();
-    final fileName =
-        'e_market_app_windows_${versionLabel}_${downloadUrl.split('/').last}';
+    final fileName = 'e_market_app_windows_${versionLabel}_${downloadUrl.split('/').last}';
     final file = File('${tempDir.path}/$fileName');
 
     await _dio.download(
@@ -66,10 +51,7 @@ class WindowsUpdateInstaller {
     return file;
   }
 
-  Future<void> installInnoSetup({
-    required File installerExe,
-    List<String>? installerArgs,
-  }) async {
+  Future<void> installInnoSetup({required File installerExe, List<String>? installerArgs}) async {
     if (!Platform.isWindows) {
       throw Exception('Windows installer can only run on Windows.');
     }
@@ -77,15 +59,9 @@ class WindowsUpdateInstaller {
       throw Exception('Installer not found: ${installerExe.path}');
     }
 
-    final args = (installerArgs == null || installerArgs.isEmpty)
-        ? defaultSilentArgs
-        : installerArgs;
+    final args = (installerArgs == null || installerArgs.isEmpty) ? defaultSilentArgs : installerArgs;
 
-    await Process.start(
-      installerExe.path,
-      args,
-      mode: ProcessStartMode.detached,
-    );
+    await Process.start(installerExe.path, args, mode: ProcessStartMode.detached);
   }
 
   Future<void> _verifySha256(File file, String expectedHex) async {
@@ -97,5 +73,3 @@ class WindowsUpdateInstaller {
     }
   }
 }
-
-

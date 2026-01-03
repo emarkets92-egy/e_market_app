@@ -13,12 +13,7 @@ class ProfileTableRow extends StatelessWidget {
   final VoidCallback onUnlock;
   final bool isUnlocking;
 
-  const ProfileTableRow({
-    super.key,
-    required this.profile,
-    required this.onUnlock,
-    this.isUnlocking = false,
-  });
+  const ProfileTableRow({super.key, required this.profile, required this.onUnlock, this.isUnlocking = false});
 
   int _getCurrentBalance(BuildContext context) {
     try {
@@ -36,14 +31,7 @@ class ProfileTableRow extends StatelessWidget {
   }
 
   Color _getAvatarColor(String id) {
-    final colors = [
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.pink,
-      Colors.red,
-      Colors.lightBlue,
-    ];
+    final colors = [Colors.blue, Colors.green, Colors.orange, Colors.pink, Colors.red, Colors.lightBlue];
     final index = id.hashCode % colors.length;
     return colors[index.abs()];
   }
@@ -68,7 +56,7 @@ class ProfileTableRow extends StatelessWidget {
       // For now, just use as is - user can adjust
       phoneNumber = phoneNumber;
     }
-    
+
     // Try WhatsApp URL scheme first
     final whatsappUri = Uri.parse('https://wa.me/$phoneNumber');
     if (await canLaunchUrl(whatsappUri)) {
@@ -93,9 +81,7 @@ class ProfileTableRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[200]!),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
       ),
       child: Column(
         children: [
@@ -114,10 +100,7 @@ class ProfileTableRow extends StatelessWidget {
                     radius: 20,
                     child: Text(
                       initials,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -132,7 +115,14 @@ class ProfileTableRow extends StatelessWidget {
                   currentBalance: balance,
                   onUnlock: profile.isSeen ? null : onUnlock,
                   child: Text(
-                    profile.email?.split('@').first.replaceAll('.', ' ').split(' ').map((word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1)).join(' ') ?? 'Importer ${profile.id.substring(0, 8)}',
+                    profile.email
+                            ?.split('@')
+                            .first
+                            .replaceAll('.', ' ')
+                            .split(' ')
+                            .map((word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
+                            .join(' ') ??
+                        'Importer ${profile.id.substring(0, 8)}',
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -148,24 +138,15 @@ class ProfileTableRow extends StatelessWidget {
                   onUnlock: profile.isSeen ? null : onUnlock,
                   child: profile.email != null
                       ? profile.isSeen
-                          ? InkWell(
-                              onTap: () => _launchEmail(profile.email!),
-                              child: Text(
-                                profile.email!,
-                                style: TextStyle(
-                                  color: Colors.blue[700],
-                                  decoration: TextDecoration.underline,
+                            ? InkWell(
+                                onTap: () => _launchEmail(profile.email!),
+                                child: Text(
+                                  profile.email!,
+                                  style: TextStyle(color: Colors.blue[700], decoration: TextDecoration.underline),
                                 ),
-                              ),
-                            )
-                          : Text(
-                              profile.email!,
-                              style: TextStyle(color: Colors.grey[700]),
-                            )
-                      : Text(
-                          'N/A',
-                          style: TextStyle(color: Colors.grey[400]),
-                        ),
+                              )
+                            : Text(profile.email!, style: TextStyle(color: Colors.grey[700]))
+                      : Text('N/A', style: TextStyle(color: Colors.grey[400])),
                 ),
               ),
               const SizedBox(width: 16),
@@ -179,38 +160,25 @@ class ProfileTableRow extends StatelessWidget {
                   onUnlock: profile.isSeen ? null : onUnlock,
                   child: profile.whatsapp != null
                       ? profile.isSeen
-                          ? InkWell(
-                              onTap: () => _launchWhatsApp(profile.whatsapp!),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.chat,
-                                    size: 16,
-                                    color: Colors.green[700],
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      profile.whatsapp!,
-                                      style: TextStyle(
-                                        color: Colors.green[700],
-                                        decoration: TextDecoration.underline,
+                            ? InkWell(
+                                onTap: () => _launchWhatsApp(profile.whatsapp!),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.chat, size: 16, color: Colors.green[700]),
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: Text(
+                                        profile.whatsapp!,
+                                        style: TextStyle(color: Colors.green[700], decoration: TextDecoration.underline),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : Text(
-                              profile.whatsapp!,
-                              style: TextStyle(color: Colors.grey[700]),
-                            )
-                      : Text(
-                          'N/A',
-                          style: TextStyle(color: Colors.grey[400]),
-                        ),
+                                  ],
+                                ),
+                              )
+                            : Text(profile.whatsapp!, style: TextStyle(color: Colors.grey[700]))
+                      : Text('N/A', style: TextStyle(color: Colors.grey[400])),
                 ),
               ),
             ],
@@ -224,17 +192,9 @@ class ProfileTableRow extends StatelessWidget {
                 if (profile.shipmentRecords != null)
                   Text(
                     'Shipment Records: ${profile.shipmentRecords}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blue,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.blue),
                   ),
-                UnlockButton(
-                  cost: profile.unlockCost,
-                  currentBalance: balance,
-                  onUnlock: onUnlock,
-                  isLoading: isUnlocking,
-                ),
+                UnlockButton(cost: profile.unlockCost, currentBalance: balance, onUnlock: onUnlock, isLoading: isUnlocking),
               ],
             ),
           ] else if (profile.shipmentRecords != null) ...[
@@ -243,10 +203,7 @@ class ProfileTableRow extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 'Shipment Records: ${profile.shipmentRecords}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: Colors.blue,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.blue),
               ),
             ),
           ],
@@ -255,4 +212,3 @@ class ProfileTableRow extends StatelessWidget {
     );
   }
 }
-

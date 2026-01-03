@@ -61,86 +61,46 @@ Future<void> init() async {
   sl.registerLazySingleton<ApiClient>(() => ApiClient(sl<Dio>()));
 
   // Data Sources - Auth
-  sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(sl<ApiClient>()),
-  );
-  sl.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(),
-  );
+  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(sl<ApiClient>()));
+  sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl());
 
   // Data Sources - Product
-  sl.registerLazySingleton<ProductRemoteDataSource>(
-    () => ProductRemoteDataSourceImpl(sl<ApiClient>()),
-  );
+  sl.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceImpl(sl<ApiClient>()));
 
   // Data Sources - Localization
-  sl.registerLazySingleton<LocalizationRemoteDataSource>(
-    () => LocalizationRemoteDataSourceImpl(sl<ApiClient>()),
-  );
+  sl.registerLazySingleton<LocalizationRemoteDataSource>(() => LocalizationRemoteDataSourceImpl(sl<ApiClient>()));
 
   // Data Sources - Subscription
-  sl.registerLazySingleton<SubscriptionRemoteDataSource>(
-    () => SubscriptionRemoteDataSourceImpl(sl<ApiClient>()),
-  );
+  sl.registerLazySingleton<SubscriptionRemoteDataSource>(() => SubscriptionRemoteDataSourceImpl(sl<ApiClient>()));
 
   // Data Sources - Version
-  sl.registerLazySingleton<VersionRemoteDataSource>(
-    () => VersionRemoteDataSourceImpl(sl<ApiClient>()),
-  );
+  sl.registerLazySingleton<VersionRemoteDataSource>(() => VersionRemoteDataSourceImpl(sl<ApiClient>()));
 
   // Repositories - Auth
-  sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
-      remoteDataSource: sl<AuthRemoteDataSource>(),
-      localDataSource: sl<AuthLocalDataSource>(),
-    ),
-  );
+  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>(), localDataSource: sl<AuthLocalDataSource>()));
 
   // Repositories - Product
-  sl.registerLazySingleton<ProductRepository>(
-    () =>
-        ProductRepositoryImpl(remoteDataSource: sl<ProductRemoteDataSource>()),
-  );
+  sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(remoteDataSource: sl<ProductRemoteDataSource>()));
 
   // Repositories - Localization
-  sl.registerLazySingleton<LocalizationRepository>(
-    () => LocalizationRepositoryImpl(
-      remoteDataSource: sl<LocalizationRemoteDataSource>(),
-    ),
-  );
+  sl.registerLazySingleton<LocalizationRepository>(() => LocalizationRepositoryImpl(remoteDataSource: sl<LocalizationRemoteDataSource>()));
 
   // Repositories - Subscription
-  sl.registerLazySingleton<SubscriptionRepository>(
-    () => SubscriptionRepositoryImpl(
-      remoteDataSource: sl<SubscriptionRemoteDataSource>(),
-    ),
-  );
+  sl.registerLazySingleton<SubscriptionRepository>(() => SubscriptionRepositoryImpl(remoteDataSource: sl<SubscriptionRemoteDataSource>()));
 
   // Repositories - Version
-  sl.registerLazySingleton<VersionRepository>(
-    () => VersionRepositoryImpl(
-      remoteDataSource: sl<VersionRemoteDataSource>(),
-    ),
-  );
+  sl.registerLazySingleton<VersionRepository>(() => VersionRepositoryImpl(remoteDataSource: sl<VersionRemoteDataSource>()));
 
   // Cubits - Register as lazy singletons
   sl.registerLazySingleton<AuthCubit>(() => AuthCubit(sl<AuthRepository>()));
 
-  sl.registerLazySingleton<ProductCubit>(
-    () => ProductCubit(sl<ProductRepository>()),
-  );
+  sl.registerLazySingleton<ProductCubit>(() => ProductCubit(sl<ProductRepository>()));
 
-  sl.registerLazySingleton<LocalizationCubit>(
-    () => LocalizationCubit(sl<LocalizationRepository>()),
-  );
+  sl.registerLazySingleton<LocalizationCubit>(() => LocalizationCubit(sl<LocalizationRepository>()));
 
-  sl.registerLazySingleton<SubscriptionCubit>(
-    () => SubscriptionCubit(sl<SubscriptionRepository>()),
-  );
+  sl.registerLazySingleton<SubscriptionCubit>(() => SubscriptionCubit(sl<SubscriptionRepository>()));
 
   sl.registerLazySingleton<HomeCubit>(() => HomeCubit());
 
-  sl.registerLazySingleton<VersionCubit>(
-    () => VersionCubit(versionRepository: sl<VersionRepository>()),
-  );
+  sl.registerLazySingleton<VersionCubit>(() => VersionCubit(versionRepository: sl<VersionRepository>()));
 }

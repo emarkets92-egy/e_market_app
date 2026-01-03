@@ -4,9 +4,7 @@ import '../constants/app_constants.dart';
 class SecureStorage {
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(),
-    iOptions: IOSOptions(
-      accessibility: KeychainAccessibility.first_unlock_this_device,
-    ),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device),
   );
 
   static Future<void> saveAccessToken(String token) async {
@@ -29,4 +27,3 @@ class SecureStorage {
     await _storage.deleteAll();
   }
 }
-

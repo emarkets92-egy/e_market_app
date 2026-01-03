@@ -23,4 +23,3 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 }
-

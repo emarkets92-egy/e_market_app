@@ -37,4 +37,3 @@ const Map<String, String> strings = {
   'unlock_cost': 'Unlock Cost',
   'credits': 'Credits',
 };
-

@@ -8,39 +8,13 @@ class ProductState {
   final int totalPages;
   final String? error;
 
-  const ProductState({
-    this.isLoading = false,
-    this.products = const [],
-    this.selectedProduct,
-    this.currentPage = 1,
-    this.totalPages = 1,
-    this.error,
-  });
+  const ProductState({this.isLoading = false, this.products = const [], this.selectedProduct, this.currentPage = 1, this.totalPages = 1, this.error});
 
-  const ProductState.initial()
-    : isLoading = false,
-      products = const [],
-      selectedProduct = null,
-      currentPage = 1,
-      totalPages = 1,
-      error = null;
+  const ProductState.initial() : isLoading = false, products = const [], selectedProduct = null, currentPage = 1, totalPages = 1, error = null;
 
-  const ProductState.loading()
-    : isLoading = true,
-      products = const [],
-      selectedProduct = null,
-      currentPage = 1,
-      totalPages = 1,
-      error = null;
+  const ProductState.loading() : isLoading = true, products = const [], selectedProduct = null, currentPage = 1, totalPages = 1, error = null;
 
-  ProductState copyWith({
-    bool? isLoading,
-    List<ProductModel>? products,
-    ProductModel? selectedProduct,
-    int? currentPage,
-    int? totalPages,
-    String? error,
-  }) {
+  ProductState copyWith({bool? isLoading, List<ProductModel>? products, ProductModel? selectedProduct, int? currentPage, int? totalPages, String? error}) {
     return ProductState(
       isLoading: isLoading ?? this.isLoading,
       products: products ?? this.products,

@@ -12,11 +12,7 @@ class RegisterForm extends StatefulWidget {
   final void Function(RegisterRequestModel request) onRegister;
   final List<Map<String, dynamic>> countries; // [{id: int, name: string}]
 
-  const RegisterForm({
-    super.key,
-    required this.onRegister,
-    required this.countries,
-  });
+  const RegisterForm({super.key, required this.onRegister, required this.countries});
 
   @override
   State<RegisterForm> createState() => _RegisterFormState();
@@ -64,9 +60,7 @@ class _RegisterFormState extends State<RegisterForm> {
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       if (_selectedCountryId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a country')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a country')));
         return;
       }
 
@@ -103,13 +97,7 @@ class _RegisterFormState extends State<RegisterForm> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 4))],
       ),
       child: Form(
         key: _formKey,
@@ -122,15 +110,8 @@ class _RegisterFormState extends State<RegisterForm> {
               child: Container(
                 width: 56,
                 height: 56,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.public,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                decoration: BoxDecoration(color: AppTheme.primaryBlue, shape: BoxShape.circle),
+                child: const Icon(Icons.public, color: Colors.white, size: 28),
               ),
             ),
             const SizedBox(height: 24),
@@ -138,21 +119,14 @@ class _RegisterFormState extends State<RegisterForm> {
             const Text(
               'Create Your Account',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
             const SizedBox(height: 8),
             // Subtitle
             Text(
               'Join E Market and start exploring global export opportunities today.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 32),
             // Full Name
@@ -235,10 +209,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 ),
               ),
               items: widget.countries.map((country) {
-                return DropdownMenuItem(
-                  value: country['id'] as int,
-                  child: Text(country['name'] as String),
-                );
+                return DropdownMenuItem(value: country['id'] as int, child: Text(country['name'] as String));
               }).toList(),
               onChanged: (value) => setState(() => _selectedCountryId = value),
               validator: (value) {
@@ -255,11 +226,7 @@ class _RegisterFormState extends State<RegisterForm> {
               children: [
                 Text(
                   'Company Type',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[700],
-                  ),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700]),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -325,10 +292,7 @@ class _RegisterFormState extends State<RegisterForm> {
               obscureText: _obscurePassword,
               prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[600]),
               suffixIcon: IconButton(
-                icon: Icon(
-                  _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  color: Colors.grey[600],
-                ),
+                icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: Colors.grey[600]),
                 onPressed: () {
                   setState(() {
                     _obscurePassword = !_obscurePassword;
@@ -345,10 +309,7 @@ class _RegisterFormState extends State<RegisterForm> {
               obscureText: _obscureConfirmPassword,
               prefixIcon: Icon(Icons.refresh_outlined, color: Colors.grey[600]),
               suffixIcon: IconButton(
-                icon: Icon(
-                  _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  color: Colors.grey[600],
-                ),
+                icon: Icon(_obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: Colors.grey[600]),
                 onPressed: () {
                   setState(() {
                     _obscureConfirmPassword = !_obscureConfirmPassword;
@@ -359,40 +320,21 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
             const SizedBox(height: 32),
             // Register Button
-            AppButton(
-              text: 'Create Account',
-              onPressed: _handleSubmit,
-              backgroundColor: AppTheme.primaryBlue,
-              textColor: Colors.white,
-            ),
+            AppButton(text: 'Create Account', onPressed: _handleSubmit, backgroundColor: AppTheme.primaryBlue, textColor: Colors.white),
             const SizedBox(height: 24),
             // Sign in link
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Already have an account? ',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
+                Text('Already have an account? ', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
                 TextButton(
                   onPressed: () {
                     context.go(RouteNames.login);
                   },
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   child: Text(
                     'Sign in',
-                    style: TextStyle(
-                      color: AppTheme.primaryBlue,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(color: AppTheme.primaryBlue, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -403,12 +345,7 @@ class _RegisterFormState extends State<RegisterForm> {
     );
   }
 
-  Widget _buildCompanyTypeButton({
-    required String label,
-    required IconData icon,
-    required int value,
-    required bool isSelected,
-  }) {
+  Widget _buildCompanyTypeButton({required String label, required IconData icon, required int value, required bool isSelected}) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -421,19 +358,12 @@ class _RegisterFormState extends State<RegisterForm> {
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primaryBlue : Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected ? AppTheme.primaryBlue : Colors.grey[300]!,
-            width: 1,
-          ),
+          border: Border.all(color: isSelected ? AppTheme.primaryBlue : Colors.grey[300]!, width: 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 18,
-              color: isSelected ? Colors.white : Colors.grey[700],
-            ),
+            Icon(icon, size: 18, color: isSelected ? Colors.white : Colors.grey[700]),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
@@ -446,14 +376,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (isSelected) ...[
-              const SizedBox(width: 4),
-              Icon(
-                Icons.check,
-                size: 16,
-                color: Colors.white,
-              ),
-            ],
+            if (isSelected) ...[const SizedBox(width: 4), Icon(Icons.check, size: 16, color: Colors.white)],
           ],
         ),
       ),

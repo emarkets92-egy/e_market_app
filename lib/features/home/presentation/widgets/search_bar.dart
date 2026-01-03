@@ -17,12 +17,7 @@ class SearchBar extends StatelessWidget {
             children: [
               const Icon(Icons.search),
               const SizedBox(width: 16),
-              Text(
-                'Search products...',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey,
-                    ),
-              ),
+              Text('Search products...', style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey)),
             ],
           ),
         ),
@@ -30,4 +25,3 @@ class SearchBar extends StatelessWidget {
     );
   }
 }
-

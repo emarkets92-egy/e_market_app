@@ -43,10 +43,7 @@ class ShipmentRecordModel {
     this.unlockedAt,
   });
 
-  factory ShipmentRecordModel.fromJson(
-    Map<String, dynamic> json, {
-    bool? isSeen,
-  }) {
+  factory ShipmentRecordModel.fromJson(Map<String, dynamic> json, {bool? isSeen}) {
     return ShipmentRecordModel(
       id: json['id'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -62,17 +59,11 @@ class ShipmentRecordModel {
       notifyParty: json['notifyParty'] as String?,
       notifyAddress: json['notifyAddress'] as String?,
       hsCode: json['hsCode'] as String?,
-      quantity: json['quantity'] != null
-          ? (json['quantity'] as num).toDouble()
-          : null,
+      quantity: json['quantity'] != null ? (json['quantity'] as num).toDouble() : null,
       value: json['value'] != null ? (json['value'] as num).toDouble() : null,
       isSeen: isSeen ?? json['isSeen'] as bool? ?? false,
-      unlockCost: json['unlockCost'] != null
-          ? (json['unlockCost'] as num).toInt()
-          : 0,
-      unlockedAt: json['unlockedAt'] != null
-          ? DateTime.parse(json['unlockedAt'] as String)
-          : null,
+      unlockCost: json['unlockCost'] != null ? (json['unlockCost'] as num).toInt() : 0,
+      unlockedAt: json['unlockedAt'] != null ? DateTime.parse(json['unlockedAt'] as String) : null,
     );
   }
 
@@ -151,25 +142,14 @@ class ShipmentRecordsResponseModel {
   final ShipmentRecordList? seenShipmentRecords;
   final ShipmentRecordList? unseenShipmentRecords;
 
-  ShipmentRecordsResponseModel({
-    required this.profileId,
-    required this.unlockCost,
-    this.seenShipmentRecords,
-    this.unseenShipmentRecords,
-  });
+  ShipmentRecordsResponseModel({required this.profileId, required this.unlockCost, this.seenShipmentRecords, this.unseenShipmentRecords});
 
   factory ShipmentRecordsResponseModel.fromJson(Map<String, dynamic> json) {
     final seenRecords = json['seenShipmentRecords'] != null
-        ? ShipmentRecordList.fromJson(
-            json['seenShipmentRecords'] as Map<String, dynamic>,
-            isSeen: true,
-          )
+        ? ShipmentRecordList.fromJson(json['seenShipmentRecords'] as Map<String, dynamic>, isSeen: true)
         : null;
     final unseenRecords = json['unseenShipmentRecords'] != null
-        ? ShipmentRecordList.fromJson(
-            json['unseenShipmentRecords'] as Map<String, dynamic>,
-            isSeen: false,
-          )
+        ? ShipmentRecordList.fromJson(json['unseenShipmentRecords'] as Map<String, dynamic>, isSeen: false)
         : null;
 
     return ShipmentRecordsResponseModel(
@@ -184,10 +164,8 @@ class ShipmentRecordsResponseModel {
     return {
       'profileId': profileId,
       'unlockCost': unlockCost,
-      if (seenShipmentRecords != null)
-        'seenShipmentRecords': seenShipmentRecords!.toJson(),
-      if (unseenShipmentRecords != null)
-        'unseenShipmentRecords': unseenShipmentRecords!.toJson(),
+      if (seenShipmentRecords != null) 'seenShipmentRecords': seenShipmentRecords!.toJson(),
+      if (unseenShipmentRecords != null) 'unseenShipmentRecords': unseenShipmentRecords!.toJson(),
     };
   }
 }
@@ -196,43 +174,20 @@ class ShipmentRecordList {
   final List<ShipmentRecordModel> data;
   final PaginationInfo pagination;
 
-  ShipmentRecordList({
-    required this.data,
-    required this.pagination,
-  });
+  ShipmentRecordList({required this.data, required this.pagination});
 
-  factory ShipmentRecordList.fromJson(
-    Map<String, dynamic> json, {
-    bool isSeen = false,
-  }) {
+  factory ShipmentRecordList.fromJson(Map<String, dynamic> json, {bool isSeen = false}) {
     return ShipmentRecordList(
-      data: (json['data'] as List<dynamic>?)
-              ?.map((e) => ShipmentRecordModel.fromJson(
-                    e as Map<String, dynamic>,
-                    isSeen: isSeen,
-                  ))
-              .toList() ??
-          [],
-      pagination: PaginationInfo.fromJson(
-          json['pagination'] as Map<String, dynamic>),
+      data: (json['data'] as List<dynamic>?)?.map((e) => ShipmentRecordModel.fromJson(e as Map<String, dynamic>, isSeen: isSeen)).toList() ?? [],
+      pagination: PaginationInfo.fromJson(json['pagination'] as Map<String, dynamic>),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'data': data.map((e) => e.toJson()).toList(),
-      'pagination': pagination.toJson(),
-    };
+    return {'data': data.map((e) => e.toJson()).toList(), 'pagination': pagination.toJson()};
   }
 
-  ShipmentRecordList copyWith({
-    List<ShipmentRecordModel>? data,
-    PaginationInfo? pagination,
-  }) {
-    return ShipmentRecordList(
-      data: data ?? this.data,
-      pagination: pagination ?? this.pagination,
-    );
+  ShipmentRecordList copyWith({List<ShipmentRecordModel>? data, PaginationInfo? pagination}) {
+    return ShipmentRecordList(data: data ?? this.data, pagination: pagination ?? this.pagination);
   }
 }
-

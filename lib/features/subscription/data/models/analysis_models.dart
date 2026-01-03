@@ -35,21 +35,16 @@ class CompetitiveAnalysisModel {
     return CompetitiveAnalysisModel(
       id: json['id'] as String,
       productId: json['productId'] as String?,
-      targetCountryId: json['targetCountryId'] != null
-          ? (json['targetCountryId'] as num).toInt()
-          : null,
+      targetCountryId: json['targetCountryId'] != null ? (json['targetCountryId'] as num).toInt() : null,
       marketName: json['marketName'] as String?,
       totalImports: json['totalImports'] as String?,
-      totalExportsFromSelectedCountry:
-          json['totalExportsFromSelectedCountry'] as String?,
+      totalExportsFromSelectedCountry: json['totalExportsFromSelectedCountry'] as String?,
       rank: json['rank'] != null ? (json['rank'] as num).toInt() : null,
       competingCountryName: json['competingCountryName'] as String?,
       competingCountryExports: json['competingCountryExports'] as String?,
       competingCountryRank: json['competingCountryRank'] as String?,
       isSeen: json['isSeen'] as bool? ?? false,
-      unlockCost: json['unlockCost'] != null
-          ? (json['unlockCost'] as num).toInt()
-          : 0, // Default to 0 if not provided (e.g., in unlock response)
+      unlockCost: json['unlockCost'] != null ? (json['unlockCost'] as num).toInt() : 0, // Default to 0 if not provided (e.g., in unlock response)
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
     );
@@ -62,8 +57,7 @@ class CompetitiveAnalysisModel {
       if (targetCountryId != null) 'targetCountryId': targetCountryId,
       if (marketName != null) 'marketName': marketName,
       if (totalImports != null) 'totalImports': totalImports,
-      if (totalExportsFromSelectedCountry != null)
-        'totalExportsFromSelectedCountry': totalExportsFromSelectedCountry,
+      if (totalExportsFromSelectedCountry != null) 'totalExportsFromSelectedCountry': totalExportsFromSelectedCountry,
       if (rank != null) 'rank': rank,
       if (competingCountryName != null) 'competingCountryName': competingCountryName,
       if (competingCountryExports != null) 'competingCountryExports': competingCountryExports,
@@ -97,8 +91,7 @@ class CompetitiveAnalysisModel {
       targetCountryId: targetCountryId ?? this.targetCountryId,
       marketName: marketName ?? this.marketName,
       totalImports: totalImports ?? this.totalImports,
-      totalExportsFromSelectedCountry:
-          totalExportsFromSelectedCountry ?? this.totalExportsFromSelectedCountry,
+      totalExportsFromSelectedCountry: totalExportsFromSelectedCountry ?? this.totalExportsFromSelectedCountry,
       rank: rank ?? this.rank,
       competingCountryName: competingCountryName ?? this.competingCountryName,
       competingCountryExports: competingCountryExports ?? this.competingCountryExports,
@@ -146,9 +139,7 @@ class PESTLEAnalysisModel {
     return PESTLEAnalysisModel(
       id: json['id'] as String?,
       productId: json['productId'] as String?,
-      targetCountryId: json['targetCountryId'] != null
-          ? (json['targetCountryId'] as num).toInt()
-          : null,
+      targetCountryId: json['targetCountryId'] != null ? (json['targetCountryId'] as num).toInt() : null,
       political: json['political'] as String?,
       economic: json['economic'] as String?,
       social: json['social'] as String?,
@@ -156,9 +147,7 @@ class PESTLEAnalysisModel {
       legal: json['legal'] as String?,
       environmental: json['environmental'] as String?,
       isSeen: json['isSeen'] as bool? ?? false,
-      unlockCost: json['unlockCost'] != null
-          ? (json['unlockCost'] as num).toInt()
-          : 0, // Default to 0 if not provided (e.g., in unlock response)
+      unlockCost: json['unlockCost'] != null ? (json['unlockCost'] as num).toInt() : 0, // Default to 0 if not provided (e.g., in unlock response)
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
     );
@@ -246,17 +235,13 @@ class SWOTAnalysisModel {
     return SWOTAnalysisModel(
       id: json['id'] as String?,
       productId: json['productId'] as String?,
-      targetCountryId: json['targetCountryId'] != null
-          ? (json['targetCountryId'] as num).toInt()
-          : null,
+      targetCountryId: json['targetCountryId'] != null ? (json['targetCountryId'] as num).toInt() : null,
       strengths: json['strengths'] as String?,
       weaknesses: json['weaknesses'] as String?,
       opportunities: json['opportunities'] as String?,
       threats: json['threats'] as String?,
       isSeen: json['isSeen'] as bool? ?? false,
-      unlockCost: json['unlockCost'] != null
-          ? (json['unlockCost'] as num).toInt()
-          : 0, // Default to 0 if not provided (e.g., in unlock response)
+      unlockCost: json['unlockCost'] != null ? (json['unlockCost'] as num).toInt() : 0, // Default to 0 if not provided (e.g., in unlock response)
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
     );
@@ -316,15 +301,7 @@ class MarketPlanModel {
   final bool isSeen;
   final int unlockCost;
 
-  MarketPlanModel({
-    this.id,
-    this.productText,
-    this.priceText,
-    this.placeText,
-    this.promotionText,
-    required this.isSeen,
-    required this.unlockCost,
-  });
+  MarketPlanModel({this.id, this.productText, this.priceText, this.placeText, this.promotionText, required this.isSeen, required this.unlockCost});
 
   factory MarketPlanModel.fromJson(Map<String, dynamic> json) {
     return MarketPlanModel(
@@ -334,9 +311,7 @@ class MarketPlanModel {
       placeText: json['placeText'] as String?,
       promotionText: json['promotionText'] as String?,
       isSeen: json['isSeen'] as bool? ?? false,
-      unlockCost: json['unlockCost'] != null
-          ? (json['unlockCost'] as num).toInt()
-          : 0, // Default to 0 if not provided (e.g., in unlock response)
+      unlockCost: json['unlockCost'] != null ? (json['unlockCost'] as num).toInt() : 0, // Default to 0 if not provided (e.g., in unlock response)
     );
   }
 
@@ -352,15 +327,7 @@ class MarketPlanModel {
     };
   }
 
-  MarketPlanModel copyWith({
-    String? id,
-    String? productText,
-    String? priceText,
-    String? placeText,
-    String? promotionText,
-    bool? isSeen,
-    int? unlockCost,
-  }) {
+  MarketPlanModel copyWith({String? id, String? productText, String? priceText, String? placeText, String? promotionText, bool? isSeen, int? unlockCost}) {
     return MarketPlanModel(
       id: id ?? this.id,
       productText: productText ?? this.productText,

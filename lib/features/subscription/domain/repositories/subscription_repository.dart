@@ -8,18 +8,7 @@ import '../../data/models/shipment_record_model.dart';
 abstract class SubscriptionRepository {
   Future<List<SubscriptionModel>> getSubscriptions({bool activeOnly = true});
   Future<void> subscribe(String productId);
-  Future<MarketExplorationResponseModel> exploreMarket(
-    ExploreMarketRequestModel request,
-  );
-  Future<UnlockResponseModel> unlock({
-    required ContentType contentType,
-    required String targetId,
-  });
-  Future<ShipmentRecordsResponseModel> getShipmentRecords({
-    required String profileId,
-    int? seenPage,
-    int? seenLimit,
-    int? unseenPage,
-    int? unseenLimit,
-  });
+  Future<MarketExplorationResponseModel> exploreMarket(ExploreMarketRequestModel request);
+  Future<UnlockResponseModel> unlock({required ContentType contentType, required String targetId});
+  Future<ShipmentRecordsResponseModel> getShipmentRecords({required String profileId, int? seenPage, int? seenLimit, int? unseenPage, int? unseenLimit});
 }

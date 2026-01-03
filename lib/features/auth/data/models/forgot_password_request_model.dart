@@ -4,8 +4,6 @@ class ForgotPasswordRequestModel {
   ForgotPasswordRequestModel({required this.email});
 
   Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-    };
+    return {'email': email};
   }
 }

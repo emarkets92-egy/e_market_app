@@ -32,9 +32,7 @@ final appRouter = GoRouter(
   initialLocation: RouteNames.login,
   redirect: (context, state) async {
     final isAuthenticated = await SecureStorage.getAccessToken() != null;
-    final isLoginRoute =
-        state.matchedLocation == RouteNames.login ||
-        state.matchedLocation == RouteNames.register;
+    final isLoginRoute = state.matchedLocation == RouteNames.login || state.matchedLocation == RouteNames.register;
 
     if (!isAuthenticated && !isLoginRoute) {
       return RouteNames.login;
@@ -49,24 +47,15 @@ final appRouter = GoRouter(
   routes: [
     GoRoute(
       path: RouteNames.login,
-      builder: (context, state) => BlocProvider.value(
-        value: di.sl<AuthCubit>(),
-        child: const LoginScreen(),
-      ),
+      builder: (context, state) => BlocProvider.value(value: di.sl<AuthCubit>(), child: const LoginScreen()),
     ),
     GoRoute(
       path: RouteNames.register,
-      builder: (context, state) => BlocProvider.value(
-        value: di.sl<AuthCubit>(),
-        child: const RegisterScreen(),
-      ),
+      builder: (context, state) => BlocProvider.value(value: di.sl<AuthCubit>(), child: const RegisterScreen()),
     ),
     GoRoute(
       path: RouteNames.completeProfile,
-      builder: (context, state) => BlocProvider.value(
-        value: di.sl<AuthCubit>(),
-        child: const CompleteProfileScreen(),
-      ),
+      builder: (context, state) => BlocProvider.value(value: di.sl<AuthCubit>(), child: const CompleteProfileScreen()),
     ),
     GoRoute(
       path: RouteNames.home,
@@ -81,52 +70,38 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteNames.inbox,
       builder: (context, state) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: di.sl<HomeCubit>()),
-        ],
+        providers: [BlocProvider.value(value: di.sl<HomeCubit>())],
         child: const InboxScreen(),
       ),
     ),
     GoRoute(
       path: RouteNames.opportunities,
       builder: (context, state) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: di.sl<HomeCubit>()),
-        ],
+        providers: [BlocProvider.value(value: di.sl<HomeCubit>())],
         child: const OpportunitiesScreen(),
       ),
     ),
     GoRoute(
       path: RouteNames.notifications,
       builder: (context, state) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: di.sl<HomeCubit>()),
-        ],
+        providers: [BlocProvider.value(value: di.sl<HomeCubit>())],
         child: const NotificationsScreen(),
       ),
     ),
     GoRoute(
       path: RouteNames.profile,
       builder: (context, state) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: di.sl<HomeCubit>()),
-        ],
+        providers: [BlocProvider.value(value: di.sl<HomeCubit>())],
         child: const ProfileScreen(),
       ),
     ),
     GoRoute(
       path: RouteNames.subscriptionSelection,
-      builder: (context, state) => BlocProvider.value(
-        value: di.sl<SubscriptionCubit>(),
-        child: const SubscriptionSelectionScreen(),
-      ),
+      builder: (context, state) => BlocProvider.value(value: di.sl<SubscriptionCubit>(), child: const SubscriptionSelectionScreen()),
     ),
     GoRoute(
       path: RouteNames.productList,
-      builder: (context, state) => BlocProvider.value(
-        value: di.sl<ProductCubit>(),
-        child: const ProductListScreen(),
-      ),
+      builder: (context, state) => BlocProvider.value(value: di.sl<ProductCubit>(), child: const ProductListScreen()),
     ),
     GoRoute(
       path: RouteNames.productDetail,
@@ -168,59 +143,42 @@ final appRouter = GoRouter(
       path: RouteNames.shipmentRecordsList,
       builder: (context, state) => BlocProvider.value(
         value: di.sl<SubscriptionCubit>(),
-        child: ShipmentRecordsListScreen(
-          profileId: state.pathParameters['profileId']!,
-        ),
+        child: ShipmentRecordsListScreen(profileId: state.pathParameters['profileId']!),
       ),
     ),
     GoRoute(
       path: RouteNames.analysis,
       builder: (context, state) => BlocProvider.value(
         value: di.sl<SubscriptionCubit>(),
-        child: AnalysisScreen(
-          productId: state.uri.queryParameters['productId']!,
-          countryId: int.parse(state.uri.queryParameters['countryId']!),
-        ),
+        child: AnalysisScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
       ),
     ),
     GoRoute(
       path: RouteNames.competitiveAnalysis,
       builder: (context, state) => BlocProvider.value(
         value: di.sl<SubscriptionCubit>(),
-        child: CompetitiveAnalysisScreen(
-          productId: state.uri.queryParameters['productId']!,
-          countryId: int.parse(state.uri.queryParameters['countryId']!),
-        ),
+        child: CompetitiveAnalysisScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
       ),
     ),
     GoRoute(
       path: RouteNames.pestleAnalysis,
       builder: (context, state) => BlocProvider.value(
         value: di.sl<SubscriptionCubit>(),
-        child: PESTLEAnalysisScreen(
-          productId: state.uri.queryParameters['productId']!,
-          countryId: int.parse(state.uri.queryParameters['countryId']!),
-        ),
+        child: PESTLEAnalysisScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
       ),
     ),
     GoRoute(
       path: RouteNames.swotAnalysis,
       builder: (context, state) => BlocProvider.value(
         value: di.sl<SubscriptionCubit>(),
-        child: SWOTAnalysisScreen(
-          productId: state.uri.queryParameters['productId']!,
-          countryId: int.parse(state.uri.queryParameters['countryId']!),
-        ),
+        child: SWOTAnalysisScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
       ),
     ),
     GoRoute(
       path: RouteNames.marketPlan,
       builder: (context, state) => BlocProvider.value(
         value: di.sl<SubscriptionCubit>(),
-        child: MarketPlanScreen(
-          productId: state.uri.queryParameters['productId']!,
-          countryId: int.parse(state.uri.queryParameters['countryId']!),
-        ),
+        child: MarketPlanScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
       ),
     ),
   ],

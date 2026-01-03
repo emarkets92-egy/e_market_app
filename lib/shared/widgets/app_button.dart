@@ -31,9 +31,7 @@ class AppButton extends StatelessWidget {
             onPressed: isLoading ? null : onPressed,
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: _buildChild(context),
           )
@@ -42,9 +40,7 @@ class AppButton extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: backgroundColor,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: _buildChild(context),
           );
@@ -57,45 +53,20 @@ class AppButton extends StatelessWidget {
 
   Widget _buildChild(BuildContext context) {
     if (isLoading) {
-      return const SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      );
+      return const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2));
     }
 
     if (icon != null) {
       final iconWidget = Icon(icon, color: textColor);
-      final textWidget = Text(
-        text,
-        style: TextStyle(color: textColor),
-      );
-      
+      final textWidget = Text(text, style: TextStyle(color: textColor));
+
       if (iconOnRight) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            textWidget,
-            const SizedBox(width: 8),
-            iconWidget,
-          ],
-        );
+        return Row(mainAxisSize: MainAxisSize.min, children: [textWidget, const SizedBox(width: 8), iconWidget]);
       } else {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            iconWidget,
-            const SizedBox(width: 8),
-            textWidget,
-          ],
-        );
+        return Row(mainAxisSize: MainAxisSize.min, children: [iconWidget, const SizedBox(width: 8), textWidget]);
       }
     }
 
-    return Text(
-      text,
-      style: TextStyle(color: textColor),
-    );
+    return Text(text, style: TextStyle(color: textColor));
   }
 }
-

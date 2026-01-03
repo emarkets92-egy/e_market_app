@@ -188,9 +188,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                             children: [
                               ElevatedButton.icon(
                                 onPressed: () {
-                                  context.push(
-                                    '${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}',
-                                  );
+                                  context.push('${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}');
                                 },
                                 icon: const Icon(Icons.analytics_outlined),
                                 label: const Text('Analysis'),
@@ -198,9 +196,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                   backgroundColor: Colors.blue,
                                   foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
                               ),
                             ],
@@ -254,8 +250,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                           const SizedBox(height: 16),
 
                           // Table Header (Only for Table View)
-                          if (_isTableView)
-                            _buildTableHeader(),
+                          if (_isTableView) _buildTableHeader(),
 
                           // Content
                           if (state.isLoading && state.marketExploration == null)
@@ -303,11 +298,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
       child: Container(
         padding: const EdgeInsets.all(8),
         color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.transparent,
-        child: Icon(
-          icon,
-          size: 20,
-          color: isSelected ? Colors.blue : Colors.grey,
-        ),
+        child: Icon(icon, size: 20, color: isSelected ? Colors.blue : Colors.grey),
       ),
     );
   }
@@ -618,12 +609,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 400,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: 1.5,
-      ),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 400, mainAxisSpacing: 16, crossAxisSpacing: 16, childAspectRatio: 1.5),
       itemCount: profiles.length,
       itemBuilder: (context, index) {
         final profile = profiles[index];

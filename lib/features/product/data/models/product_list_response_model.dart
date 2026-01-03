@@ -4,26 +4,17 @@ class ProductListResponseModel {
   final List<ProductModel> data;
   final MetaModel meta;
 
-  ProductListResponseModel({
-    required this.data,
-    required this.meta,
-  });
+  ProductListResponseModel({required this.data, required this.meta});
 
   factory ProductListResponseModel.fromJson(Map<String, dynamic> json) {
     return ProductListResponseModel(
-      data: (json['data'] as List<dynamic>?)
-              ?.map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      data: (json['data'] as List<dynamic>?)?.map((e) => ProductModel.fromJson(e as Map<String, dynamic>)).toList() ?? [],
       meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'data': data.map((e) => e.toJson()).toList(),
-      'meta': meta.toJson(),
-    };
+    return {'data': data.map((e) => e.toJson()).toList(), 'meta': meta.toJson()};
   }
 }
 
@@ -33,12 +24,7 @@ class MetaModel {
   final int total;
   final int totalPages;
 
-  MetaModel({
-    required this.page,
-    required this.limit,
-    required this.total,
-    required this.totalPages,
-  });
+  MetaModel({required this.page, required this.limit, required this.total, required this.totalPages});
 
   factory MetaModel.fromJson(Map<String, dynamic> json) {
     return MetaModel(
@@ -50,11 +36,6 @@ class MetaModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'page': page,
-      'limit': limit,
-      'total': total,
-      'totalPages': totalPages,
-    };
+    return {'page': page, 'limit': limit, 'total': total, 'totalPages': totalPages};
   }
 }

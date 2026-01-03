@@ -8,10 +8,7 @@ import '../../features/version/presentation/screens/update_required_screen.dart'
 class VersionCheckWrapper extends StatefulWidget {
   final Widget child;
 
-  const VersionCheckWrapper({
-    super.key,
-    required this.child,
-  });
+  const VersionCheckWrapper({super.key, required this.child});
 
   @override
   State<VersionCheckWrapper> createState() => _VersionCheckWrapperState();
@@ -36,19 +33,15 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
         if (state is VersionUpdateRequired) {
           return UpdateRequiredScreen(state: state);
         }
-        
+
         // If checking, show loading
         if (state is VersionChecking) {
           return Directionality(
             textDirection: TextDirection.ltr,
-            child: const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
+            child: const Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
-        
+
         // If error, block the app (mandatory update)
         if (state is VersionCheckError) {
           return Directionality(
@@ -60,26 +53,13 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Colors.red,
-                      ),
+                      const Icon(Icons.error_outline, size: 64, color: Colors.red),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Unable to check for updates',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      const Text('Unable to check for updates', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Text(
                         'Please check your internet connection and try again.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 24),
@@ -96,11 +76,10 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
             ),
           );
         }
-        
+
         // If up to date, show the app
         return widget.child;
       },
     );
   }
 }
-

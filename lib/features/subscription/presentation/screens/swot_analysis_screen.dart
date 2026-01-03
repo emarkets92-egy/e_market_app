@@ -12,11 +12,7 @@ class SWOTAnalysisScreen extends StatelessWidget {
   final String productId;
   final int countryId;
 
-  const SWOTAnalysisScreen({
-    super.key,
-    required this.productId,
-    required this.countryId,
-  });
+  const SWOTAnalysisScreen({super.key, required this.productId, required this.countryId});
 
   @override
   Widget build(BuildContext context) {
@@ -48,26 +44,16 @@ class SWOTAnalysisScreen extends StatelessWidget {
                           ? null
                           : () {
                               if (analysis.id != null) {
-                                di.sl<SubscriptionCubit>().unlock(
-                                  contentType: ContentType.swotAnalysis,
-                                  targetId: analysis.id!,
-                                );
+                                di.sl<SubscriptionCubit>().unlock(contentType: ContentType.swotAnalysis, targetId: analysis.id!);
                               }
                             },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (analysis.strengths != null)
-                            _buildSection('Strengths', analysis.strengths!),
-                          if (analysis.weaknesses != null)
-                            _buildSection('Weaknesses', analysis.weaknesses!),
-                          if (analysis.opportunities != null)
-                            _buildSection(
-                              'Opportunities',
-                              analysis.opportunities!,
-                            ),
-                          if (analysis.threats != null)
-                            _buildSection('Threats', analysis.threats!),
+                          if (analysis.strengths != null) _buildSection('Strengths', analysis.strengths!),
+                          if (analysis.weaknesses != null) _buildSection('Weaknesses', analysis.weaknesses!),
+                          if (analysis.opportunities != null) _buildSection('Opportunities', analysis.opportunities!),
+                          if (analysis.threats != null) _buildSection('Threats', analysis.threats!),
                         ],
                       ),
                     ),
@@ -79,10 +65,7 @@ class SWOTAnalysisScreen extends StatelessWidget {
                           currentBalance: _getBalance(context),
                           onUnlock: () {
                             if (analysis.id != null) {
-                              di.sl<SubscriptionCubit>().unlock(
-                                contentType: ContentType.swotAnalysis,
-                                targetId: analysis.id!,
-                              );
+                              di.sl<SubscriptionCubit>().unlock(contentType: ContentType.swotAnalysis, targetId: analysis.id!);
                             }
                           },
                           isLoading: state.isUnlocking,
@@ -104,10 +87,7 @@ class SWOTAnalysisScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(content),
         ],

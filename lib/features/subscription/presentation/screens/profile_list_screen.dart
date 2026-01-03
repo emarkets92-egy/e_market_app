@@ -16,19 +16,13 @@ class ProfileListScreen extends StatefulWidget {
   final int countryId;
   final String marketType;
 
-  const ProfileListScreen({
-    super.key,
-    required this.productId,
-    required this.countryId,
-    required this.marketType,
-  });
+  const ProfileListScreen({super.key, required this.productId, required this.countryId, required this.marketType});
 
   @override
   State<ProfileListScreen> createState() => _ProfileListScreenState();
 }
 
-class _ProfileListScreenState extends State<ProfileListScreen>
-    with SingleTickerProviderStateMixin {
+class _ProfileListScreenState extends State<ProfileListScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String? _lastShownSuccessMessage;
   bool _isTableView = true; // false = card view, true = table view (default: table)
@@ -45,11 +39,7 @@ class _ProfileListScreenState extends State<ProfileListScreen>
     // Only load if marketExploration is null (not loaded yet)
     // This handles direct navigation to ProfileListScreen without going through MarketSelectionScreen
     if (currentState.marketExploration == null) {
-      di.sl<SubscriptionCubit>().exploreMarket(
-        productId: widget.productId,
-        marketType: widget.marketType,
-        countryId: widget.countryId,
-      );
+      di.sl<SubscriptionCubit>().exploreMarket(productId: widget.productId, marketType: widget.marketType, countryId: widget.countryId);
     }
   }
 
@@ -60,21 +50,11 @@ class _ProfileListScreenState extends State<ProfileListScreen>
   }
 
   void _loadUnseenProfiles(int page) {
-    di.sl<SubscriptionCubit>().exploreMarket(
-      productId: widget.productId,
-      marketType: widget.marketType,
-      countryId: widget.countryId,
-      unseenPage: page,
-    );
+    di.sl<SubscriptionCubit>().exploreMarket(productId: widget.productId, marketType: widget.marketType, countryId: widget.countryId, unseenPage: page);
   }
 
   void _loadSeenProfiles(int page) {
-    di.sl<SubscriptionCubit>().exploreMarket(
-      productId: widget.productId,
-      marketType: widget.marketType,
-      countryId: widget.countryId,
-      seenPage: page,
-    );
+    di.sl<SubscriptionCubit>().exploreMarket(productId: widget.productId, marketType: widget.marketType, countryId: widget.countryId, seenPage: page);
   }
 
   @override
@@ -83,9 +63,7 @@ class _ProfileListScreenState extends State<ProfileListScreen>
       body: Column(
         children: [
           // Premium Header Bar
-          const PremiumHeaderBar(
-            showBackButton: true,
-          ),
+          const PremiumHeaderBar(showBackButton: true),
           // Tab Bar
           BlocBuilder<SubscriptionCubit, SubscriptionState>(
             bloc: di.sl<SubscriptionCubit>(),
@@ -97,14 +75,8 @@ class _ProfileListScreenState extends State<ProfileListScreen>
                     TabBar(
                       controller: _tabController,
                       tabs: [
-                        Tab(
-                          text:
-                              'New Profiles${state.unseenProfilesTotal > 0 ? ' (${state.unseenProfilesTotal})' : ''}',
-                        ),
-                        Tab(
-                          text:
-                              'Unlocked${state.seenProfilesTotal > 0 ? ' (${state.seenProfilesTotal})' : ''}',
-                        ),
+                        Tab(text: 'New Profiles${state.unseenProfilesTotal > 0 ? ' (${state.unseenProfilesTotal})' : ''}'),
+                        Tab(text: 'Unlocked${state.seenProfilesTotal > 0 ? ' (${state.seenProfilesTotal})' : ''}'),
                       ],
                     ),
                     // View Toggle
@@ -113,42 +85,19 @@ class _ProfileListScreenState extends State<ProfileListScreen>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Importers Directory',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          const Text('Importers Directory', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                           Row(
                             children: [
-                              Text(
-                                '${state.unseenProfilesTotal + state.seenProfilesTotal} Results',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                              Text('${state.unseenProfilesTotal + state.seenProfilesTotal} Results', style: const TextStyle(fontSize: 14, color: Colors.grey)),
                               const SizedBox(width: 16),
                               // View Toggle Icons
                               Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                                decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    _buildViewToggleButton(
-                                      icon: Icons.view_list,
-                                      isSelected: _isTableView,
-                                      onTap: () => setState(() => _isTableView = true),
-                                    ),
-                                    _buildViewToggleButton(
-                                      icon: Icons.grid_view,
-                                      isSelected: !_isTableView,
-                                      onTap: () => setState(() => _isTableView = false),
-                                    ),
+                                    _buildViewToggleButton(icon: Icons.view_list, isSelected: _isTableView, onTap: () => setState(() => _isTableView = true)),
+                                    _buildViewToggleButton(icon: Icons.grid_view, isSelected: !_isTableView, onTap: () => setState(() => _isTableView = false)),
                                   ],
                                 ),
                               ),
@@ -167,58 +116,41 @@ class _ProfileListScreenState extends State<ProfileListScreen>
             child: BlocConsumer<SubscriptionCubit, SubscriptionState>(
               bloc: di.sl<SubscriptionCubit>(),
               listener: (context, state) {
-          // Only show snackbar if this is a new success message we haven't shown yet
-          if (state.successMessage != null &&
-              state.successMessage != _lastShownSuccessMessage) {
-            _lastShownSuccessMessage = state.successMessage;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.successMessage!),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 2),
-              ),
-            );
-            // Clear the success message after showing using post-frame callback
-            // to avoid triggering listener again immediately
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              try {
-                di.sl<SubscriptionCubit>().clearSuccessMessage();
-              } catch (e) {
-                // Ignore errors if cubit is disposed
-              }
-              });
-            }
-            if (state.error != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.error!),
-                  backgroundColor: Colors.red,
-                  duration: const Duration(seconds: 3),
-                ),
-              );
-            }
+                // Only show snackbar if this is a new success message we haven't shown yet
+                if (state.successMessage != null && state.successMessage != _lastShownSuccessMessage) {
+                  _lastShownSuccessMessage = state.successMessage;
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.successMessage!), backgroundColor: Colors.green, duration: const Duration(seconds: 2)));
+                  // Clear the success message after showing using post-frame callback
+                  // to avoid triggering listener again immediately
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    try {
+                      di.sl<SubscriptionCubit>().clearSuccessMessage();
+                    } catch (e) {
+                      // Ignore errors if cubit is disposed
+                    }
+                  });
+                }
+                if (state.error != null) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.error!), backgroundColor: Colors.red, duration: const Duration(seconds: 3)));
+                }
               },
               builder: (context, state) {
-          if (state.isLoading &&
-              state.unseenProfiles.isEmpty &&
-              state.seenProfiles.isEmpty) {
-            return const LoadingIndicator();
-          }
+                if (state.isLoading && state.unseenProfiles.isEmpty && state.seenProfiles.isEmpty) {
+                  return const LoadingIndicator();
+                }
 
-          if (state.error != null &&
-              state.unseenProfiles.isEmpty &&
-              state.seenProfiles.isEmpty) {
-            return AppErrorWidget(
-              message: state.error!,
-              onRetry: () {
-                di.sl<SubscriptionCubit>().exploreMarket(
-                  productId: widget.productId,
-                  marketType: widget.marketType,
-                  countryId: widget.countryId,
-                );
-              },
-            );
-          }
+                if (state.error != null && state.unseenProfiles.isEmpty && state.seenProfiles.isEmpty) {
+                  return AppErrorWidget(
+                    message: state.error!,
+                    onRetry: () {
+                      di.sl<SubscriptionCubit>().exploreMarket(productId: widget.productId, marketType: widget.marketType, countryId: widget.countryId);
+                    },
+                  );
+                }
 
                 return TabBarView(
                   controller: _tabController,
@@ -254,24 +186,13 @@ class _ProfileListScreenState extends State<ProfileListScreen>
     );
   }
 
-  Widget _buildViewToggleButton({
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildViewToggleButton({required IconData icon, required bool isSelected, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(
-          icon,
-          color: isSelected ? Colors.white : Colors.grey[600],
-          size: 20,
-        ),
+        decoration: BoxDecoration(color: isSelected ? Colors.blue : Colors.transparent, borderRadius: BorderRadius.circular(8)),
+        child: Icon(icon, color: isSelected ? Colors.white : Colors.grey[600], size: 20),
       ),
     );
   }
@@ -296,49 +217,26 @@ class _ProfileListScreenState extends State<ProfileListScreen>
         });
         return const Center(child: CircularProgressIndicator());
       }
-      return Center(
-        child: Text(
-          isSeen ? 'No unlocked profiles found' : 'No new profiles found',
-        ),
-      );
+      return Center(child: Text(isSeen ? 'No unlocked profiles found' : 'No new profiles found'));
     }
 
     return Column(
       children: [
         Expanded(
           child: _isTableView
-              ? _buildTableView(
-                  profiles: profiles,
-                  isUnlocking: isUnlocking,
-                  isSeen: isSeen,
-                )
-              : _buildGridView(
-                  context: context,
-                  profiles: profiles,
-                  isUnlocking: isUnlocking,
-                  isSeen: isSeen,
-                ),
+              ? _buildTableView(profiles: profiles, isUnlocking: isUnlocking, isSeen: isSeen)
+              : _buildGridView(context: context, profiles: profiles, isUnlocking: isUnlocking, isSeen: isSeen),
         ),
-        if (totalPages > 1)
-          _buildPaginationControls(
-            currentPage: currentPage,
-            totalPages: totalPages,
-            onPageChanged: onPageChanged,
-          ),
+        if (totalPages > 1) _buildPaginationControls(currentPage: currentPage, totalPages: totalPages, onPageChanged: onPageChanged),
       ],
     );
   }
 
-  Widget _buildGridView({
-    required BuildContext context,
-    required List<ProfileModel> profiles,
-    required bool isUnlocking,
-    required bool isSeen,
-  }) {
+  Widget _buildGridView({required BuildContext context, required List<ProfileModel> profiles, required bool isUnlocking, required bool isSeen}) {
     // Calculate number of columns based on screen width
     final screenWidth = MediaQuery.of(context).size.width;
     final crossAxisCount = screenWidth > 800 ? 3 : 2;
-    
+
     // Use a larger aspect ratio to make cards wider and take less vertical space
     // Higher aspect ratio = wider cards relative to height = less vertical space
     final childAspectRatio = screenWidth > 800 ? 1.5 : 1.3;
@@ -360,21 +258,14 @@ class _ProfileListScreenState extends State<ProfileListScreen>
           onUnlock: isSeen
               ? () {} // Dummy callback for seen profiles
               : () {
-                  di.sl<SubscriptionCubit>().unlock(
-                    contentType: ContentType.profileContact,
-                    targetId: profile.id,
-                  );
+                  di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
                 },
         );
       },
     );
   }
 
-  Widget _buildTableView({
-    required List<ProfileModel> profiles,
-    required bool isUnlocking,
-    required bool isSeen,
-  }) {
+  Widget _buildTableView({required List<ProfileModel> profiles, required bool isUnlocking, required bool isSeen}) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -383,19 +274,29 @@ class _ProfileListScreenState extends State<ProfileListScreen>
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.grey[100],
-              border: Border(
-                bottom: BorderSide(color: Colors.grey[300]!),
-              ),
+              border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
             ),
             child: const Row(
               children: [
-                SizedBox(width: 80, child: Text('PROFILE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+                SizedBox(
+                  width: 80,
+                  child: Text('PROFILE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                ),
                 SizedBox(width: 16),
-                Expanded(flex: 2, child: Text('IMPORTER NAME', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+                Expanded(
+                  flex: 2,
+                  child: Text('IMPORTER NAME', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                ),
                 SizedBox(width: 16),
-                Expanded(flex: 2, child: Text('EMAIL', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+                Expanded(
+                  flex: 2,
+                  child: Text('EMAIL', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                ),
                 SizedBox(width: 16),
-                Expanded(flex: 1, child: Text('WHATSAPP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+                Expanded(
+                  flex: 1,
+                  child: Text('WHATSAPP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                ),
               ],
             ),
           ),
@@ -407,10 +308,7 @@ class _ProfileListScreenState extends State<ProfileListScreen>
               onUnlock: isSeen
                   ? () {}
                   : () {
-                      di.sl<SubscriptionCubit>().unlock(
-                        contentType: ContentType.profileContact,
-                        targetId: profile.id,
-                      );
+                      di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
                     },
             );
           }),
@@ -419,29 +317,15 @@ class _ProfileListScreenState extends State<ProfileListScreen>
     );
   }
 
-  Widget _buildPaginationControls({
-    required int currentPage,
-    required int totalPages,
-    required Function(int) onPageChanged,
-  }) {
+  Widget _buildPaginationControls({required int currentPage, required int totalPages, required Function(int) onPageChanged}) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: currentPage > 1
-                ? () => onPageChanged(currentPage - 1)
-                : null,
-          ),
+          IconButton(icon: const Icon(Icons.chevron_left), onPressed: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null),
           Text('Page $currentPage of $totalPages'),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: currentPage < totalPages
-                ? () => onPageChanged(currentPage + 1)
-                : null,
-          ),
+          IconButton(icon: const Icon(Icons.chevron_right), onPressed: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null),
         ],
       ),
     );

@@ -51,11 +51,11 @@ class SubscriptionState {
     this.unseenProfiles = const [],
     this.seenProfiles = const [],
     this.unseenProfilesPage = 1,
-    this.unseenProfilesLimit = 10,  // Changed from 20 to 10
+    this.unseenProfilesLimit = 10, // Changed from 20 to 10
     this.unseenProfilesTotal = 0,
     this.unseenProfilesTotalPages = 0,
     this.seenProfilesPage = 1,
-    this.seenProfilesLimit = 10,  // Changed from 20 to 10
+    this.seenProfilesLimit = 10, // Changed from 20 to 10
     this.seenProfilesTotal = 0,
     this.seenProfilesTotalPages = 0,
     this.unlocks = const [],
@@ -85,11 +85,11 @@ class SubscriptionState {
       unseenProfiles = const [],
       seenProfiles = const [],
       unseenProfilesPage = 1,
-      unseenProfilesLimit = 10,  // Changed from 20 to 10
+      unseenProfilesLimit = 10, // Changed from 20 to 10
       unseenProfilesTotal = 0,
       unseenProfilesTotalPages = 0,
       seenProfilesPage = 1,
-      seenProfilesLimit = 10,  // Changed from 20 to 10
+      seenProfilesLimit = 10, // Changed from 20 to 10
       seenProfilesTotal = 0,
       seenProfilesTotalPages = 0,
       unlocks = const [],
@@ -118,11 +118,11 @@ class SubscriptionState {
       unseenProfiles = const [],
       seenProfiles = const [],
       unseenProfilesPage = 1,
-      unseenProfilesLimit = 10,  // Changed from 20 to 10
+      unseenProfilesLimit = 10, // Changed from 20 to 10
       unseenProfilesTotal = 0,
       unseenProfilesTotalPages = 0,
       seenProfilesPage = 1,
-      seenProfilesLimit = 10,  // Changed from 20 to 10
+      seenProfilesLimit = 10, // Changed from 20 to 10
       seenProfilesTotal = 0,
       seenProfilesTotalPages = 0,
       unlocks = const [],
@@ -186,13 +186,11 @@ class SubscriptionState {
       unseenProfilesPage: unseenProfilesPage ?? this.unseenProfilesPage,
       unseenProfilesLimit: unseenProfilesLimit ?? this.unseenProfilesLimit,
       unseenProfilesTotal: unseenProfilesTotal ?? this.unseenProfilesTotal,
-      unseenProfilesTotalPages:
-          unseenProfilesTotalPages ?? this.unseenProfilesTotalPages,
+      unseenProfilesTotalPages: unseenProfilesTotalPages ?? this.unseenProfilesTotalPages,
       seenProfilesPage: seenProfilesPage ?? this.seenProfilesPage,
       seenProfilesLimit: seenProfilesLimit ?? this.seenProfilesLimit,
       seenProfilesTotal: seenProfilesTotal ?? this.seenProfilesTotal,
-      seenProfilesTotalPages:
-          seenProfilesTotalPages ?? this.seenProfilesTotalPages,
+      seenProfilesTotalPages: seenProfilesTotalPages ?? this.seenProfilesTotalPages,
       unlocks: unlocks ?? this.unlocks,
       subscriptions: subscriptions ?? this.subscriptions,
       unlocksTotalPages: unlocksTotalPages ?? this.unlocksTotalPages,
@@ -207,14 +205,10 @@ class SubscriptionState {
       unseenShipmentRecordsLimit: unseenShipmentRecordsLimit ?? this.unseenShipmentRecordsLimit,
       unseenShipmentRecordsTotal: unseenShipmentRecordsTotal ?? this.unseenShipmentRecordsTotal,
       unseenShipmentRecordsTotalPages: unseenShipmentRecordsTotalPages ?? this.unseenShipmentRecordsTotalPages,
-      shipmentRecordsUnlockCost: shipmentRecordsUnlockCost == _noValue
-          ? this.shipmentRecordsUnlockCost
-          : shipmentRecordsUnlockCost as int?,
+      shipmentRecordsUnlockCost: shipmentRecordsUnlockCost == _noValue ? this.shipmentRecordsUnlockCost : shipmentRecordsUnlockCost as int?,
       currentProfileId: currentProfileId ?? this.currentProfileId,
       error: error == _noValue ? this.error : error as String?,
-      successMessage: successMessage == _noValue
-          ? this.successMessage
-          : successMessage as String?,
+      successMessage: successMessage == _noValue ? this.successMessage : successMessage as String?,
     );
   }
 }

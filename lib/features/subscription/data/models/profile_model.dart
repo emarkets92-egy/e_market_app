@@ -31,16 +31,10 @@ class ProfileModel {
       whatsapp: json['whatsapp'] as String?,
       website: json['website'] as String?,
       address: json['address'] as String?,
-      shipmentRecords: json['shipmentRecords'] != null
-          ? (json['shipmentRecords'] as num).toInt()
-          : null,
+      shipmentRecords: json['shipmentRecords'] != null ? (json['shipmentRecords'] as num).toInt() : null,
       isSeen: json['isSeen'] as bool? ?? false,
-      unlockCost: json['unlockCost'] != null
-          ? (json['unlockCost'] as num).toInt()
-          : 0, // Default to 0 if not provided (e.g., in unlock response)
-      unlockedAt: json['unlockedAt'] != null
-          ? DateTime.parse(json['unlockedAt'] as String)
-          : null,
+      unlockCost: json['unlockCost'] != null ? (json['unlockCost'] as num).toInt() : 0, // Default to 0 if not provided (e.g., in unlock response)
+      unlockedAt: json['unlockedAt'] != null ? DateTime.parse(json['unlockedAt'] as String) : null,
     );
   }
 

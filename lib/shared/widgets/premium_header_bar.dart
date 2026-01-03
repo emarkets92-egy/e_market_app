@@ -24,13 +24,7 @@ class PremiumHeaderBar extends StatelessWidget {
   final VoidCallback? onTopUpTap;
   final bool showBackButton;
 
-  const PremiumHeaderBar({
-    super.key,
-    this.onNotificationTap,
-    this.onMenuTap,
-    this.onTopUpTap,
-    this.showBackButton = false,
-  });
+  const PremiumHeaderBar({super.key, this.onNotificationTap, this.onMenuTap, this.onTopUpTap, this.showBackButton = false});
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +32,7 @@ class PremiumHeaderBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[200]!),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -49,11 +41,7 @@ class PremiumHeaderBar extends StatelessWidget {
           Row(
             children: [
               if (showBackButton) ...[
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => context.pop(),
-                  tooltip: 'Back',
-                ),
+                IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop(), tooltip: 'Back'),
                 const SizedBox(width: 8),
               ],
               // Premium Access Card
@@ -71,11 +59,7 @@ class PremiumHeaderBar extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.account_balance_wallet,
-                          color: AppTheme.primaryBlue,
-                          size: 24,
-                        ),
+                        const Icon(Icons.account_balance_wallet, color: AppTheme.primaryBlue, size: 24),
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,28 +67,17 @@ class PremiumHeaderBar extends StatelessWidget {
                           children: [
                             const Text(
                               'Premium Access',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey,
-                              ),
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey),
                             ),
                             const SizedBox(height: 4),
                             RichText(
                               text: TextSpan(
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
+                                style: const TextStyle(fontSize: 14, color: Colors.grey),
                                 children: [
                                   const TextSpan(text: 'Available Points: '),
                                   TextSpan(
                                     text: _formatNumber(points),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.primaryBlue,
-                                    ),
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
                                   ),
                                 ],
                               ),
@@ -122,16 +95,8 @@ class PremiumHeaderBar extends StatelessWidget {
           // Right side: Notification, Menu, Top Up Button
           Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_outlined),
-                onPressed: onNotificationTap ?? () {},
-                tooltip: 'Notifications',
-              ),
-              IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: onMenuTap ?? () {},
-                tooltip: 'Menu',
-              ),
+              IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: onNotificationTap ?? () {}, tooltip: 'Notifications'),
+              IconButton(icon: const Icon(Icons.menu), onPressed: onMenuTap ?? () {}, tooltip: 'Menu'),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: onTopUpTap ?? () {},
@@ -139,9 +104,7 @@ class PremiumHeaderBar extends StatelessWidget {
                   backgroundColor: AppTheme.primaryBlue,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: const Text('Top Up Points'),
               ),
@@ -152,4 +115,3 @@ class PremiumHeaderBar extends StatelessWidget {
     );
   }
 }
-

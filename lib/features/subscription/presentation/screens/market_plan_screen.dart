@@ -12,11 +12,7 @@ class MarketPlanScreen extends StatelessWidget {
   final String productId;
   final int countryId;
 
-  const MarketPlanScreen({
-    super.key,
-    required this.productId,
-    required this.countryId,
-  });
+  const MarketPlanScreen({super.key, required this.productId, required this.countryId});
 
   @override
   Widget build(BuildContext context) {
@@ -48,23 +44,16 @@ class MarketPlanScreen extends StatelessWidget {
                           ? null
                           : () {
                               if (plan.id != null) {
-                                di.sl<SubscriptionCubit>().unlock(
-                                  contentType: ContentType.marketPlan,
-                                  targetId: plan.id!,
-                                );
+                                di.sl<SubscriptionCubit>().unlock(contentType: ContentType.marketPlan, targetId: plan.id!);
                               }
                             },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (plan.productText != null)
-                            _buildSection('Product', plan.productText!),
-                          if (plan.priceText != null)
-                            _buildSection('Price', plan.priceText!),
-                          if (plan.placeText != null)
-                            _buildSection('Place', plan.placeText!),
-                          if (plan.promotionText != null)
-                            _buildSection('Promotion', plan.promotionText!),
+                          if (plan.productText != null) _buildSection('Product', plan.productText!),
+                          if (plan.priceText != null) _buildSection('Price', plan.priceText!),
+                          if (plan.placeText != null) _buildSection('Place', plan.placeText!),
+                          if (plan.promotionText != null) _buildSection('Promotion', plan.promotionText!),
                         ],
                       ),
                     ),
@@ -76,10 +65,7 @@ class MarketPlanScreen extends StatelessWidget {
                           currentBalance: _getBalance(context),
                           onUnlock: () {
                             if (plan.id != null) {
-                              di.sl<SubscriptionCubit>().unlock(
-                                contentType: ContentType.marketPlan,
-                                targetId: plan.id!,
-                              );
+                              di.sl<SubscriptionCubit>().unlock(contentType: ContentType.marketPlan, targetId: plan.id!);
                             }
                           },
                           isLoading: state.isUnlocking,
@@ -101,10 +87,7 @@ class MarketPlanScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(content),
         ],

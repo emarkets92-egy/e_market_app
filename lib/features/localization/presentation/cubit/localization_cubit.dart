@@ -6,8 +6,7 @@ import '../cubit/localization_state.dart';
 class LocalizationCubit extends Cubit<LocalizationState> {
   final LocalizationRepository _repository;
 
-  LocalizationCubit(this._repository)
-    : super(const LocalizationState.initial());
+  LocalizationCubit(this._repository) : super(const LocalizationState.initial());
 
   Future<void> loadCountries({String? locale}) async {
     emit(state.copyWith(isLoading: true, error: null));

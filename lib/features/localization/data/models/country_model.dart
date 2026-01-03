@@ -6,14 +6,7 @@ class CountryModel {
   final String? phoneCode;
   final String? flagEmoji;
 
-  CountryModel({
-    required this.id,
-    required this.code,
-    required this.name,
-    this.iso3Code,
-    this.phoneCode,
-    this.flagEmoji,
-  });
+  CountryModel({required this.id, required this.code, required this.name, this.iso3Code, this.phoneCode, this.flagEmoji});
 
   factory CountryModel.fromJson(Map<String, dynamic> json) {
     return CountryModel(

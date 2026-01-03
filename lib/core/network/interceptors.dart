@@ -10,10 +10,7 @@ class AuthInterceptor extends Interceptor {
   final List<_PendingRequest> _pendingRequests = [];
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     // Skip token refresh endpoint
     if (options.path == '/auth/refresh') {
       handler.next(options);
@@ -61,10 +58,7 @@ class AuthInterceptor extends Interceptor {
         refreshDio.options.baseUrl = AppConfig.apiBaseUrl;
         refreshDio.options.headers['Content-Type'] = 'application/json';
 
-        final refreshResponse = await refreshDio.post(
-          '/auth/refresh',
-          data: {'refreshToken': refreshToken},
-        );
+        final refreshResponse = await refreshDio.post('/auth/refresh', data: {'refreshToken': refreshToken});
 
         if (refreshResponse.statusCode == 200) {
           final data = refreshResponse.data as Map<String, dynamic>;
@@ -78,8 +72,7 @@ class AuthInterceptor extends Interceptor {
           final retryDio = Dio();
           retryDio.options.baseUrl = AppConfig.apiBaseUrl;
           retryDio.options.headers['Content-Type'] = 'application/json';
-          retryDio.options.headers['Authorization'] =
-              'Bearer ${data['accessToken']}';
+          retryDio.options.headers['Authorization'] = 'Bearer ${data['accessToken']}';
 
           final retryResponse = await retryDio.request(
             opts.path,
@@ -88,14 +81,7 @@ class AuthInterceptor extends Interceptor {
             options: Options(method: opts.method),
           );
 
-          handler.resolve(
-            Response(
-              requestOptions: opts,
-              data: retryResponse.data,
-              statusCode: retryResponse.statusCode,
-              headers: retryResponse.headers,
-            ),
-          );
+          handler.resolve(Response(requestOptions: opts, data: retryResponse.data, statusCode: retryResponse.statusCode, headers: retryResponse.headers));
 
           // Process pending requests
           _processPendingRequests(null, data['accessToken'] as String);
@@ -137,12 +123,7 @@ class AuthInterceptor extends Interceptor {
             )
             .then((response) {
               pending.handler.resolve(
-                Response(
-                  requestOptions: pending.requestOptions,
-                  data: response.data,
-                  statusCode: response.statusCode,
-                  headers: response.headers,
-                ),
+                Response(requestOptions: pending.requestOptions, data: response.data, statusCode: response.statusCode, headers: response.headers),
               );
             })
             .catchError((e) {
@@ -180,12 +161,7 @@ class ErrorInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final errorMessage = ApiErrorMapper.mapError(err);
-    final modifiedError = DioException(
-      requestOptions: err.requestOptions,
-      response: err.response,
-      type: err.type,
-      error: errorMessage,
-    );
+    final modifiedError = DioException(requestOptions: err.requestOptions, response: err.response, type: err.type, error: errorMessage);
     handler.next(modifiedError);
   }
 }
@@ -205,17 +181,13 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    print(
-      'RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}',
-    );
+    print('RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    print(
-      'ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}',
-    );
+    print('ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}');
     print('ERROR MESSAGE: ${err.error}');
     handler.next(err);
   }

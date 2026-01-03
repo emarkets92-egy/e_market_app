@@ -10,19 +10,12 @@ class InboxScreen extends StatelessWidget {
     return Scaffold(
       body: Row(
         children: [
-          const SidebarNavigation(
-            hasUnreadNotifications: true,
-          ),
+          const SidebarNavigation(hasUnreadNotifications: true),
           const Expanded(
-            child: ComingSoonScreen(
-              title: 'Inbox',
-              icon: Icons.inbox,
-              description: 'Your messages and communications will appear here soon.',
-            ),
+            child: ComingSoonScreen(title: 'Inbox', icon: Icons.inbox, description: 'Your messages and communications will appear here soon.'),
           ),
         ],
       ),
     );
   }
 }
-

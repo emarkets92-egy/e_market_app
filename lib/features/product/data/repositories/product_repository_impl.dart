@@ -9,37 +9,19 @@ class ProductRepositoryImpl implements ProductRepository {
   ProductRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<ProductListResponseModel> searchProducts({
-    String? hscode,
-    String? name,
-    int page = 1,
-    int limit = 20,
-    String? locale,
-  }) async {
+  Future<ProductListResponseModel> searchProducts({String? hscode, String? name, int page = 1, int limit = 20, String? locale}) async {
     try {
       // Server-side search with both HS code and name
-      return await remoteDataSource.searchProducts(
-        hscode: hscode,
-        name: name,
-        page: page,
-        limit: limit,
-        locale: locale,
-      );
+      return await remoteDataSource.searchProducts(hscode: hscode, name: name, page: page, limit: limit, locale: locale);
     } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<ProductModel> getProductDetails(
-    String productId, {
-    String? locale,
-  }) async {
+  Future<ProductModel> getProductDetails(String productId, {String? locale}) async {
     try {
-      final product = await remoteDataSource.getProductDetails(
-        productId,
-        locale: locale,
-      );
+      final product = await remoteDataSource.getProductDetails(productId, locale: locale);
       return product;
     } catch (e) {
       rethrow;
