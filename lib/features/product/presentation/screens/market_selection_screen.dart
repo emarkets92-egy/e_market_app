@@ -14,12 +14,7 @@ class MarketSelectionScreen extends StatefulWidget {
   final int countryId;
   final String marketType;
 
-  const MarketSelectionScreen({
-    super.key,
-    required this.productId,
-    required this.countryId,
-    required this.marketType,
-  });
+  const MarketSelectionScreen({super.key, required this.productId, required this.countryId, required this.marketType});
 
   @override
   State<MarketSelectionScreen> createState() => _MarketSelectionScreenState();
@@ -31,11 +26,7 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
     super.initState();
     // Trigger exploreMarket API call when market is selected
     // This ensures analysis data is loaded before navigating to Analysis or ProfileList screens
-    di.sl<SubscriptionCubit>().exploreMarket(
-      productId: widget.productId,
-      marketType: widget.marketType,
-      countryId: widget.countryId,
-    );
+    di.sl<SubscriptionCubit>().exploreMarket(productId: widget.productId, marketType: widget.marketType, countryId: widget.countryId);
   }
 
   @override
@@ -51,9 +42,7 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
         builder: (context, state) {
           // Show loading indicator while fetching market data
           if (state.isLoading && state.marketExploration == null) {
-            return const LoadingIndicator(
-              message: 'Loading market data...',
-            );
+            return const LoadingIndicator(message: 'Loading market data...');
           }
 
           // Show error if there's an error and no data
@@ -62,24 +51,13 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Error loading market data',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  Text('Error loading market data', style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 8),
-                  Text(
-                    state.error!,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
+                  Text(state.error!, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      di.sl<SubscriptionCubit>().exploreMarket(
-                        productId: widget.productId,
-                        marketType: widget.marketType,
-                        countryId: widget.countryId,
-                      );
+                      di.sl<SubscriptionCubit>().exploreMarket(productId: widget.productId, marketType: widget.marketType, countryId: widget.countryId);
                     },
                     child: const Text('Retry'),
                   ),
@@ -93,50 +71,36 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Product ID: ${widget.productId}',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text('Product ID: ${widget.productId}', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
-                Text(
-                  'Country ID: ${widget.countryId}',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text('Country ID: ${widget.countryId}', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 32),
                 if (isExporter && widget.marketType == AppConstants.marketTypeTarget) ...[
                   AppButton(
                     text: 'Importer List',
                     onPressed: () {
-                      context.push(
-                        '${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}',
-                      );
+                      context.push('${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}');
                     },
                   ),
                   const SizedBox(height: 16),
                   AppButton(
                     text: 'Analysis',
                     onPressed: () {
-                      context.push(
-                        '${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}',
-                      );
+                      context.push('${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}');
                     },
                   ),
                 ] else if (isExporter && widget.marketType == AppConstants.marketTypeOther) ...[
                   AppButton(
                     text: 'Importer List',
                     onPressed: () {
-                      context.push(
-                        '${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}',
-                      );
+                      context.push('${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}');
                     },
                   ),
                   const SizedBox(height: 16),
                   AppButton(
                     text: 'Analysis',
                     onPressed: () {
-                      context.push(
-                        '${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}',
-                      );
+                      context.push('${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}');
                     },
                   ),
                 ] else ...[
@@ -144,18 +108,14 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
                   AppButton(
                     text: 'Exporter List',
                     onPressed: () {
-                      context.push(
-                        '${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}',
-                      );
+                      context.push('${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}');
                     },
                   ),
                   const SizedBox(height: 16),
                   AppButton(
                     text: 'Analysis',
                     onPressed: () {
-                      context.push(
-                        '${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}',
-                      );
+                      context.push('${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}');
                     },
                   ),
                 ],
@@ -167,4 +127,3 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
     );
   }
 }
-
