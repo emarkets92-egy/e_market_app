@@ -6,6 +6,9 @@ class CompetitiveAnalysisModel {
   final String? totalImports;
   final String? totalExportsFromSelectedCountry;
   final int? rank;
+  final String? competingCountryName;
+  final String? competingCountryExports;
+  final String? competingCountryRank;
   final bool isSeen;
   final int unlockCost;
   final String? createdAt;
@@ -19,6 +22,9 @@ class CompetitiveAnalysisModel {
     this.totalImports,
     this.totalExportsFromSelectedCountry,
     this.rank,
+    this.competingCountryName,
+    this.competingCountryExports,
+    this.competingCountryRank,
     required this.isSeen,
     required this.unlockCost,
     this.createdAt,
@@ -37,6 +43,9 @@ class CompetitiveAnalysisModel {
       totalExportsFromSelectedCountry:
           json['totalExportsFromSelectedCountry'] as String?,
       rank: json['rank'] != null ? (json['rank'] as num).toInt() : null,
+      competingCountryName: json['competingCountryName'] as String?,
+      competingCountryExports: json['competingCountryExports'] as String?,
+      competingCountryRank: json['competingCountryRank'] as String?,
       isSeen: json['isSeen'] as bool? ?? false,
       unlockCost: json['unlockCost'] != null
           ? (json['unlockCost'] as num).toInt()
@@ -56,6 +65,9 @@ class CompetitiveAnalysisModel {
       if (totalExportsFromSelectedCountry != null)
         'totalExportsFromSelectedCountry': totalExportsFromSelectedCountry,
       if (rank != null) 'rank': rank,
+      if (competingCountryName != null) 'competingCountryName': competingCountryName,
+      if (competingCountryExports != null) 'competingCountryExports': competingCountryExports,
+      if (competingCountryRank != null) 'competingCountryRank': competingCountryRank,
       'isSeen': isSeen,
       'unlockCost': unlockCost,
       if (createdAt != null) 'createdAt': createdAt,
@@ -71,6 +83,9 @@ class CompetitiveAnalysisModel {
     String? totalImports,
     String? totalExportsFromSelectedCountry,
     int? rank,
+    String? competingCountryName,
+    String? competingCountryExports,
+    String? competingCountryRank,
     bool? isSeen,
     int? unlockCost,
     String? createdAt,
@@ -85,6 +100,9 @@ class CompetitiveAnalysisModel {
       totalExportsFromSelectedCountry:
           totalExportsFromSelectedCountry ?? this.totalExportsFromSelectedCountry,
       rank: rank ?? this.rank,
+      competingCountryName: competingCountryName ?? this.competingCountryName,
+      competingCountryExports: competingCountryExports ?? this.competingCountryExports,
+      competingCountryRank: competingCountryRank ?? this.competingCountryRank,
       isSeen: isSeen ?? this.isSeen,
       unlockCost: unlockCost ?? this.unlockCost,
       createdAt: createdAt ?? this.createdAt,

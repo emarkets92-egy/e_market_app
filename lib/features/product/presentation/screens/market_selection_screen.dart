@@ -130,6 +130,15 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
                       );
                     },
                   ),
+                  const SizedBox(height: 16),
+                  AppButton(
+                    text: 'Analysis',
+                    onPressed: () {
+                      context.push(
+                        '${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}',
+                      );
+                    },
+                  ),
                 ] else ...[
                   // Importer
                   AppButton(
@@ -137,6 +146,15 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
                     onPressed: () {
                       context.push(
                         '${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}',
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  AppButton(
+                    text: 'Analysis',
+                    onPressed: () {
+                      context.push(
+                        '${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}',
                       );
                     },
                   ),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/constants/app_constants.dart';
+import '../../../../config/routes/route_names.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/premium_header_bar.dart';
@@ -178,7 +179,34 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                         // Filter Bar
                         _buildFilterBar(context, state.subscriptions),
 
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
+
+                        // Analysis Button (shown when all selections are made)
+                        if (_selectedProduct != null && _selectedMarketType != null && _selectedCountry != null) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  context.push(
+                                    '${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}',
+                                  );
+                                },
+                                icon: const Icon(Icons.analytics_outlined),
+                                label: const Text('Analysis'),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                        ],
 
                         // Results Section
                         if (_selectedProduct != null && _selectedCountry != null) ...[
