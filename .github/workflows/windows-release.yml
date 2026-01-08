@@ -153,3 +153,46 @@ jobs:
           } else {
             gh release upload $tag $file --repo $repo --clobber
           }
+
+      - name: Update backend version
+        shell: pwsh
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          $v = "${env:VERSION}".TrimStart('v')
+          
+          # Generate a random token (UUID-based)
+          $token = [System.Guid]::NewGuid().ToString()
+          
+          # Construct download URL
+          $downloadUrl = "https://github.com/${{ env.RELEASE_REPO }}/releases/download/${{ github.ref_name }}/${{ env.INSTALLER_BASE }}.exe"
+          
+          # Prepare request body
+          $body = @{
+            latestVersion = $v
+            minimumVersion = $v
+            updateRequired = $true
+            forceUpdate = $true
+            downloadUrl = $downloadUrl
+            releaseNotes = "New features and bug fixes"
+          } | ConvertTo-Json
+          
+          # Make PUT request to update backend version
+          $headers = @{
+            "Content-Type" = "application/json"
+            "Authorization" = "Bearer $token"
+          }
+          
+          try {
+            $response = Invoke-RestMethod -Uri "https://e-market-backend-vaph.onrender.com/app/version" `
+              -Method Put `
+              -Headers $headers `
+              -Body $body `
+              -ErrorAction Stop
+            Write-Host "Successfully updated backend version to $v"
+            Write-Host "Response: $($response | ConvertTo-Json)"
+          } catch {
+            Write-Host "Error updating backend version: $_"
+            Write-Host "Status Code: $($_.Exception.Response.StatusCode.value__)"
+            throw
+          }
