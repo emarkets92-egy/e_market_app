@@ -115,14 +115,15 @@ class ProfileTableRow extends StatelessWidget {
                   currentBalance: balance,
                   onUnlock: profile.isSeen ? null : onUnlock,
                   child: Text(
-                    profile.email
-                            ?.split('@')
-                            .first
-                            .replaceAll('.', ' ')
-                            .split(' ')
-                            .map((word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
-                            .join(' ') ??
-                        'Importer ${profile.id.substring(0, 8)}',
+                    profile.companyName ??
+                        (profile.email
+                                ?.split('@')
+                                .first
+                                .replaceAll('.', ' ')
+                                .split(' ')
+                                .map((word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
+                                .join(' ') ??
+                            'Importer ${profile.id.substring(0, 8)}'),
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),

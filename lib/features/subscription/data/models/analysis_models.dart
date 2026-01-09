@@ -33,7 +33,7 @@ class CompetitiveAnalysisModel {
 
   factory CompetitiveAnalysisModel.fromJson(Map<String, dynamic> json) {
     return CompetitiveAnalysisModel(
-      id: json['id'] as String,
+      id: json['id'] is String ? json['id'] as String : (json['id'] as num).toString(),
       productId: json['productId'] as String?,
       targetCountryId: json['targetCountryId'] != null ? (json['targetCountryId'] as num).toInt() : null,
       marketName: json['marketName'] as String?,
@@ -137,7 +137,7 @@ class PESTLEAnalysisModel {
 
   factory PESTLEAnalysisModel.fromJson(Map<String, dynamic> json) {
     return PESTLEAnalysisModel(
-      id: json['id'] as String?,
+      id: json['id'] != null ? (json['id'] is String ? json['id'] as String : (json['id'] as num).toString()) : null,
       productId: json['productId'] as String?,
       targetCountryId: json['targetCountryId'] != null ? (json['targetCountryId'] as num).toInt() : null,
       political: json['political'] as String?,
@@ -233,7 +233,7 @@ class SWOTAnalysisModel {
 
   factory SWOTAnalysisModel.fromJson(Map<String, dynamic> json) {
     return SWOTAnalysisModel(
-      id: json['id'] as String?,
+      id: json['id'] != null ? (json['id'] is String ? json['id'] as String : (json['id'] as num).toString()) : null,
       productId: json['productId'] as String?,
       targetCountryId: json['targetCountryId'] != null ? (json['targetCountryId'] as num).toInt() : null,
       strengths: json['strengths'] as String?,
@@ -305,7 +305,7 @@ class MarketPlanModel {
 
   factory MarketPlanModel.fromJson(Map<String, dynamic> json) {
     return MarketPlanModel(
-      id: json['id'] as String?,
+      id: json['id'] != null ? (json['id'] is String ? json['id'] as String : (json['id'] as num).toString()) : null,
       productText: json['productText'] as String?,
       priceText: json['priceText'] as String?,
       placeText: json['placeText'] as String?,

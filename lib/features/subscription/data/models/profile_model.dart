@@ -1,5 +1,6 @@
 class ProfileModel {
   final String id;
+  final String? companyName;
   final String? email;
   final String? phone;
   final String? whatsapp;
@@ -12,6 +13,7 @@ class ProfileModel {
 
   ProfileModel({
     required this.id,
+    this.companyName,
     this.email,
     this.phone,
     this.whatsapp,
@@ -26,6 +28,7 @@ class ProfileModel {
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
       id: json['id'] as String,
+      companyName: json['companyName'] as String?,
       email: json['email'] as String?,
       phone: json['phone'] as String?,
       whatsapp: json['whatsapp'] as String?,
@@ -41,6 +44,7 @@ class ProfileModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      if (companyName != null) 'companyName': companyName,
       if (email != null) 'email': email,
       if (phone != null) 'phone': phone,
       if (whatsapp != null) 'whatsapp': whatsapp,
@@ -55,6 +59,7 @@ class ProfileModel {
 
   ProfileModel copyWith({
     String? id,
+    String? companyName,
     String? email,
     String? phone,
     String? whatsapp,
@@ -67,6 +72,7 @@ class ProfileModel {
   }) {
     return ProfileModel(
       id: id ?? this.id,
+      companyName: companyName ?? this.companyName,
       email: email ?? this.email,
       phone: phone ?? this.phone,
       whatsapp: whatsapp ?? this.whatsapp,

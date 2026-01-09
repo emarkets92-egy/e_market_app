@@ -194,7 +194,9 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      name.substring(0, 2).toUpperCase(),
+                      name.length >= 2 
+                          ? name.substring(0, 2).toUpperCase()
+                          : (name.isNotEmpty ? (name[0] + name[0]).toUpperCase() : 'IM'),
                       style: const TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                   ),
@@ -659,16 +661,24 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   }
 
   String _getProfileName(ProfileModel profile) {
-    if (profile.email != null) {
-      return profile.email!
-          .split('@')
-          .first
-          .replaceAll('.', ' ')
-          .split(' ')
-          .map((word) => word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : '')
-          .join(' ');
+    if (profile.email != null && profile.email!.isNotEmpty) {
+      final emailPrefix = profile.email!.split('@').first;
+      if (emailPrefix.isNotEmpty) {
+        final name = emailPrefix
+            .replaceAll('.', ' ')
+            .split(' ')
+            .where((word) => word.isNotEmpty)
+            .map((word) => word[0].toUpperCase() + (word.length > 1 ? word.substring(1) : ''))
+            .join(' ');
+        if (name.isNotEmpty) {
+          return name;
+        }
+      }
     }
-    return 'Importer ${profile.id.substring(0, 8)}';
+    // Fallback: use profile ID (safely handle short IDs)
+    final idLength = profile.id.length;
+    final idPrefix = idLength >= 8 ? profile.id.substring(0, 8) : profile.id;
+    return 'Importer $idPrefix';
   }
 
   Future<void> _launchUrl(String? urlString, {String scheme = 'https'}) async {

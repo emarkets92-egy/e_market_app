@@ -5,6 +5,7 @@ import '../../../../core/di/injection_container.dart' as di;
 import '../../../../config/theme.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
+import '../../../../shared/widgets/typing_text_widget.dart';
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
@@ -246,7 +247,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Competitive Analysis Section
-              const Text('Competitive Analysis', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('Competitive Analysis', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               BlurredContentWidget(
                 isUnlocked: analysis.isSeen,
@@ -259,59 +260,62 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                       },
                 child: LayoutBuilder(
                   builder: (context, constraints) {
+                    final cards = [
+                      {'title': 'TOTAL IMPORTS', 'value': analysis.totalImports ?? 'N/A', 'icon': Icons.trending_up, 'color': Colors.blue},
+                      {'title': 'TOTAL IMPORT FROM EGYPT', 'value': analysis.totalExportsFromSelectedCountry ?? 'N/A', 'icon': Icons.flag, 'color': Colors.green, 'rank': analysis.rank},
+                      {'title': 'TOP COMPETITOR', 'value': analysis.competingCountryName ?? 'N/A', 'icon': Icons.star, 'color': Colors.orange},
+                      {'title': 'EXPORT OPPORTUNITY', 'value': analysis.competingCountryExports ?? 'N/A', 'icon': Icons.insights, 'color': Colors.purple, 'subtitle': 'Potential market gap identified', 'rank': analysis.competingCountryRank != null ? int.tryParse(analysis.competingCountryRank!) : null},
+                    ];
+                    
                     if (constraints.maxWidth < 800) {
                       return Column(
-                        children: [
-                          _buildCompetitiveCard('TOTAL IMPORTS', analysis.totalImports ?? 'N/A', Icons.trending_up, Colors.blue),
-                          const SizedBox(height: 16),
-                          _buildCompetitiveCard(
-                            'TOTAL IMPORT FROM EGYPT',
-                            analysis.totalExportsFromSelectedCountry ?? 'N/A',
-                            Icons.flag,
-                            Colors.green,
-                            rank: analysis.rank,
-                          ),
-                          const SizedBox(height: 16),
-                          _buildCompetitiveCard('TOP COMPETITOR', analysis.competingCountryName ?? 'N/A', Icons.star, Colors.orange),
-                          const SizedBox(height: 16),
-                          _buildCompetitiveCard(
-                            'EXPORT OPPORTUNITY',
-                            analysis.competingCountryExports ?? 'N/A',
-                            Icons.insights,
-                            Colors.purple,
-                            subtitle: 'Potential market gap identified',
-                            rank: analysis.competingCountryRank != null ? int.tryParse(analysis.competingCountryRank!) : null,
-                          ),
-                        ],
+                        children: cards.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final card = entry.value;
+                          // Calculate delay: sum of all previous card values * typing speed
+                          final previousLength = cards
+                              .take(index)
+                              .fold<int>(0, (sum, c) => sum + (c['value'] as String).length);
+                          final delay = Duration(milliseconds: previousLength * 30);
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: index < cards.length - 1 ? 16 : 0),
+                            child: _buildCompetitiveCard(
+                              card['title'] as String,
+                              card['value'] as String,
+                              card['icon'] as IconData,
+                              card['color'] as Color,
+                              subtitle: card['subtitle'] as String?,
+                              rank: card['rank'] as int?,
+                              delay: delay,
+                            ),
+                          );
+                        }).toList(),
                       );
                     }
                     return Row(
-                      children: [
-                        Expanded(child: _buildCompetitiveCard('TOTAL IMPORTS', analysis.totalImports ?? 'N/A', Icons.trending_up, Colors.blue)),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildCompetitiveCard(
-                            'TOTAL IMPORT FROM EGYPT',
-                            analysis.totalExportsFromSelectedCountry ?? 'N/A',
-                            Icons.flag,
-                            Colors.green,
-                            rank: analysis.rank,
+                      children: cards.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final card = entry.value;
+                        // Calculate delay: sum of all previous card values * typing speed
+                        final previousLength = cards
+                            .take(index)
+                            .fold<int>(0, (sum, c) => sum + (c['value'] as String).length);
+                        final delay = Duration(milliseconds: previousLength * 30);
+                        return Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(right: index < cards.length - 1 ? 16 : 0),
+                            child: _buildCompetitiveCard(
+                              card['title'] as String,
+                              card['value'] as String,
+                              card['icon'] as IconData,
+                              card['color'] as Color,
+                              subtitle: card['subtitle'] as String?,
+                              rank: card['rank'] as int?,
+                              delay: delay,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(child: _buildCompetitiveCard('TOP COMPETITOR', analysis.competingCountryName ?? 'N/A', Icons.star, Colors.orange)),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildCompetitiveCard(
-                            'EXPORT OPPORTUNITY',
-                            analysis.competingCountryExports ?? 'N/A',
-                            Icons.insights,
-                            Colors.purple,
-                            subtitle: 'Potential market gap identified',
-                            rank: analysis.competingCountryRank != null ? int.tryParse(analysis.competingCountryRank!) : null,
-                          ),
-                        ),
-                      ],
+                        );
+                      }).toList(),
                     );
                   },
                 ),
@@ -335,7 +339,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     );
   }
 
-  Widget _buildCompetitiveCard(String title, String value, IconData icon, Color color, {String? subtitle, int? rank}) {
+  Widget _buildCompetitiveCard(String title, String value, IconData icon, Color color, {String? subtitle, int? rank, Duration delay = Duration.zero}) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -353,7 +357,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[600]),
                 ),
               ),
             ],
@@ -363,9 +367,10 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
-                child: Text(
-                  value,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                child: TypingTextWidget(
+                  text: value,
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87, height: 1.4),
+                  delay: delay,
                 ),
               ),
               if (rank != null)
@@ -399,7 +404,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('PESTLE Analysis', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('PESTLE Analysis', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               BlurredContentWidget(
                 isUnlocked: analysis.isSeen,
@@ -414,110 +419,183 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                       },
                 child: LayoutBuilder(
                   builder: (context, constraints) {
+                    // Build list of all PESTLE cards in order: P, E, S, T, L, E
+                    final pestleCards = <Map<String, dynamic>>[];
+                    if (analysis.political != null) {
+                      pestleCards.add({
+                        'title': 'Political',
+                        'content': analysis.political!,
+                        'status': 'Stable',
+                        'color': Colors.green,
+                        'progressValue': 70,
+                        'progressLabel': 'Govt. Stability Index',
+                      });
+                    }
+                    if (analysis.economic != null) {
+                      pestleCards.add({
+                        'title': 'Economic',
+                        'content': analysis.economic!,
+                        'status': 'Growing',
+                        'color': Colors.blue,
+                        'inflationRate': '2.4%',
+                        'currencyTrend': 'Stable (EUR)',
+                      });
+                    }
+                    if (analysis.social != null) {
+                      pestleCards.add({
+                        'title': 'Social',
+                        'content': analysis.social!,
+                        'status': 'Evolving',
+                        'color': Colors.grey,
+                        'progressValue': 80,
+                        'progressLabel': 'Eco-Consciousness Score',
+                        'scoreSegments': 5,
+                        'filledSegments': 4,
+                      });
+                    }
+                    if (analysis.technological != null) {
+                      pestleCards.add({
+                        'title': 'Technological',
+                        'content': analysis.technological!,
+                        'status': 'Advanced',
+                        'color': Colors.purple,
+                        'progressValue': 80,
+                        'progressLabel': 'Innovation Index',
+                      });
+                    }
+                    if (analysis.legal != null) {
+                      pestleCards.add({
+                        'title': 'Legal',
+                        'content': analysis.legal!,
+                        'status': 'Complex',
+                        'color': Colors.red,
+                        'progressValue': 60,
+                        'progressLabel': 'Compliance Difficulty',
+                        'progressColor': Colors.orange,
+                      });
+                    }
+                    if (analysis.environmental != null) {
+                      pestleCards.add({
+                        'title': 'Environmental',
+                        'content': analysis.environmental!,
+                        'status': 'Critical',
+                        'color': Colors.green,
+                        'progressValue': 90,
+                        'progressLabel': 'Sustainability Pressure',
+                      });
+                    }
+
+                    // Calculate cumulative delays for each card
+                    int cumulativeLength = 0;
+                    final cardsWithDelays = <Map<String, dynamic>>[];
+                    for (var card in pestleCards) {
+                      final cardDelay = Duration(milliseconds: cumulativeLength * 30);
+                      // Calculate total content length for this card (positive + negative points)
+                      final content = card['content'] as String;
+                      final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
+                      final positivePoints = <String>[];
+                      final negativePoints = <String>[];
+                      for (var line in lines) {
+                        final trimmed = line.trim();
+                        if (trimmed.toLowerCase().contains('potential') ||
+                            trimmed.toLowerCase().contains('risk') ||
+                            trimmed.toLowerCase().contains('vulnerability') ||
+                            trimmed.toLowerCase().contains('strict') ||
+                            trimmed.toLowerCase().contains('rigorous') ||
+                            trimmed.toLowerCase().contains('scrutiny')) {
+                          negativePoints.add(trimmed);
+                        } else {
+                          positivePoints.add(trimmed);
+                        }
+                      }
+                      final cardContentLength = positivePoints.take(3).fold<int>(0, (sum, p) => sum + p.length) +
+                          negativePoints.take(2).fold<int>(0, (sum, p) => sum + p.length);
+                      cardsWithDelays.add({...card, 'delay': cardDelay});
+                      cumulativeLength += cardContentLength;
+                    }
+
                     if (constraints.maxWidth < 800) {
                       return Column(
-                        children: [
-                          if (analysis.political != null)
-                            _buildPestleCard('Political', analysis.political!, 'Stable', Colors.green, 70, 'Govt. Stability Index'),
-                          const SizedBox(height: 16),
-                          if (analysis.economic != null)
-                            _buildPestleCard(
-                              'Economic',
-                              analysis.economic!,
-                              'Growing',
-                              Colors.blue,
-                              null,
-                              null,
-                              inflationRate: '2.4%',
-                              currencyTrend: 'Stable (EUR)',
+                        children: cardsWithDelays.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final card = entry.value;
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: index < cardsWithDelays.length - 1 ? 16 : 0),
+                            child: _buildPestleCard(
+                              card['title'] as String,
+                              card['content'] as String,
+                              card['status'] as String,
+                              card['color'] as Color,
+                              card['progressValue'] as int?,
+                              card['progressLabel'] as String?,
+                              inflationRate: card['inflationRate'] as String?,
+                              currencyTrend: card['currencyTrend'] as String?,
+                              scoreSegments: card['scoreSegments'] as int?,
+                              filledSegments: card['filledSegments'] as int?,
+                              progressColor: card['progressColor'] as Color?,
+                              cardDelay: card['delay'] as Duration,
                             ),
-                          const SizedBox(height: 16),
-                          if (analysis.social != null)
-                            _buildPestleCard(
-                              'Social',
-                              analysis.social!,
-                              'Evolving',
-                              Colors.grey,
-                              80,
-                              'Eco-Consciousness Score',
-                              scoreSegments: 5,
-                              filledSegments: 4,
-                            ),
-                          const SizedBox(height: 16),
-                          if (analysis.technological != null)
-                            _buildPestleCard('Technological', analysis.technological!, 'Advanced', Colors.purple, 80, 'Innovation Index'),
-                          const SizedBox(height: 16),
-                          if (analysis.legal != null)
-                            _buildPestleCard('Legal', analysis.legal!, 'Complex', Colors.red, 60, 'Compliance Difficulty', progressColor: Colors.orange),
-                          const SizedBox(height: 16),
-                          if (analysis.environmental != null)
-                            _buildPestleCard('Environmental', analysis.environmental!, 'Critical', Colors.green, 90, 'Sustainability Pressure'),
-                        ],
+                          );
+                        }).toList(),
                       );
                     }
                     return Column(
                       children: [
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (analysis.political != null)
-                              Expanded(child: _buildPestleCard('Political', analysis.political!, 'Stable', Colors.green, 70, 'Govt. Stability Index')),
-                            const SizedBox(width: 16),
-                            if (analysis.economic != null)
-                              Expanded(
+                          children: cardsWithDelays.take(3).toList().asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final card = entry.value;
+                            return Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(right: index < 2 ? 16 : 0),
                                 child: _buildPestleCard(
-                                  'Economic',
-                                  analysis.economic!,
-                                  'Growing',
-                                  Colors.blue,
-                                  null,
-                                  null,
-                                  inflationRate: '2.4%',
-                                  currencyTrend: 'Stable (EUR)',
+                                  card['title'] as String,
+                                  card['content'] as String,
+                                  card['status'] as String,
+                                  card['color'] as Color,
+                                  card['progressValue'] as int?,
+                                  card['progressLabel'] as String?,
+                                  inflationRate: card['inflationRate'] as String?,
+                                  currencyTrend: card['currencyTrend'] as String?,
+                                  scoreSegments: card['scoreSegments'] as int?,
+                                  filledSegments: card['filledSegments'] as int?,
+                                  progressColor: card['progressColor'] as Color?,
+                                  cardDelay: card['delay'] as Duration,
                                 ),
                               ),
-                            const SizedBox(width: 16),
-                            if (analysis.social != null)
-                              Expanded(
-                                child: _buildPestleCard(
-                                  'Social',
-                                  analysis.social!,
-                                  'Evolving',
-                                  Colors.grey,
-                                  80,
-                                  'Eco-Consciousness Score',
-                                  scoreSegments: 5,
-                                  filledSegments: 4,
-                                ),
-                              ),
-                          ],
+                            );
+                          }).toList(),
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (analysis.technological != null)
-                              Expanded(child: _buildPestleCard('Technological', analysis.technological!, 'Advanced', Colors.purple, 80, 'Innovation Index')),
-                            const SizedBox(width: 16),
-                            if (analysis.legal != null)
-                              Expanded(
-                                child: _buildPestleCard(
-                                  'Legal',
-                                  analysis.legal!,
-                                  'Complex',
-                                  Colors.red,
-                                  60,
-                                  'Compliance Difficulty',
-                                  progressColor: Colors.orange,
+                        if (cardsWithDelays.length > 3) ...[
+                          const SizedBox(height: 16),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: cardsWithDelays.skip(3).toList().asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final card = entry.value;
+                              return Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.only(right: index < cardsWithDelays.length - 4 ? 16 : 0),
+                                  child: _buildPestleCard(
+                                    card['title'] as String,
+                                    card['content'] as String,
+                                    card['status'] as String,
+                                    card['color'] as Color,
+                                    card['progressValue'] as int?,
+                                    card['progressLabel'] as String?,
+                                    inflationRate: card['inflationRate'] as String?,
+                                    currencyTrend: card['currencyTrend'] as String?,
+                                    scoreSegments: card['scoreSegments'] as int?,
+                                    filledSegments: card['filledSegments'] as int?,
+                                    progressColor: card['progressColor'] as Color?,
+                                    cardDelay: card['delay'] as Duration,
+                                  ),
                                 ),
-                              ),
-                            const SizedBox(width: 16),
-                            if (analysis.environmental != null)
-                              Expanded(
-                                child: _buildPestleCard('Environmental', analysis.environmental!, 'Critical', Colors.green, 90, 'Sustainability Pressure'),
-                              ),
-                          ],
-                        ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       ],
                     );
                   },
@@ -556,6 +634,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     int? scoreSegments,
     int? filledSegments,
     Color? progressColor,
+    Duration cardDelay = Duration.zero,
   }) {
     // Parse content to extract positive and negative points
     final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
@@ -591,7 +670,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(color: statusColor.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
@@ -607,37 +686,70 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           // Content Points
           ...positivePoints
               .take(3)
+              .toList()
+              .asMap()
+              .entries
               .map(
-                (point) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.check_circle, color: Colors.green, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(point, style: const TextStyle(fontSize: 13, color: Colors.black87)),
-                      ),
-                    ],
-                  ),
-                ),
+                (entry) {
+                  final index = entry.key;
+                  final point = entry.value;
+                  // Calculate delay: card delay + sum of all previous text lengths in this card * typing speed
+                  final previousLength = positivePoints
+                      .take(index)
+                      .fold<int>(0, (sum, p) => sum + p.length);
+                  final delay = Duration(milliseconds: cardDelay.inMilliseconds + (previousLength * 30));
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.green, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TypingTextWidget(
+                            text: point,
+                            style: const TextStyle(fontSize: 18, color: Colors.black87, height: 1.6),
+                            delay: delay,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
           ...negativePoints
               .take(2)
+              .toList()
+              .asMap()
+              .entries
               .map(
-                (point) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(point, style: const TextStyle(fontSize: 13, color: Colors.black87)),
-                      ),
-                    ],
-                  ),
-                ),
+                (entry) {
+                  final index = entry.key;
+                  final point = entry.value;
+                  // Calculate delay: card delay + previous positive points + previous negative points
+                  final positiveLength = positivePoints.take(3).fold<int>(0, (sum, p) => sum + p.length);
+                  final previousNegativeLength = negativePoints
+                      .take(index)
+                      .fold<int>(0, (sum, p) => sum + p.length);
+                  final delay = Duration(milliseconds: cardDelay.inMilliseconds + ((positiveLength + previousNegativeLength) * 30));
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TypingTextWidget(
+                            text: point,
+                            style: const TextStyle(fontSize: 18, color: Colors.black87, height: 1.6),
+                            delay: delay,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
 
           const SizedBox(height: 16),
@@ -709,7 +821,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('SWOT Analysis', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('SWOT Analysis', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               BlurredContentWidget(
                 isUnlocked: analysis.isSeen,
@@ -724,40 +836,118 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                       },
                 child: LayoutBuilder(
                   builder: (context, constraints) {
+                    // Build list of all SWOT cards in order: Strengths, Weaknesses, Opportunities, Threats
+                    final swotCards = <Map<String, dynamic>>[];
+                    if (analysis.strengths != null) {
+                      swotCards.add({
+                        'title': 'Strengths',
+                        'content': analysis.strengths!,
+                        'color': Colors.green,
+                        'icon': Icons.trending_up,
+                      });
+                    }
+                    if (analysis.weaknesses != null) {
+                      swotCards.add({
+                        'title': 'Weaknesses',
+                        'content': analysis.weaknesses!,
+                        'color': Colors.red,
+                        'icon': Icons.trending_down,
+                      });
+                    }
+                    if (analysis.opportunities != null) {
+                      swotCards.add({
+                        'title': 'Opportunities',
+                        'content': analysis.opportunities!,
+                        'color': Colors.blue,
+                        'icon': Icons.lightbulb,
+                      });
+                    }
+                    if (analysis.threats != null) {
+                      swotCards.add({
+                        'title': 'Threats',
+                        'content': analysis.threats!,
+                        'color': Colors.orange,
+                        'icon': Icons.warning,
+                      });
+                    }
+
+                    // Calculate cumulative delays for each card
+                    int cumulativeLength = 0;
+                    final cardsWithDelays = <Map<String, dynamic>>[];
+                    for (var card in swotCards) {
+                      final cardDelay = Duration(milliseconds: cumulativeLength * 30);
+                      // Calculate total content length for this card
+                      final content = card['content'] as String;
+                      final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
+                      final cardContentLength = lines.take(5).fold<int>(0, (sum, p) => sum + p.trim().length);
+                      cardsWithDelays.add({...card, 'delay': cardDelay});
+                      cumulativeLength += cardContentLength;
+                    }
+
                     if (constraints.maxWidth < 800) {
                       return Column(
-                        children: [
-                          if (analysis.strengths != null) _buildSwotCard('Strengths', analysis.strengths!, Colors.green, Icons.trending_up),
-                          const SizedBox(height: 16),
-                          if (analysis.weaknesses != null) _buildSwotCard('Weaknesses', analysis.weaknesses!, Colors.red, Icons.trending_down),
-                          const SizedBox(height: 16),
-                          if (analysis.opportunities != null) _buildSwotCard('Opportunities', analysis.opportunities!, Colors.blue, Icons.lightbulb),
-                          const SizedBox(height: 16),
-                          if (analysis.threats != null) _buildSwotCard('Threats', analysis.threats!, Colors.orange, Icons.warning),
-                        ],
+                        children: cardsWithDelays.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final card = entry.value;
+                          return Padding(
+                            key: ValueKey('swot_${card['title']}_$index'),
+                            padding: EdgeInsets.only(bottom: index < cardsWithDelays.length - 1 ? 16 : 0),
+                            child: _buildSwotCard(
+                              card['title'] as String,
+                              card['content'] as String,
+                              card['color'] as Color,
+                              card['icon'] as IconData,
+                              cardDelay: card['delay'] as Duration,
+                            ),
+                          );
+                        }).toList(),
                       );
                     }
                     return Column(
                       children: [
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (analysis.strengths != null) Expanded(child: _buildSwotCard('Strengths', analysis.strengths!, Colors.green, Icons.trending_up)),
-                            const SizedBox(width: 16),
-                            if (analysis.weaknesses != null)
-                              Expanded(child: _buildSwotCard('Weaknesses', analysis.weaknesses!, Colors.red, Icons.trending_down)),
-                          ],
+                          children: cardsWithDelays.take(2).toList().asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final card = entry.value;
+                            return Expanded(
+                              key: ValueKey('swot_${card['title']}_$index'),
+                              child: Padding(
+                                padding: EdgeInsets.only(right: index < 1 ? 16 : 0),
+                                child: _buildSwotCard(
+                                  card['title'] as String,
+                                  card['content'] as String,
+                                  card['color'] as Color,
+                                  card['icon'] as IconData,
+                                  cardDelay: card['delay'] as Duration,
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (analysis.opportunities != null)
-                              Expanded(child: _buildSwotCard('Opportunities', analysis.opportunities!, Colors.blue, Icons.lightbulb)),
-                            const SizedBox(width: 16),
-                            if (analysis.threats != null) Expanded(child: _buildSwotCard('Threats', analysis.threats!, Colors.orange, Icons.warning)),
-                          ],
-                        ),
+                        if (cardsWithDelays.length > 2) ...[
+                          const SizedBox(height: 16),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: cardsWithDelays.skip(2).toList().asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final card = entry.value;
+                              return Expanded(
+                                key: ValueKey('swot_${card['title']}_${index + 2}'),
+                                child: Padding(
+                                  padding: EdgeInsets.only(right: index < cardsWithDelays.length - 3 ? 16 : 0),
+                                  child: _buildSwotCard(
+                                    card['title'] as String,
+                                    card['content'] as String,
+                                    card['color'] as Color,
+                                    card['icon'] as IconData,
+                                    cardDelay: card['delay'] as Duration,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       ],
                     );
                   },
@@ -784,7 +974,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     );
   }
 
-  Widget _buildSwotCard(String title, String content, Color color, IconData icon) {
+  Widget _buildSwotCard(String title, String content, Color color, IconData icon, {Duration cardDelay = Duration.zero}) {
     // Parse content to extract points
     final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
 
@@ -818,20 +1008,36 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           // Content Points
           ...lines
               .take(5)
+              .toList()
+              .asMap()
+              .entries
               .map(
-                (point) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.circle, color: color, size: 8),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(point.trim(), style: const TextStyle(fontSize: 13, color: Colors.black87)),
-                      ),
-                    ],
-                  ),
-                ),
+                (entry) {
+                  final index = entry.key;
+                  final point = entry.value;
+                  // Calculate delay: card delay + sum of all previous text lengths in this card * typing speed
+                  final previousLength = lines
+                      .take(index)
+                      .fold<int>(0, (sum, p) => sum + p.trim().length);
+                  final delay = Duration(milliseconds: cardDelay.inMilliseconds + (previousLength * 30));
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.circle, color: color, size: 8),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TypingTextWidget(
+                            text: point.trim(),
+                            style: const TextStyle(fontSize: 18, color: Colors.black87, height: 1.6),
+                            delay: delay,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
         ],
       ),
@@ -856,7 +1062,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Market Plan', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('Market Plan', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               BlurredContentWidget(
                 isUnlocked: marketPlan.isSeen,
@@ -871,42 +1077,120 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                       },
                 child: LayoutBuilder(
                   builder: (context, constraints) {
+                    // Build list of all Market Plan cards in order: Product, Price, Place, Promotion
+                    final marketPlanCards = <Map<String, dynamic>>[];
+                    if (marketPlan.productText != null) {
+                      marketPlanCards.add({
+                        'title': 'Product',
+                        'content': marketPlan.productText!,
+                        'color': Colors.blue,
+                        'icon': Icons.inventory_2,
+                      });
+                    }
+                    if (marketPlan.priceText != null) {
+                      marketPlanCards.add({
+                        'title': 'Price',
+                        'content': marketPlan.priceText!,
+                        'color': Colors.green,
+                        'icon': Icons.attach_money,
+                      });
+                    }
+                    if (marketPlan.placeText != null) {
+                      marketPlanCards.add({
+                        'title': 'Place',
+                        'content': marketPlan.placeText!,
+                        'color': Colors.orange,
+                        'icon': Icons.location_on,
+                      });
+                    }
+                    if (marketPlan.promotionText != null) {
+                      marketPlanCards.add({
+                        'title': 'Promotion',
+                        'content': marketPlan.promotionText!,
+                        'color': Colors.purple,
+                        'icon': Icons.campaign,
+                      });
+                    }
+
+                    // Calculate cumulative delays for each card
+                    int cumulativeLength = 0;
+                    final cardsWithDelays = <Map<String, dynamic>>[];
+                    for (var card in marketPlanCards) {
+                      final cardDelay = Duration(milliseconds: cumulativeLength * 30);
+                      // Calculate total content length for this card
+                      final content = card['content'] as String;
+                      final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
+                      final cardContentLength = lines.length > 1
+                          ? lines.fold<int>(0, (sum, p) => sum + p.trim().length)
+                          : content.length;
+                      cardsWithDelays.add({...card, 'delay': cardDelay});
+                      cumulativeLength += cardContentLength;
+                    }
+
                     if (constraints.maxWidth < 800) {
                       return Column(
-                        children: [
-                          if (marketPlan.productText != null) _buildMarketPlanCard('Product', marketPlan.productText!, Colors.blue, Icons.inventory_2),
-                          const SizedBox(height: 16),
-                          if (marketPlan.priceText != null) _buildMarketPlanCard('Price', marketPlan.priceText!, Colors.green, Icons.attach_money),
-                          const SizedBox(height: 16),
-                          if (marketPlan.placeText != null) _buildMarketPlanCard('Place', marketPlan.placeText!, Colors.orange, Icons.location_on),
-                          const SizedBox(height: 16),
-                          if (marketPlan.promotionText != null) _buildMarketPlanCard('Promotion', marketPlan.promotionText!, Colors.purple, Icons.campaign),
-                        ],
+                        children: cardsWithDelays.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final card = entry.value;
+                          return Padding(
+                            key: ValueKey('market_${card['title']}_$index'),
+                            padding: EdgeInsets.only(bottom: index < cardsWithDelays.length - 1 ? 16 : 0),
+                            child: _buildMarketPlanCard(
+                              card['title'] as String,
+                              card['content'] as String,
+                              card['color'] as Color,
+                              card['icon'] as IconData,
+                              cardDelay: card['delay'] as Duration,
+                            ),
+                          );
+                        }).toList(),
                       );
                     }
                     return Column(
                       children: [
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (marketPlan.productText != null)
-                              Expanded(child: _buildMarketPlanCard('Product', marketPlan.productText!, Colors.blue, Icons.inventory_2)),
-                            const SizedBox(width: 16),
-                            if (marketPlan.priceText != null)
-                              Expanded(child: _buildMarketPlanCard('Price', marketPlan.priceText!, Colors.green, Icons.attach_money)),
-                          ],
+                          children: cardsWithDelays.take(2).toList().asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final card = entry.value;
+                            return Expanded(
+                              key: ValueKey('market_${card['title']}_$index'),
+                              child: Padding(
+                                padding: EdgeInsets.only(right: index < 1 ? 16 : 0),
+                                child: _buildMarketPlanCard(
+                                  card['title'] as String,
+                                  card['content'] as String,
+                                  card['color'] as Color,
+                                  card['icon'] as IconData,
+                                  cardDelay: card['delay'] as Duration,
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (marketPlan.placeText != null)
-                              Expanded(child: _buildMarketPlanCard('Place', marketPlan.placeText!, Colors.orange, Icons.location_on)),
-                            const SizedBox(width: 16),
-                            if (marketPlan.promotionText != null)
-                              Expanded(child: _buildMarketPlanCard('Promotion', marketPlan.promotionText!, Colors.purple, Icons.campaign)),
-                          ],
-                        ),
+                        if (cardsWithDelays.length > 2) ...[
+                          const SizedBox(height: 16),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: cardsWithDelays.skip(2).toList().asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final card = entry.value;
+                              return Expanded(
+                                key: ValueKey('market_${card['title']}_${index + 2}'),
+                                child: Padding(
+                                  padding: EdgeInsets.only(right: index < cardsWithDelays.length - 3 ? 16 : 0),
+                                  child: _buildMarketPlanCard(
+                                    card['title'] as String,
+                                    card['content'] as String,
+                                    card['color'] as Color,
+                                    card['icon'] as IconData,
+                                    cardDelay: card['delay'] as Duration,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       ],
                     );
                   },
@@ -933,7 +1217,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     );
   }
 
-  Widget _buildMarketPlanCard(String title, String content, Color color, IconData icon) {
+  Widget _buildMarketPlanCard(String title, String content, Color color, IconData icon, {Duration cardDelay = Duration.zero}) {
     // Parse content to extract points
     final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
 
@@ -966,23 +1250,40 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
 
           // Content Points
           if (lines.length > 1)
-            ...lines.map(
-              (point) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.circle, color: color, size: 8),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(point.trim(), style: const TextStyle(fontSize: 13, color: Colors.black87)),
-                    ),
-                  ],
-                ),
-              ),
+            ...lines.toList().asMap().entries.map(
+              (entry) {
+                final index = entry.key;
+                final point = entry.value;
+                // Calculate delay: card delay + sum of all previous text lengths in this card * typing speed
+                final previousLength = lines
+                    .take(index)
+                    .fold<int>(0, (sum, p) => sum + p.trim().length);
+                final delay = Duration(milliseconds: cardDelay.inMilliseconds + (previousLength * 30));
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.circle, color: color, size: 8),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TypingTextWidget(
+                          text: point.trim(),
+                          style: const TextStyle(fontSize: 18, color: Colors.black87, height: 1.6),
+                          delay: delay,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             )
           else
-            Text(content, style: const TextStyle(fontSize: 13, color: Colors.black87)),
+            TypingTextWidget(
+              text: content,
+              style: const TextStyle(fontSize: 18, color: Colors.black87, height: 1.6),
+              delay: cardDelay,
+            ),
         ],
       ),
     );

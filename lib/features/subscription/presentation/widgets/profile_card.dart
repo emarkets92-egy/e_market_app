@@ -31,7 +31,16 @@ class ProfileCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Profile Title - always visible
-              Text('Profile ${profile.id.substring(0, 8)}...', style: Theme.of(context).textTheme.titleLarge),
+              BlurredContentWidget(
+                isUnlocked: profile.isSeen,
+                unlockCost: profile.unlockCost,
+                currentBalance: balance,
+                onUnlock: profile.isSeen ? null : onUnlock,
+                child: Text(
+                  profile.companyName ?? 'Profile ${profile.id.substring(0, 8)}...',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
               const SizedBox(height: 4),
               // Shipment Records - always visible
               if (profile.shipmentRecords != null)
@@ -51,6 +60,7 @@ class ProfileCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (profile.companyName != null && profile.isSeen) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Company: ${profile.companyName}')),
                     if (profile.email != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Email: ${profile.email}')),
                     if (profile.phone != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Phone: ${profile.phone}')),
                     if (profile.whatsapp != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('WhatsApp: ${profile.whatsapp}')),

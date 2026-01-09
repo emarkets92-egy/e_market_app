@@ -52,7 +52,7 @@ class SubscriptionProfileTableRow extends StatelessWidget {
                     currentBalance: balance,
                     onUnlock: profile.isSeen ? null : onUnlock,
                     child: Text(
-                      profile.email?.split('@').first ?? 'Importer ${profile.id.substring(0, 8)}',
+                      profile.companyName ?? profile.email?.split('@').first ?? 'Importer ${profile.id.substring(0, 8)}',
                       style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),
                       overflow: TextOverflow.ellipsis,
                     ),

@@ -154,14 +154,15 @@ class SubscriptionProfileCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              profile.email
-                      ?.split('@')
-                      .first
-                      .replaceAll('.', ' ')
-                      .split(' ')
-                      .map((word) => word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : '')
-                      .join(' ') ??
-                  'Importer ${profile.id.substring(0, 8)}',
+              profile.companyName ??
+                  (profile.email
+                          ?.split('@')
+                          .first
+                          .replaceAll('.', ' ')
+                          .split(' ')
+                          .map((word) => word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : '')
+                          .join(' ') ??
+                      'Importer ${profile.id.substring(0, 8)}'),
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Color(0xFF1A1A1A)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
