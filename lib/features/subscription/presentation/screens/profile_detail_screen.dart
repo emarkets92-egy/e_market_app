@@ -12,6 +12,7 @@ import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../data/models/unlock_item_model.dart';
 import '../../data/models/profile_model.dart';
+import '../../../../shared/widgets/app_error_widget.dart';
 
 class ProfileDetailScreen extends StatefulWidget {
   final String profileId;
@@ -36,8 +37,38 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
-      body: BlocBuilder<SubscriptionCubit, SubscriptionState>(
+      body: BlocConsumer<SubscriptionCubit, SubscriptionState>(
         bloc: di.sl<SubscriptionCubit>(),
+        listener: (context, state) {
+          // Show error messages via snackbar
+          if (state.error != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.error!),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+          // Show success messages via snackbar
+          if (state.successMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.successMessage!),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            // Clear the success message after showing
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              try {
+                di.sl<SubscriptionCubit>().clearSuccessMessage();
+              } catch (e) {
+                // Ignore errors if cubit is disposed
+              }
+            });
+          }
+        },
         builder: (context, state) {
           // Find profile in either list
           final allProfiles = [...state.unseenProfiles, ...state.seenProfiles];
@@ -410,11 +441,19 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
 
               if (state.isLoading && state.seenShipmentRecords.isEmpty && state.unseenShipmentRecords.isEmpty)
                 const Center(child: CircularProgressIndicator())
+              else if (state.error != null && state.seenShipmentRecords.isEmpty && state.unseenShipmentRecords.isEmpty)
+                AppErrorWidget(
+                  message: state.error!,
+                  onRetry: () {
+                    di.sl<SubscriptionCubit>().getShipmentRecords(profileId: widget.profileId);
+                  },
+                )
               else
                 _buildHistoryTable(context, state),
 
               const SizedBox(height: 24),
-              _buildTablePagination(state),
+              if (state.error == null || state.seenShipmentRecords.isNotEmpty || state.unseenShipmentRecords.isNotEmpty)
+                _buildTablePagination(state),
             ],
           ),
         ),

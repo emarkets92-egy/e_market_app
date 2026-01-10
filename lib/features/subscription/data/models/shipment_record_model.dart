@@ -44,12 +44,17 @@ class ShipmentRecordModel {
   });
 
   factory ShipmentRecordModel.fromJson(Map<String, dynamic> json, {bool? isSeen}) {
+    final createdAt = DateTime.parse(json['createdAt'] as String);
+    // Extract year and month from createdAt if not provided in JSON
+    final year = json['year'] != null ? (json['year'] as num).toInt() : createdAt.year;
+    final month = json['month'] != null ? (json['month'] as num).toInt() : createdAt.month;
+    
     return ShipmentRecordModel(
       id: json['id'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: createdAt,
       updatedAt: DateTime.parse(json['updatedAt'] as String),
-      year: (json['year'] as num).toInt(),
-      month: (json['month'] as num).toInt(),
+      year: year,
+      month: month,
       exporterName: json['exporterName'] as String?,
       countryOfOrigin: json['countryOfOrigin'] as String?,
       netWeight: json['netWeight'] as String?,
