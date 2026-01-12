@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'core/di/injection_container.dart' as di;
 import 'app.dart';
-import 'config/app_config.dart';
 import 'core/storage/local_storage.dart';
 
 void main() async {
