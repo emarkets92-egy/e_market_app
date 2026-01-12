@@ -35,9 +35,7 @@ class SidebarNavigation extends StatelessWidget {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _NavItem(icon: Icons.home, label: 'home'.tr(), isActive: currentRoute == RouteNames.home, onTap: () => context.go(RouteNames.home)),
-              ],
+              children: [_NavItem(icon: Icons.home, label: 'home'.tr(), isActive: currentRoute == RouteNames.home, hasNotification: false, onTap: () => context.go(RouteNames.home))],
             ),
           ),
 
@@ -97,7 +95,7 @@ class _NavItem extends StatelessWidget {
   final bool hasNotification;
   final VoidCallback onTap;
 
-  const _NavItem({required this.icon, required this.label, required this.isActive, this.hasNotification = false, required this.onTap});
+  const _NavItem({required this.icon, required this.label, required this.isActive, required this.hasNotification, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
