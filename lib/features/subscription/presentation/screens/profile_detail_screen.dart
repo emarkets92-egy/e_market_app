@@ -660,7 +660,11 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
         }
       }
     }
-    // Fallback: use profile ID (safely handle short IDs)
+    // Fallback: use company name if available
+    if (profile.companyName != null && profile.companyName!.isNotEmpty) {
+      return profile.companyName!;
+    }
+    // Final fallback: use profile ID (safely handle short IDs)
     final idLength = profile.id.length;
     final idPrefix = idLength >= 8 ? profile.id.substring(0, 8) : profile.id;
     return 'Importer $idPrefix';
