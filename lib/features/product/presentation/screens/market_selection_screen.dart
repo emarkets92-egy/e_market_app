@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/di/injection_container.dart' as di;
@@ -36,7 +37,7 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
     final isExporter = true; // TODO: Get from auth state
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Market Selection')),
+      appBar: AppBar(title: Text('market_selection'.tr())),
       body: BlocBuilder<SubscriptionCubit, SubscriptionState>(
         bloc: di.sl<SubscriptionCubit>(),
         builder: (context, state) {
@@ -51,7 +52,7 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Error loading market data', style: Theme.of(context).textTheme.titleMedium),
+                  Text('error_loading_market_data'.tr(), style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 8),
                   Text(state.error!, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 16),
@@ -59,7 +60,7 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
                     onPressed: () {
                       di.sl<SubscriptionCubit>().exploreMarket(productId: widget.productId, marketType: widget.marketType, countryId: widget.countryId);
                     },
-                    child: const Text('Retry'),
+                    child: Text('retry'.tr()),
                   ),
                 ],
               ),
@@ -71,34 +72,34 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Product ID: ${widget.productId}', style: Theme.of(context).textTheme.titleMedium),
+                Text('${'product_id'.tr()}: ${widget.productId}', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
-                Text('Country ID: ${widget.countryId}', style: Theme.of(context).textTheme.titleMedium),
+                Text('${'country_id'.tr()}: ${widget.countryId}', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 32),
                 if (isExporter && widget.marketType == AppConstants.marketTypeTarget) ...[
                   AppButton(
-                    text: 'Importer List',
+                    text: 'importer'.tr() + ' List',
                     onPressed: () {
                       context.push('${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}');
                     },
                   ),
                   const SizedBox(height: 16),
                   AppButton(
-                    text: 'Analysis',
+                    text: 'analysis'.tr(),
                     onPressed: () {
                       context.push('${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}');
                     },
                   ),
                 ] else if (isExporter && widget.marketType == AppConstants.marketTypeOther) ...[
                   AppButton(
-                    text: 'Importer List',
+                    text: 'importer'.tr() + ' List',
                     onPressed: () {
                       context.push('${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}');
                     },
                   ),
                   const SizedBox(height: 16),
                   AppButton(
-                    text: 'Analysis',
+                    text: 'analysis'.tr(),
                     onPressed: () {
                       context.push('${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}');
                     },
@@ -106,14 +107,14 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
                 ] else ...[
                   // Importer
                   AppButton(
-                    text: 'Exporter List',
+                    text: 'exporter'.tr() + ' List',
                     onPressed: () {
                       context.push('${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}');
                     },
                   ),
                   const SizedBox(height: 16),
                   AppButton(
-                    text: 'Analysis',
+                    text: 'analysis'.tr(),
                     onPressed: () {
                       context.push('${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}');
                     },

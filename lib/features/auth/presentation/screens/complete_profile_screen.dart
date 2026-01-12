@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../config/routes/route_names.dart';
 import '../cubit/auth_cubit.dart';
@@ -16,7 +17,7 @@ class CompleteProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Complete Profile')),
+      appBar: AppBar(title: Text('complete_profile'.tr())),
       body: BlocBuilder<LocalizationCubit, LocalizationState>(
         bloc: di.sl<LocalizationCubit>(),
         builder: (context, localizationState) {

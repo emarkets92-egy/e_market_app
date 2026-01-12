@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../config/routes/route_names.dart';
 
 class SearchBar extends StatelessWidget {
@@ -17,7 +18,7 @@ class SearchBar extends StatelessWidget {
             children: [
               const Icon(Icons.search),
               const SizedBox(width: 16),
-              Text('Search products...', style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey)),
+              Text('search_products'.tr(), style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey)),
             ],
           ),
         ),

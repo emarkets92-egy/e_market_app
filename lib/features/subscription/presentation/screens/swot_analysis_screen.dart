@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
@@ -17,13 +18,13 @@ class SWOTAnalysisScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('SWOT Analysis')),
+      appBar: AppBar(title: Text('swot_analysis'.tr())),
       body: BlocBuilder<SubscriptionCubit, SubscriptionState>(
         bloc: di.sl<SubscriptionCubit>(),
         builder: (context, state) {
           final exploration = state.marketExploration;
           if (exploration == null || exploration.swotAnalysis == null) {
-            return const Center(child: Text('No SWOT analysis available'));
+            return Center(child: Text('no_swot_analysis_available'.tr()));
           }
 
           final analysis = exploration.swotAnalysis!;
@@ -50,10 +51,10 @@ class SWOTAnalysisScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (analysis.strengths != null) _buildSection('Strengths', analysis.strengths!),
-                          if (analysis.weaknesses != null) _buildSection('Weaknesses', analysis.weaknesses!),
-                          if (analysis.opportunities != null) _buildSection('Opportunities', analysis.opportunities!),
-                          if (analysis.threats != null) _buildSection('Threats', analysis.threats!),
+                          if (analysis.strengths != null) _buildSection('strengths'.tr(), analysis.strengths!),
+                          if (analysis.weaknesses != null) _buildSection('weaknesses'.tr(), analysis.weaknesses!),
+                          if (analysis.opportunities != null) _buildSection('opportunities'.tr(), analysis.opportunities!),
+                          if (analysis.threats != null) _buildSection('threats'.tr(), analysis.threats!),
                         ],
                       ),
                     ),

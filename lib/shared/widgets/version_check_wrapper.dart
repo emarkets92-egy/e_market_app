@@ -1,4 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/di/injection_container.dart' as di;
 import '../../features/version/presentation/cubit/version_cubit.dart';
@@ -37,7 +40,7 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
         // If checking, show loading
         if (state is VersionChecking) {
           return Directionality(
-            textDirection: TextDirection.ltr,
+            textDirection: ui.TextDirection.ltr,
             child: const Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
@@ -45,7 +48,7 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
         // If error, block the app (mandatory update)
         if (state is VersionCheckError) {
           return Directionality(
-            textDirection: TextDirection.ltr,
+            textDirection: ui.TextDirection.ltr,
             child: Scaffold(
               body: Center(
                 child: Padding(
@@ -55,10 +58,10 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
                     children: [
                       const Icon(Icons.error_outline, size: 64, color: Colors.red),
                       const SizedBox(height: 16),
-                      const Text('Unable to check for updates', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('unable_to_check_updates'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Text(
-                        'Please check your internet connection and try again.',
+                        'check_internet_connection'.tr(),
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                         textAlign: TextAlign.center,
                       ),
@@ -67,7 +70,7 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
                         onPressed: () {
                           di.sl<VersionCubit>().checkVersion();
                         },
-                        child: const Text('Retry'),
+                        child: Text('retry'.tr()),
                       ),
                     ],
                   ),

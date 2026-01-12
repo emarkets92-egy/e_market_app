@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/storage/local_storage.dart';
 import '../../../../config/routes/route_names.dart';
@@ -30,7 +31,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Product Details')),
+      appBar: AppBar(title: Text('product_details'.tr())),
       body: BlocBuilder<ProductCubit, ProductState>(
         bloc: di.sl<ProductCubit>(),
         builder: (context, state) {
@@ -50,7 +51,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
           final product = state.selectedProduct;
           if (product == null) {
-            return const Center(child: Text('Product not found'));
+            return Center(child: Text('product_not_found'.tr()));
           }
 
           return SingleChildScrollView(
@@ -59,9 +60,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(product.name, style: Theme.of(context).textTheme.headlineMedium),
-                if (product.hscode != null) ...[const SizedBox(height: 8), Text('HS Code: ${product.hscode}')],
+                if (product.hscode != null) ...[const SizedBox(height: 8), Text('${'hs_code'.tr()}: ${product.hscode}')],
                 const SizedBox(height: 24),
-                const Text('Available Markets', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('available_markets'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 _buildMarketsList(context, product),
               ],
@@ -78,19 +79,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final markets = <Map<String, dynamic>>[];
 
     if (product.targetMarkets.isNotEmpty) {
-      markets.addAll(product.targetMarkets.map((id) => {'id': id, 'type': AppConstants.marketTypeTarget, 'label': 'Target Market'}));
+      markets.addAll(product.targetMarkets.map((id) => {'id': id, 'type': AppConstants.marketTypeTarget, 'label': 'target_market_label'.tr()}));
     }
 
     if (product.otherMarkets.isNotEmpty) {
-      markets.addAll(product.otherMarkets.map((id) => {'id': id, 'type': AppConstants.marketTypeOther, 'label': 'Other Market'}));
+      markets.addAll(product.otherMarkets.map((id) => {'id': id, 'type': AppConstants.marketTypeOther, 'label': 'other_market'.tr()}));
     }
 
     if (product.importerMarkets.isNotEmpty) {
-      markets.addAll(product.importerMarkets.map((id) => {'id': id, 'type': AppConstants.marketTypeImporter, 'label': 'Importer Market'}));
+      markets.addAll(product.importerMarkets.map((id) => {'id': id, 'type': AppConstants.marketTypeImporter, 'label': 'importer_market'.tr()}));
     }
 
     if (markets.isEmpty) {
-      return const Text('No markets available');
+      return Text('no_markets_available'.tr());
     }
 
     return ListView.builder(

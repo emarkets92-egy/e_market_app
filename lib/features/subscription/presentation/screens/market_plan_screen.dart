@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
@@ -17,13 +18,13 @@ class MarketPlanScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Market Plan')),
+      appBar: AppBar(title: Text('market_plan'.tr())),
       body: BlocBuilder<SubscriptionCubit, SubscriptionState>(
         bloc: di.sl<SubscriptionCubit>(),
         builder: (context, state) {
           final exploration = state.marketExploration;
           if (exploration == null || exploration.marketPlan == null) {
-            return const Center(child: Text('No market plan available'));
+            return Center(child: Text('no_market_plan'.tr()));
           }
 
           final plan = exploration.marketPlan!;
@@ -50,10 +51,10 @@ class MarketPlanScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (plan.productText != null) _buildSection('Product', plan.productText!),
-                          if (plan.priceText != null) _buildSection('Price', plan.priceText!),
-                          if (plan.placeText != null) _buildSection('Place', plan.placeText!),
-                          if (plan.promotionText != null) _buildSection('Promotion', plan.promotionText!),
+                          if (plan.productText != null) _buildSection('product_label'.tr(), plan.productText!),
+                          if (plan.priceText != null) _buildSection('price'.tr(), plan.priceText!),
+                          if (plan.placeText != null) _buildSection('place'.tr(), plan.placeText!),
+                          if (plan.promotionText != null) _buildSection('promotion'.tr(), plan.promotionText!),
                         ],
                       ),
                     ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../data/models/profile_model.dart';
@@ -133,7 +134,7 @@ class SubscriptionProfileTableRow extends StatelessWidget {
                       context.push('/profiles/${profile.id}');
                     },
                     icon: const Icon(Icons.visibility, size: 16),
-                    label: const Text('View'),
+                    label: Text('view'.tr()),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.blue,
                       side: const BorderSide(color: Colors.blue),
@@ -147,7 +148,7 @@ class SubscriptionProfileTableRow extends StatelessWidget {
                       icon: isUnlocking
                           ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                           : const Icon(Icons.lock_open, size: 16, color: Colors.white),
-                      label: Text('${profile.unlockCost} Credit to Unlock', style: const TextStyle(fontSize: 12, color: Colors.white)),
+                      label: Text('credit_to_unlock'.tr(namedArgs: {'cost': profile.unlockCost.toString()}), style: const TextStyle(fontSize: 12, color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,

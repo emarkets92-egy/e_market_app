@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'en/strings.dart' as en;
 import 'ar/strings.dart' as ar;
+import 'fr/strings.dart' as fr;
+import 'it/strings.dart' as it;
+import 'es/strings.dart' as es;
 
 class AppLocalizations {
   final Locale locale;
@@ -13,12 +16,24 @@ class AppLocalizations {
 
   static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
-  static const List<Locale> supportedLocales = [Locale('en'), Locale('ar')];
+  static const List<Locale> supportedLocales = [
+    Locale('en'),
+    Locale('ar'),
+    Locale('fr'),
+    Locale('it'),
+    Locale('es'),
+  ];
 
   Map<String, String> get _localizedStrings {
     switch (locale.languageCode) {
       case 'ar':
         return ar.strings;
+      case 'fr':
+        return fr.strings;
+      case 'it':
+        return it.strings;
+      case 'es':
+        return es.strings;
       case 'en':
       default:
         return en.strings;
@@ -74,7 +89,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 
   @override
   bool isSupported(Locale locale) {
-    return ['en', 'ar'].contains(locale.languageCode);
+    return ['en', 'ar', 'fr', 'it', 'es'].contains(locale.languageCode);
   }
 
   @override

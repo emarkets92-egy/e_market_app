@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
@@ -75,8 +76,8 @@ class _ProfileListScreenState extends State<ProfileListScreen> with SingleTicker
                     TabBar(
                       controller: _tabController,
                       tabs: [
-                        Tab(text: 'New Profiles${state.unseenProfilesTotal > 0 ? ' (${state.unseenProfilesTotal})' : ''}'),
-                        Tab(text: 'Unlocked${state.seenProfilesTotal > 0 ? ' (${state.seenProfilesTotal})' : ''}'),
+                        Tab(text: '${'new_profiles'.tr()}${state.unseenProfilesTotal > 0 ? ' (${state.unseenProfilesTotal})' : ''}'),
+                        Tab(text: '${'unlocked'.tr()}${state.seenProfilesTotal > 0 ? ' (${state.seenProfilesTotal})' : ''}'),
                       ],
                     ),
                     // View Toggle
@@ -85,10 +86,10 @@ class _ProfileListScreenState extends State<ProfileListScreen> with SingleTicker
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Importers Directory', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text('importers_directory'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                           Row(
                             children: [
-                              Text('${state.unseenProfilesTotal + state.seenProfilesTotal} Results', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                              Text('results_count'.tr(namedArgs: {'count': (state.unseenProfilesTotal + state.seenProfilesTotal).toString()}), style: const TextStyle(fontSize: 14, color: Colors.grey)),
                               const SizedBox(width: 16),
                               // View Toggle Icons
                               Container(
@@ -217,7 +218,7 @@ class _ProfileListScreenState extends State<ProfileListScreen> with SingleTicker
         });
         return const Center(child: CircularProgressIndicator());
       }
-      return Center(child: Text(isSeen ? 'No unlocked profiles found' : 'No new profiles found'));
+      return Center(child: Text(isSeen ? 'no_unlocked_profiles_found'.tr() : 'no_new_profiles_found'.tr()));
     }
 
     return Column(
@@ -280,22 +281,22 @@ class _ProfileListScreenState extends State<ProfileListScreen> with SingleTicker
               children: [
                 SizedBox(
                   width: 80,
-                  child: Text('PROFILE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  child: Text('profile'.tr().toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   flex: 2,
-                  child: Text('IMPORTER NAME', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  child: Text('importer_name'.tr().toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   flex: 2,
-                  child: Text('EMAIL', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  child: Text('email'.tr().toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   flex: 1,
-                  child: Text('WHATSAPP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  child: Text('whatsapp'.tr().toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                 ),
               ],
             ),
@@ -324,7 +325,7 @@ class _ProfileListScreenState extends State<ProfileListScreen> with SingleTicker
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(icon: const Icon(Icons.chevron_left), onPressed: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null),
-          Text('Page $currentPage of $totalPages'),
+          Text('page_of'.tr(namedArgs: {'current': currentPage.toString(), 'total': totalPages.toString()})),
           IconButton(icon: const Icon(Icons.chevron_right), onPressed: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null),
         ],
       ),

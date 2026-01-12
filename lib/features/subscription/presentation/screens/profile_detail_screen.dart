@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../config/routes/route_names.dart';
 import '../../../../config/theme.dart';
@@ -25,6 +26,7 @@ class ProfileDetailScreen extends StatefulWidget {
 
 class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   bool _showSeenRecords = false; // Toggle for shipment records filter
+  bool _isImportHistoryExpanded = false; // Toggle for import history visibility
 
   @override
   void initState() {
@@ -42,23 +44,15 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
         listener: (context, state) {
           // Show error messages via snackbar
           if (state.error != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.error!),
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 3),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.error!), backgroundColor: Colors.red, duration: const Duration(seconds: 3)));
           }
           // Show success messages via snackbar
           if (state.successMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.successMessage!),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 2),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.successMessage!), backgroundColor: Colors.green, duration: const Duration(seconds: 2)));
             // Clear the success message after showing
             WidgetsBinding.instance.addPostFrameCallback((_) {
               try {
@@ -77,7 +71,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           // For now, fallback or show loading/error if not found
           if (allProfiles.isEmpty && !state.isLoading) {
             // Try to find in the current state anyway or show error
-            return const Center(child: Text('Profile not found'));
+            return Center(child: Text('profile_not_found'.tr()));
           }
 
           final profile = allProfiles.firstWhere(
@@ -182,13 +176,13 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
         const SizedBox(width: 8),
         InkWell(
           onTap: () => context.go(RouteNames.home),
-          child: const Text('Home', style: TextStyle(color: AppTheme.primaryBlue, fontSize: 14)),
+          child: Text('home'.tr(), style: const TextStyle(color: AppTheme.primaryBlue, fontSize: 14)),
         ),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 8.0),
           child: Text('/', style: TextStyle(color: Colors.grey)),
         ),
-        const Text('Importers Directory', style: TextStyle(color: AppTheme.primaryBlue, fontSize: 14)),
+        Text('importers_directory'.tr(), style: const TextStyle(color: AppTheme.primaryBlue, fontSize: 14)),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 8.0),
           child: Text('/', style: TextStyle(color: Colors.grey)),
@@ -203,8 +197,8 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
 
   Widget _buildProfileHeader(BuildContext context, ProfileModel profile) {
     final name = _getProfileName(profile);
-    final address = profile.address ?? 'United States';
-    const memberSince = 'Member since 2018';
+    final address = profile.address ?? 'N/A';
+    final countryName = profile.countryName;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -225,9 +219,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      name.length >= 2 
-                          ? name.substring(0, 2).toUpperCase()
-                          : (name.isNotEmpty ? (name[0] + name[0]).toUpperCase() : 'IM'),
+                      name.length >= 2 ? name.substring(0, 2).toUpperCase() : (name.isNotEmpty ? (name[0] + name[0]).toUpperCase() : 'IM'),
                       style: const TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                   ),
@@ -243,15 +235,17 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.flag, size: 16, color: Colors.red),
-                        const SizedBox(width: 6),
-                        Text(address, style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
-                        const SizedBox(width: 8),
-                        const Text('•', style: TextStyle(color: Colors.grey)),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.access_time, size: 16, color: AppTheme.primaryBlue),
-                        const SizedBox(width: 6),
-                        const Text(memberSince, style: TextStyle(fontSize: 14, color: AppTheme.primaryBlue)),
+                        if (countryName != null && countryName.isNotEmpty) ...[
+                          const Icon(Icons.flag, size: 16, color: Colors.red),
+                          const SizedBox(width: 6),
+                          Text(countryName, style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
+                          if (address != 'N/A') ...[const SizedBox(width: 8), const Text('•', style: TextStyle(color: Colors.grey)), const SizedBox(width: 8)],
+                        ],
+                        if (address != 'N/A') ...[
+                          const Icon(Icons.location_on, size: 16, color: AppTheme.primaryBlue),
+                          const SizedBox(width: 6),
+                          Text(address, style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
+                        ],
                       ],
                     ),
                   ],
@@ -283,9 +277,9 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Contact Information',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+              Text(
+                'contact_information'.tr(),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
               // Edit icon removed
             ],
@@ -300,14 +294,14 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
               children: [
                 _buildSidebarItem(
                   icon: Icons.email,
-                  label: 'EMAIL ADDRESS',
+                  label: 'email_address'.tr().toUpperCase(),
                   value: profile.email ?? 'N/A',
                   onTap: () => _launchUrl(profile.email, scheme: 'mailto'),
                 ),
                 const SizedBox(height: 20),
                 _buildSidebarItem(
                   icon: Icons.phone,
-                  label: 'PHONE NUMBER',
+                  label: 'phone_number'.tr().toUpperCase(),
                   value: profile.phone ?? 'N/A',
                   onTap: () => _launchUrl(profile.phone, scheme: 'tel'),
                 ),
@@ -315,13 +309,13 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                 if (profile.whatsapp != null) ...[
                   _buildSidebarItem(
                     icon: Icons.chat,
-                    label: 'WHATSAPP',
+                    label: 'whatsapp'.tr().toUpperCase(),
                     value: profile.whatsapp!,
                     onTap: () => _launchUrl(profile.whatsapp, scheme: 'https'), // Or whatsapp scheme
                   ),
                   const SizedBox(height: 20),
                 ],
-                _buildSidebarItem(icon: Icons.location_on, label: 'HEADQUARTERS', value: profile.address ?? 'N/A'),
+                _buildSidebarItem(icon: Icons.location_on, label: 'headquarters'.tr().toUpperCase(), value: profile.address ?? 'N/A'),
               ],
             ),
           ),
@@ -334,7 +328,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'View Company Website',
+                    'view_company_website'.tr(),
                     style: TextStyle(color: (profile.isSeen && profile.website != null) ? AppTheme.primaryBlue : Colors.grey, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 4),
@@ -385,23 +379,23 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   Widget _buildMainContent(BuildContext context, ProfileModel profile, SubscriptionState state) {
     return Column(
       children: [
-        // Stats Row (Placeholders for now as requested)
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(label: 'TOTAL IMPORTS', value: '1,245', subValue: '+12% this year', subValueColor: Colors.green, isTrend: true),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildStatCard(label: 'TOP ORIGIN', value: 'China', showFlag: true),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildStatCard(label: 'AVG. VOLUME', value: '\$45k', subValue: 'Per shipment'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
+        // Stats Row - Hidden for now, will be restored when API provides the data
+        // Row(
+        //   children: [
+        //     Expanded(
+        //       child: _buildStatCard(label: 'TOTAL IMPORTS', value: '1,245', subValue: '+12% this year', subValueColor: Colors.green, isTrend: true),
+        //     ),
+        //     const SizedBox(width: 16),
+        //     Expanded(
+        //       child: _buildStatCard(label: 'TOP ORIGIN', value: 'China', showFlag: true),
+        //     ),
+        //     const SizedBox(width: 16),
+        //     Expanded(
+        //       child: _buildStatCard(label: 'AVG. VOLUME', value: '\$45k', subValue: 'Per shipment'),
+        //     ),
+        //   ],
+        // ),
+        // const SizedBox(height: 24),
 
         // Import History Table
         Container(
@@ -420,40 +414,54 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Import History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('import_history'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text('Recent shipments and transaction records', style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+                      Text('recent_shipments_description'.tr(), style: TextStyle(fontSize: 13, color: Colors.grey[500])),
                     ],
                   ),
-                  // Filter Toggle
-                  Container(
-                    decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
-                    child: Row(
-                      children: [
-                        _buildFilterButton('New Records', !_showSeenRecords, () => setState(() => _showSeenRecords = false)),
-                        _buildFilterButton('Seen Records', _showSeenRecords, () => setState(() => _showSeenRecords = true)),
-                      ],
-                    ),
+                  Row(
+                    children: [
+                      // Filter Toggle
+                      Container(
+                        decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+                        child: Row(
+                          children: [
+                            _buildFilterButton('new_records'.tr(), !_showSeenRecords, () => setState(() => _showSeenRecords = false)),
+                            _buildFilterButton('seen_records'.tr(), _showSeenRecords, () => setState(() => _showSeenRecords = true)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Expand/Collapse Button
+                      InkWell(
+                        onTap: () => setState(() => _isImportHistoryExpanded = !_isImportHistoryExpanded),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+                          child: Icon(_isImportHistoryExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.black87),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-
-              if (state.isLoading && state.seenShipmentRecords.isEmpty && state.unseenShipmentRecords.isEmpty)
-                const Center(child: CircularProgressIndicator())
-              else if (state.error != null && state.seenShipmentRecords.isEmpty && state.unseenShipmentRecords.isEmpty)
-                AppErrorWidget(
-                  message: state.error!,
-                  onRetry: () {
-                    di.sl<SubscriptionCubit>().getShipmentRecords(profileId: widget.profileId);
-                  },
-                )
-              else
-                _buildHistoryTable(context, state),
-
-              const SizedBox(height: 24),
-              if (state.error == null || state.seenShipmentRecords.isNotEmpty || state.unseenShipmentRecords.isNotEmpty)
-                _buildTablePagination(state),
+              if (_isImportHistoryExpanded) ...[
+                const SizedBox(height: 24),
+                if (state.isLoading && state.seenShipmentRecords.isEmpty && state.unseenShipmentRecords.isEmpty)
+                  const Center(child: CircularProgressIndicator())
+                else if (state.error != null && state.seenShipmentRecords.isEmpty && state.unseenShipmentRecords.isEmpty)
+                  AppErrorWidget(
+                    message: state.error!,
+                    onRetry: () {
+                      di.sl<SubscriptionCubit>().getShipmentRecords(profileId: widget.profileId);
+                    },
+                  )
+                else
+                  _buildHistoryTable(context, state),
+                const SizedBox(height: 24),
+                if (state.error == null || state.seenShipmentRecords.isNotEmpty || state.unseenShipmentRecords.isNotEmpty) _buildTablePagination(state),
+              ],
             ],
           ),
         ),
@@ -530,7 +538,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
-          child: Text(_showSeenRecords ? 'No seen records found' : 'No new records available', style: TextStyle(color: Colors.grey[500])),
+          child: Text(_showSeenRecords ? 'no_seen_records_found'.tr() : 'no_new_records_available'.tr(), style: TextStyle(color: Colors.grey[500])),
         ),
       );
     }
@@ -543,12 +551,10 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
         columnSpacing: 24,
         horizontalMargin: 0,
         columns: [
-          _buildDataColumn('EXPORTER NAME'),
-          _buildDataColumn('COUNTRY OF ORIGIN'),
-          _buildDataColumn('HS CODE'),
-          _buildDataColumn('HS CODE DESCRIPTION'),
-          _buildDataColumn('PRODUCT DESC'),
-          _buildDataColumn('ACTION'), // Added for unlock/view
+          _buildDataColumn('exporter_name'.tr().toUpperCase()),
+          _buildDataColumn('country_of_origin'.tr().toUpperCase()),
+          _buildDataColumn('hs_code'.tr().toUpperCase()),
+          _buildDataColumn('action'.tr().toUpperCase()), // Added for unlock/view
         ],
         rows: records.map((record) {
           final isLocked = !_showSeenRecords; // Logic assumption: unseen = locked/new
@@ -583,26 +589,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                   ),
                 ),
               ),
-              DataCell(
-                SizedBox(
-                  width: 150,
-                  child: Text(
-                    record.countryOfOrigin ?? '-',
-                    style: TextStyle(color: Colors.blue[600]),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ), // Using countryOfOrigin as placeholder for description if not available
-              DataCell(
-                SizedBox(
-                  width: 150,
-                  child: Text(
-                    record.exporterName ?? '-',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ), // Using exporterName as placeholder
               DataCell(
                 isLocked
                     ? IconButton(
@@ -639,11 +625,14 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Total: $totalRecords records', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+        Text(
+          'total_records'.tr(namedArgs: {'count': totalRecords.toString()}),
+          style: TextStyle(color: Colors.grey[600], fontSize: 13),
+        ),
         Row(
           children: [
             IconButton(icon: const Icon(Icons.chevron_left), onPressed: currentPage > 1 ? () => _loadPage(currentPage - 1) : null),
-            Text('Page $currentPage of $totalPages'),
+            Text('page_of'.tr(namedArgs: {'current': currentPage.toString(), 'total': totalPages.toString()})),
             IconButton(icon: const Icon(Icons.chevron_right), onPressed: currentPage < totalPages ? () => _loadPage(currentPage + 1) : null),
           ],
         ),
@@ -667,14 +656,14 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('© 2023 E Market Inc. All rights reserved.', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+            Text('copyright_full'.tr(), style: TextStyle(color: Colors.grey[500], fontSize: 13)),
             Row(
               children: [
-                _buildFooterLink('Privacy Policy'),
+                _buildFooterLink('privacy_policy'.tr()),
                 const SizedBox(width: 24),
-                _buildFooterLink('Terms of Service'),
+                _buildFooterLink('terms_of_service'.tr()),
                 const SizedBox(width: 24),
-                _buildFooterLink('Report User'),
+                _buildFooterLink('report_user'.tr()),
               ],
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../config/theme.dart';
 import '../../../../core/di/injection_container.dart' as di;
@@ -25,7 +26,7 @@ class SidebarNavigation extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(24.0),
             child: Row(
-              children: [SizedBox(width: 100, height: 100, child: Image.asset('assets/logo 1.png', fit: BoxFit.contain))],
+              children: [SizedBox(width: 180, height: 180, child: Image.asset('assets/logo 1.png', fit: BoxFit.contain))],
             ),
           ),
           const Divider(height: 1),
@@ -35,32 +36,7 @@ class SidebarNavigation extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                _NavItem(icon: Icons.home, label: 'Home', isActive: currentRoute == RouteNames.home, onTap: () => context.go(RouteNames.home)),
-                _NavItem(
-                  icon: Icons.inbox,
-                  label: 'Inbox',
-                  isActive: currentRoute == RouteNames.inbox,
-                  hasNotification: hasUnreadNotifications,
-                  onTap: () => context.go(RouteNames.inbox),
-                ),
-                _NavItem(
-                  icon: Icons.lightbulb_outline,
-                  label: 'Opportunities',
-                  isActive: currentRoute == RouteNames.opportunities,
-                  onTap: () => context.go(RouteNames.opportunities),
-                ),
-                _NavItem(
-                  icon: Icons.notifications_outlined,
-                  label: 'Notifications',
-                  isActive: currentRoute == RouteNames.notifications,
-                  onTap: () => context.go(RouteNames.notifications),
-                ),
-                _NavItem(
-                  icon: Icons.person_outline,
-                  label: 'Profile',
-                  isActive: currentRoute == RouteNames.profile,
-                  onTap: () => context.go(RouteNames.profile),
-                ),
+                _NavItem(icon: Icons.home, label: 'home'.tr(), isActive: currentRoute == RouteNames.home, onTap: () => context.go(RouteNames.home)),
               ],
             ),
           ),
@@ -99,7 +75,7 @@ class SidebarNavigation extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
-                          Text('Premium Plan', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                          Text('premium_plan'.tr(), style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                         ],
                       ),
                     ),

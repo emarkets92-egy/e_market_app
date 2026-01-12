@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/constants/app_constants.dart';
-import '../../../../config/routes/route_names.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/premium_header_bar.dart';
@@ -14,7 +14,6 @@ import '../../../../features/localization/data/models/country_model.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../data/models/unlock_item_model.dart';
 import '../widgets/subscription_profile_table_row.dart';
-import '../widgets/subscription_profile_card.dart';
 
 class SubscriptionSelectionScreen extends StatefulWidget {
   const SubscriptionSelectionScreen({super.key});
@@ -28,7 +27,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
   String? _selectedMarketType;
   CountryModel? _selectedCountry; // This maps to "Import Country"
   String _selectedViewType = 'new'; // 'new' or 'unlocked'
-  bool _isTableView = true; // Toggle between Table and Card view
+  String? _lastShownSuccessMessage; // Track last shown success message to avoid duplicate dialogs
 
   @override
   void initState() {
@@ -122,13 +121,13 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
   String _getMarketTypeLabel(String marketType) {
     switch (marketType) {
       case AppConstants.marketTypeTarget:
-        return 'Target Market';
+        return 'target_market_label'.tr();
       case AppConstants.marketTypeOther:
-        return 'Other Market';
+        return 'other_market'.tr();
       case AppConstants.marketTypeImporter:
-        return 'Importer Market';
+        return 'importer_market'.tr();
       case 'both':
-        return 'Both';
+        return 'both'.tr();
       default:
         return marketType;
     }
@@ -140,12 +139,23 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
       backgroundColor: const Color(0xFFF8F9FA), // Light background like in design
       body: Column(
         children: [
-          const PremiumHeaderBar(showBackButton: true),
+          const PremiumHeaderBar(showBackButton: true, showActionButtons: false),
           Expanded(
             child: BlocConsumer<SubscriptionCubit, SubscriptionState>(
               bloc: di.sl<SubscriptionCubit>(),
               listener: (context, state) {
-                if (state.successMessage != null) {
+                // Show dialog for profile unlock success
+                if (state.successMessage != null && 
+                    state.successMessage!.toLowerCase().contains('profile unlocked') &&
+                    state.successMessage != _lastShownSuccessMessage) {
+                  _lastShownSuccessMessage = state.successMessage;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _showUnlockSuccessDialog(context);
+                    di.sl<SubscriptionCubit>().clearSuccessMessage();
+                  });
+                } else if (state.successMessage != null && 
+                           !state.successMessage!.toLowerCase().contains('profile unlocked')) {
+                  // Show snackbar for other success messages
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text(state.successMessage!), backgroundColor: Colors.green, duration: const Duration(seconds: 2)));
@@ -181,29 +191,6 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
 
                         const SizedBox(height: 24),
 
-                        // Analysis Button (shown when all selections are made)
-                        if (_selectedProduct != null && _selectedMarketType != null && _selectedCountry != null) ...[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  context.push('${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}');
-                                },
-                                icon: const Icon(Icons.analytics_outlined),
-                                label: const Text('Analysis'),
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                        ],
-
                         // Results Section
                         if (_selectedProduct != null && _selectedCountry != null) ...[
                           Row(
@@ -211,46 +198,23 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                             children: [
                               Row(
                                 children: [
-                                  const Text(
-                                    'Importers Directory',
-                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                                  Text(
+                                    'importers_directory'.tr(),
+                                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
                                   ),
                                   const SizedBox(width: 16),
                                   Text(
-                                    '${_selectedViewType == 'new' ? state.unseenProfilesTotal : state.seenProfilesTotal} Results',
+                                    'results_count'.tr(namedArgs: {'count': (_selectedViewType == 'new' ? state.unseenProfilesTotal : state.seenProfilesTotal).toString()}),
                                     style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w500),
                                   ),
                                 ],
-                              ),
-                              // View Toggle Buttons
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.grey[300]!),
-                                ),
-                                child: Row(
-                                  children: [
-                                    _buildViewToggleButton(
-                                      icon: Icons.table_rows_outlined,
-                                      isSelected: _isTableView,
-                                      onTap: () => setState(() => _isTableView = true),
-                                    ),
-                                    Container(width: 1, height: 24, color: Colors.grey[300]),
-                                    _buildViewToggleButton(
-                                      icon: Icons.grid_view_outlined,
-                                      isSelected: !_isTableView,
-                                      onTap: () => setState(() => _isTableView = false),
-                                    ),
-                                  ],
-                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
 
-                          // Table Header (Only for Table View)
-                          if (_isTableView) _buildTableHeader(),
+                          // Table Header
+                          _buildTableHeader(),
 
                           // Content
                           if (state.isLoading && state.marketExploration == null)
@@ -261,7 +225,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                               (_selectedViewType == 'unlocked' && state.seenProfiles.isEmpty))
                             _buildEmptyState()
                           else
-                            _isTableView ? _buildTableContent(state) : _buildGridContent(state),
+                            _buildTableContent(state),
 
                           // Pagination
                           _buildPagination(state),
@@ -274,7 +238,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                                 children: [
                                   Icon(Icons.filter_list, size: 48, color: Colors.grey),
                                   SizedBox(height: 16),
-                                  Text('Please select filters to view importers', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                                  Text('please_select_filters'.tr(), style: TextStyle(color: Colors.grey, fontSize: 16)),
                                 ],
                               ),
                             ),
@@ -288,17 +252,6 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildViewToggleButton({required IconData icon, required bool isSelected, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.transparent,
-        child: Icon(icon, size: 20, color: isSelected ? Colors.blue : Colors.grey),
       ),
     );
   }
@@ -380,7 +333,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
         child: DropdownButton<SubscriptionModel>(
           isExpanded: true,
           value: _selectedProduct,
-          hint: const Text('Select the product', style: TextStyle(fontSize: 14)),
+          hint: Text('select_product'.tr(), style: const TextStyle(fontSize: 14)),
           icon: const Icon(Icons.keyboard_arrow_down, color: Colors.blue),
           items: subscriptions.map((subscription) {
             return DropdownMenuItem<SubscriptionModel>(
@@ -420,7 +373,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
         child: DropdownButton<String>(
           isExpanded: true,
           value: _selectedMarketType,
-          hint: Text('Select the market', style: TextStyle(fontSize: 14, color: _selectedProduct == null ? Colors.grey : Colors.blue[700])), // Default hint
+          hint: Text('select_market'.tr(), style: TextStyle(fontSize: 14, color: _selectedProduct == null ? Colors.grey : Colors.blue[700])), // Default hint
           icon: Icon(
             _selectedMarketType == null ? Icons.lock_outline : Icons.keyboard_arrow_down,
             color: _selectedProduct == null ? Colors.grey : Colors.blue,
@@ -463,7 +416,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
           isExpanded: true,
           value: _selectedCountry,
           hint: Text(
-            availableCountries.isEmpty && isEnabled ? 'No countries' : 'Select the country', // Match design default if needed
+            availableCountries.isEmpty && isEnabled ? 'no_countries'.tr() : 'select_country'.tr(), // Match design default if needed
             style: const TextStyle(fontSize: 14),
           ),
           icon: Icon(Icons.flag_outlined, color: isEnabled ? Colors.blue : Colors.grey, size: 20),
@@ -503,11 +456,11 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
           items: const [
             DropdownMenuItem(
               value: 'new',
-              child: Text('New Profiles', style: TextStyle(fontSize: 14)),
+              child: Text('new_profiles'.tr(), style: const TextStyle(fontSize: 14)),
             ),
             DropdownMenuItem(
               value: 'unlocked',
-              child: Text('Unlocked Profiles', style: TextStyle(fontSize: 14)),
+              child: Text('unlocked_profiles'.tr(), style: const TextStyle(fontSize: 14)),
             ),
           ],
           onChanged: (String? value) {
@@ -528,45 +481,45 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
       decoration: const BoxDecoration(color: Colors.transparent),
       child: const Row(
         children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              'IMPORTER NAME',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: Text(
-              'EMAIL',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: Text(
-              'PHONE',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: Text(
-              'WEBSITE',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-            ),
-          ),
-          SizedBox(width: 16),
-          SizedBox(
-            width: 160,
-            child: Text(
-              'ACTIONS',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-            ),
-          ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    'importer_name'.tr().toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'email'.tr().toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'phone'.tr().toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'website'.tr().toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                SizedBox(
+                  width: 160,
+                  child: Text(
+                    'actions'.tr().toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+                  ),
+                ),
         ],
       ),
     );
@@ -603,27 +556,6 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
     );
   }
 
-  Widget _buildGridContent(SubscriptionState state) {
-    final profiles = _selectedViewType == 'new' ? state.unseenProfiles : state.seenProfiles;
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 400, mainAxisSpacing: 16, crossAxisSpacing: 16, childAspectRatio: 1.5),
-      itemCount: profiles.length,
-      itemBuilder: (context, index) {
-        final profile = profiles[index];
-        return SubscriptionProfileCard(
-          profile: profile,
-          isUnlocking: state.isUnlocking,
-          onUnlock: () {
-            di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
-          },
-        );
-      },
-    );
-  }
-
   Widget _buildEmptyState() {
     return Container(
       width: double.infinity,
@@ -633,7 +565,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
         children: [
           Icon(Icons.search_off, size: 48, color: Colors.grey),
           SizedBox(height: 16),
-          Text('No importers found matching your criteria', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          Text('no_importers_found'.tr(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -663,10 +595,10 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                   }
                 : null,
             style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-            child: const Text('Previous'),
+            child: Text('previous'.tr()),
           ),
           const SizedBox(width: 16),
-          Text('Page $currentPage of $totalPages'),
+          Text('page_of'.tr(namedArgs: {'current': currentPage.toString(), 'total': totalPages.toString()})),
           const SizedBox(width: 16),
           OutlinedButton(
             onPressed: currentPage < totalPages
@@ -681,10 +613,66 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                   }
                 : null,
             style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-            child: const Text('Next'),
+            child: Text('next'.tr()),
           ),
         ],
       ),
+    );
+  }
+
+  void _showUnlockSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 28),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'profile_unlocked'.tr(),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'profile_unlocked_success_message'.tr(),
+            style: const TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: Text(
+                'no'.tr(),
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _selectedViewType = 'unlocked';
+                });
+                Navigator.of(dialogContext).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'yes'.tr(),
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/storage/local_storage.dart';
 import '../cubit/product_cubit.dart';
@@ -58,7 +59,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Products')),
+      appBar: AppBar(title: Text('products'.tr())),
       body: Column(
         children: [
           ProductSearchBar(hscodeController: _hscodeController, nameController: _nameController, onSearch: () => _loadProducts(refresh: true)),
@@ -75,7 +76,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 }
 
                 if (state.products.isEmpty) {
-                  return const Center(child: Text('No products found'));
+                  return Center(child: Text('no_products_found'.tr()));
                 }
 
                 return SmartRefresher(

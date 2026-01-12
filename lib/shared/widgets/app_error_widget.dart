@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class AppErrorWidget extends StatelessWidget {
   final String message;
@@ -19,7 +20,7 @@ class AppErrorWidget extends StatelessWidget {
             Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge),
             if (onRetry != null) ...[
               const SizedBox(height: 24),
-              ElevatedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('Retry')),
+              ElevatedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: Text('retry'.tr())),
             ],
           ],
         ),

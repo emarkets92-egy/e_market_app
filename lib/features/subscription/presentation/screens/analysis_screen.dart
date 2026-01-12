@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../config/theme.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
@@ -63,7 +64,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
 
           final exploration = state.marketExploration;
           if (exploration == null) {
-            return const Center(child: Text('No analysis data available'));
+            return Center(child: Text('no_analysis_data_available'.tr()));
           }
 
           return Column(
@@ -177,13 +178,13 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _buildTab(context, 'Overview & Competitive Analysis', AnalysisTab.competitiveAnalysis, exploration.competitiveAnalysis != null),
+            _buildTab(context, 'overview_competitive_analysis'.tr(), AnalysisTab.competitiveAnalysis, exploration.competitiveAnalysis != null),
             const SizedBox(width: 8),
-            _buildTab(context, 'PESTLE Analysis', AnalysisTab.pestleAnalysis, exploration.pestleAnalysis != null),
+            _buildTab(context, 'pestle_analysis'.tr(), AnalysisTab.pestleAnalysis, exploration.pestleAnalysis != null),
             const SizedBox(width: 8),
-            _buildTab(context, 'SWOT Analysis', AnalysisTab.swotAnalysis, exploration.swotAnalysis != null),
+            _buildTab(context, 'swot_analysis'.tr(), AnalysisTab.swotAnalysis, exploration.swotAnalysis != null),
             const SizedBox(width: 8),
-            _buildTab(context, 'Market Plan', AnalysisTab.marketPlan, exploration.marketPlan != null),
+            _buildTab(context, 'market_plan'.tr(), AnalysisTab.marketPlan, exploration.marketPlan != null),
           ],
         ),
       ),
@@ -235,7 +236,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   Widget _buildCompetitiveAnalysisTab(BuildContext context, dynamic exploration) {
     final analysis = exploration.competitiveAnalysis;
     if (analysis == null) {
-      return const Center(child: Text('No competitive analysis available'));
+      return Center(child: Text('no_competitive_analysis_available'.tr()));
     }
 
     return BlocBuilder<SubscriptionCubit, SubscriptionState>(
@@ -247,7 +248,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Competitive Analysis Section
-              const Text('Competitive Analysis', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              Text('competitive_analysis'.tr(), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               BlurredContentWidget(
                 isUnlocked: analysis.isSeen,
@@ -261,10 +262,10 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final cards = [
-                      {'title': 'TOTAL IMPORTS', 'value': analysis.totalImports ?? 'N/A', 'icon': Icons.trending_up, 'color': Colors.blue},
-                      {'title': 'TOTAL IMPORT FROM EGYPT', 'value': analysis.totalExportsFromSelectedCountry ?? 'N/A', 'icon': Icons.flag, 'color': Colors.green, 'rank': analysis.rank},
-                      {'title': 'TOP COMPETITOR', 'value': analysis.competingCountryName ?? 'N/A', 'icon': Icons.star, 'color': Colors.orange},
-                      {'title': 'EXPORT OPPORTUNITY', 'value': analysis.competingCountryExports ?? 'N/A', 'icon': Icons.insights, 'color': Colors.purple, 'subtitle': 'Potential market gap identified', 'rank': analysis.competingCountryRank != null ? int.tryParse(analysis.competingCountryRank!) : null},
+                      {'title': 'total_imports'.tr().toUpperCase(), 'value': analysis.totalImports ?? 'N/A', 'icon': Icons.trending_up, 'color': Colors.blue},
+                      {'title': 'total_import_from_egypt'.tr().toUpperCase(), 'value': analysis.totalExportsFromSelectedCountry ?? 'N/A', 'icon': Icons.flag, 'color': Colors.green, 'rank': analysis.rank},
+                      {'title': 'top_competitor'.tr().toUpperCase(), 'value': analysis.competingCountryName ?? 'N/A', 'icon': Icons.star, 'color': Colors.orange},
+                      {'title': 'export_opportunity'.tr().toUpperCase(), 'value': analysis.competingCountryExports ?? 'N/A', 'icon': Icons.insights, 'color': Colors.purple, 'subtitle': 'potential_market_gap'.tr(), 'rank': analysis.competingCountryRank != null ? int.tryParse(analysis.competingCountryRank!) : null},
                     ];
                     
                     if (constraints.maxWidth < 800) {
@@ -276,7 +277,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                           final previousLength = cards
                               .take(index)
                               .fold<int>(0, (sum, c) => sum + (c['value'] as String).length);
-                          final delay = Duration(milliseconds: previousLength * 30);
+                          final delay = Duration(milliseconds: previousLength * 8);
                           return Padding(
                             padding: EdgeInsets.only(bottom: index < cards.length - 1 ? 16 : 0),
                             child: _buildCompetitiveCard(
@@ -300,7 +301,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         final previousLength = cards
                             .take(index)
                             .fold<int>(0, (sum, c) => sum + (c['value'] as String).length);
-                        final delay = Duration(milliseconds: previousLength * 30);
+                        final delay = Duration(milliseconds: previousLength * 8);
                         return Expanded(
                           child: Padding(
                             padding: EdgeInsets.only(right: index < cards.length - 1 ? 16 : 0),
@@ -393,7 +394,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   Widget _buildPESTLEAnalysisTab(BuildContext context, dynamic exploration) {
     final analysis = exploration.pestleAnalysis;
     if (analysis == null) {
-      return const Center(child: Text('No PESTLE analysis available'));
+      return Center(child: Text('no_pestle_analysis'.tr()));
     }
 
     return BlocBuilder<SubscriptionCubit, SubscriptionState>(
@@ -404,7 +405,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('PESTLE Analysis', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              Text('pestle_analysis'.tr(), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               BlurredContentWidget(
                 isUnlocked: analysis.isSeen,
@@ -423,65 +424,65 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     final pestleCards = <Map<String, dynamic>>[];
                     if (analysis.political != null) {
                       pestleCards.add({
-                        'title': 'Political',
+                        'title': 'political'.tr(),
                         'content': analysis.political!,
-                        'status': 'Stable',
+                        'status': 'stable'.tr(),
                         'color': Colors.green,
                         'progressValue': 70,
-                        'progressLabel': 'Govt. Stability Index',
+                        'progressLabel': 'govt_stability_index'.tr(),
                       });
                     }
                     if (analysis.economic != null) {
                       pestleCards.add({
-                        'title': 'Economic',
+                        'title': 'economic'.tr(),
                         'content': analysis.economic!,
-                        'status': 'Growing',
+                        'status': 'growing'.tr(),
                         'color': Colors.blue,
                         'inflationRate': '2.4%',
-                        'currencyTrend': 'Stable (EUR)',
+                        'currencyTrend': 'stable_eur'.tr(),
                       });
                     }
                     if (analysis.social != null) {
                       pestleCards.add({
-                        'title': 'Social',
+                        'title': 'social'.tr(),
                         'content': analysis.social!,
-                        'status': 'Evolving',
+                        'status': 'evolving'.tr(),
                         'color': Colors.grey,
                         'progressValue': 80,
-                        'progressLabel': 'Eco-Consciousness Score',
+                        'progressLabel': 'eco_consciousness_score'.tr(),
                         'scoreSegments': 5,
                         'filledSegments': 4,
                       });
                     }
                     if (analysis.technological != null) {
                       pestleCards.add({
-                        'title': 'Technological',
+                        'title': 'technological'.tr(),
                         'content': analysis.technological!,
-                        'status': 'Advanced',
+                        'status': 'advanced'.tr(),
                         'color': Colors.purple,
                         'progressValue': 80,
-                        'progressLabel': 'Innovation Index',
+                        'progressLabel': 'innovation_index'.tr(),
                       });
                     }
                     if (analysis.legal != null) {
                       pestleCards.add({
-                        'title': 'Legal',
+                        'title': 'legal'.tr(),
                         'content': analysis.legal!,
-                        'status': 'Complex',
+                        'status': 'complex'.tr(),
                         'color': Colors.red,
                         'progressValue': 60,
-                        'progressLabel': 'Compliance Difficulty',
+                        'progressLabel': 'compliance_difficulty'.tr(),
                         'progressColor': Colors.orange,
                       });
                     }
                     if (analysis.environmental != null) {
                       pestleCards.add({
-                        'title': 'Environmental',
+                        'title': 'environmental'.tr(),
                         'content': analysis.environmental!,
-                        'status': 'Critical',
+                        'status': 'critical'.tr(),
                         'color': Colors.green,
                         'progressValue': 90,
-                        'progressLabel': 'Sustainability Pressure',
+                        'progressLabel': 'sustainability_pressure'.tr(),
                       });
                     }
 
@@ -489,7 +490,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     int cumulativeLength = 0;
                     final cardsWithDelays = <Map<String, dynamic>>[];
                     for (var card in pestleCards) {
-                      final cardDelay = Duration(milliseconds: cumulativeLength * 30);
+                      final cardDelay = Duration(milliseconds: cumulativeLength * 8);
                       // Calculate total content length for this card (positive + negative points)
                       final content = card['content'] as String;
                       final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
@@ -697,7 +698,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   final previousLength = positivePoints
                       .take(index)
                       .fold<int>(0, (sum, p) => sum + p.length);
-                  final delay = Duration(milliseconds: cardDelay.inMilliseconds + (previousLength * 30));
+                  final delay = Duration(milliseconds: cardDelay.inMilliseconds + (previousLength * 8));
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: Row(
@@ -731,7 +732,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   final previousNegativeLength = negativePoints
                       .take(index)
                       .fold<int>(0, (sum, p) => sum + p.length);
-                  final delay = Duration(milliseconds: cardDelay.inMilliseconds + ((positiveLength + previousNegativeLength) * 30));
+                  final delay = Duration(milliseconds: cardDelay.inMilliseconds + ((positiveLength + previousNegativeLength) * 8));
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: Row(
@@ -761,9 +762,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Inflation Rate $inflationRate', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                Text('inflation_rate_label'.tr(namedArgs: {'rate': inflationRate}), style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                 const SizedBox(height: 4),
-                Text('Currency Trend $currencyTrend', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                Text('currency_trend_label'.tr(namedArgs: {'trend': currencyTrend}), style: TextStyle(fontSize: 12, color: Colors.grey[600])),
               ],
             )
           else if (scoreSegments != null && filledSegments != null)
@@ -810,7 +811,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   Widget _buildSWOTAnalysisTab(BuildContext context, dynamic exploration) {
     final analysis = exploration.swotAnalysis;
     if (analysis == null) {
-      return const Center(child: Text('No SWOT analysis available'));
+      return Center(child: Text('no_swot_analysis_available'.tr()));
     }
 
     return BlocBuilder<SubscriptionCubit, SubscriptionState>(
@@ -821,7 +822,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('SWOT Analysis', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              Text('swot_analysis'.tr(), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               BlurredContentWidget(
                 isUnlocked: analysis.isSeen,
@@ -840,7 +841,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     final swotCards = <Map<String, dynamic>>[];
                     if (analysis.strengths != null) {
                       swotCards.add({
-                        'title': 'Strengths',
+                        'title': 'strengths'.tr(),
                         'content': analysis.strengths!,
                         'color': Colors.green,
                         'icon': Icons.trending_up,
@@ -848,7 +849,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     }
                     if (analysis.weaknesses != null) {
                       swotCards.add({
-                        'title': 'Weaknesses',
+                        'title': 'weaknesses'.tr(),
                         'content': analysis.weaknesses!,
                         'color': Colors.red,
                         'icon': Icons.trending_down,
@@ -856,7 +857,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     }
                     if (analysis.opportunities != null) {
                       swotCards.add({
-                        'title': 'Opportunities',
+                        'title': 'opportunities'.tr(),
                         'content': analysis.opportunities!,
                         'color': Colors.blue,
                         'icon': Icons.lightbulb,
@@ -864,7 +865,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     }
                     if (analysis.threats != null) {
                       swotCards.add({
-                        'title': 'Threats',
+                        'title': 'threats'.tr(),
                         'content': analysis.threats!,
                         'color': Colors.orange,
                         'icon': Icons.warning,
@@ -875,7 +876,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     int cumulativeLength = 0;
                     final cardsWithDelays = <Map<String, dynamic>>[];
                     for (var card in swotCards) {
-                      final cardDelay = Duration(milliseconds: cumulativeLength * 30);
+                      final cardDelay = Duration(milliseconds: cumulativeLength * 8);
                       // Calculate total content length for this card
                       final content = card['content'] as String;
                       final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
@@ -1019,7 +1020,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   final previousLength = lines
                       .take(index)
                       .fold<int>(0, (sum, p) => sum + p.trim().length);
-                  final delay = Duration(milliseconds: cardDelay.inMilliseconds + (previousLength * 30));
+                  final delay = Duration(milliseconds: cardDelay.inMilliseconds + (previousLength * 8));
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: Row(
@@ -1051,7 +1052,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   Widget _buildMarketPlanTab(BuildContext context, dynamic exploration) {
     final marketPlan = exploration.marketPlan;
     if (marketPlan == null) {
-      return const Center(child: Text('No market plan available'));
+      return Center(child: Text('no_market_plan'.tr()));
     }
 
     return BlocBuilder<SubscriptionCubit, SubscriptionState>(
@@ -1062,7 +1063,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Market Plan', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              Text('market_plan'.tr(), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               BlurredContentWidget(
                 isUnlocked: marketPlan.isSeen,
@@ -1081,7 +1082,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     final marketPlanCards = <Map<String, dynamic>>[];
                     if (marketPlan.productText != null) {
                       marketPlanCards.add({
-                        'title': 'Product',
+                        'title': 'product_label'.tr(),
                         'content': marketPlan.productText!,
                         'color': Colors.blue,
                         'icon': Icons.inventory_2,
@@ -1089,7 +1090,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     }
                     if (marketPlan.priceText != null) {
                       marketPlanCards.add({
-                        'title': 'Price',
+                        'title': 'price'.tr(),
                         'content': marketPlan.priceText!,
                         'color': Colors.green,
                         'icon': Icons.attach_money,
@@ -1097,7 +1098,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     }
                     if (marketPlan.placeText != null) {
                       marketPlanCards.add({
-                        'title': 'Place',
+                        'title': 'place'.tr(),
                         'content': marketPlan.placeText!,
                         'color': Colors.orange,
                         'icon': Icons.location_on,
@@ -1105,7 +1106,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     }
                     if (marketPlan.promotionText != null) {
                       marketPlanCards.add({
-                        'title': 'Promotion',
+                        'title': 'promotion'.tr(),
                         'content': marketPlan.promotionText!,
                         'color': Colors.purple,
                         'icon': Icons.campaign,
@@ -1116,7 +1117,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     int cumulativeLength = 0;
                     final cardsWithDelays = <Map<String, dynamic>>[];
                     for (var card in marketPlanCards) {
-                      final cardDelay = Duration(milliseconds: cumulativeLength * 30);
+                      final cardDelay = Duration(milliseconds: cumulativeLength * 8);
                       // Calculate total content length for this card
                       final content = card['content'] as String;
                       final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
@@ -1258,7 +1259,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 final previousLength = lines
                     .take(index)
                     .fold<int>(0, (sum, p) => sum + p.trim().length);
-                final delay = Duration(milliseconds: cardDelay.inMilliseconds + (previousLength * 30));
+                final delay = Duration(milliseconds: cardDelay.inMilliseconds + (previousLength * 8));
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Row(

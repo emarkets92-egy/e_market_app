@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
@@ -50,7 +51,7 @@ class _ShipmentRecordsListScreenState extends State<ShipmentRecordsListScreen> w
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shipment Records'),
+        title: Text('shipment_records'.tr()),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: BlocBuilder<SubscriptionCubit, SubscriptionState>(
@@ -59,8 +60,8 @@ class _ShipmentRecordsListScreenState extends State<ShipmentRecordsListScreen> w
               return TabBar(
                 controller: _tabController,
                 tabs: [
-                  Tab(text: 'New Records${state.unseenShipmentRecordsTotal > 0 ? ' (${state.unseenShipmentRecordsTotal})' : ''}'),
-                  Tab(text: 'Unlocked${state.seenShipmentRecordsTotal > 0 ? ' (${state.seenShipmentRecordsTotal})' : ''}'),
+                  Tab(text: '${'new_records'.tr()}${state.unseenShipmentRecordsTotal > 0 ? ' (${state.unseenShipmentRecordsTotal})' : ''}'),
+                  Tab(text: '${'unlocked'.tr()}${state.seenShipmentRecordsTotal > 0 ? ' (${state.seenShipmentRecordsTotal})' : ''}'),
                 ],
               );
             },
@@ -160,7 +161,7 @@ class _ShipmentRecordsListScreenState extends State<ShipmentRecordsListScreen> w
         });
         return const Center(child: CircularProgressIndicator());
       }
-      return Center(child: Text(isSeen ? 'No unlocked records found' : 'No new records found'));
+      return Center(child: Text(isSeen ? 'no_unlocked_records_found'.tr() : 'no_new_records_found'.tr()));
     }
 
     return Column(
@@ -213,16 +214,16 @@ class _ShipmentRecordsListScreenState extends State<ShipmentRecordsListScreen> w
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (record.exporterName != null) Text('Exporter: ${record.exporterName}'),
-                  if (record.countryOfOrigin != null) Text('Country of Origin: ${record.countryOfOrigin}'),
-                  if (record.netWeight != null) Text('Net Weight: ${record.netWeight} ${record.netWeightUnit ?? ''}'),
-                  if (record.portOfArrival != null) Text('Port of Arrival: ${record.portOfArrival}'),
-                  if (record.portOfDeparture != null) Text('Port of Departure: ${record.portOfDeparture}'),
-                  if (record.notifyParty != null) Text('Notify Party: ${record.notifyParty}'),
-                  if (record.notifyAddress != null) Text('Notify Address: ${record.notifyAddress}'),
-                  if (record.hsCode != null) Text('HS Code: ${record.hsCode}'),
-                  if (record.quantity != null) Text('Quantity: ${record.quantity}'),
-                  if (record.value != null) Text('Value: ${record.value}'),
+                  if (record.exporterName != null) Text('${'exporter_name'.tr()}: ${record.exporterName}'),
+                  if (record.countryOfOrigin != null) Text('${'country_of_origin'.tr()}: ${record.countryOfOrigin}'),
+                  if (record.netWeight != null) Text('${'net_weight'.tr()}: ${record.netWeight} ${record.netWeightUnit ?? ''}'),
+                  if (record.portOfArrival != null) Text('${'port_of_arrival'.tr()}: ${record.portOfArrival}'),
+                  if (record.portOfDeparture != null) Text('${'port_of_departure'.tr()}: ${record.portOfDeparture}'),
+                  if (record.notifyParty != null) Text('${'notify_party'.tr()}: ${record.notifyParty}'),
+                  if (record.notifyAddress != null) Text('${'notify_address'.tr()}: ${record.notifyAddress}'),
+                  if (record.hsCode != null) Text('${'hs_code'.tr()}: ${record.hsCode}'),
+                  if (record.quantity != null) Text('${'quantity'.tr()}: ${record.quantity}'),
+                  if (record.value != null) Text('${'value'.tr()}: ${record.value}'),
                 ],
               ),
             ),
@@ -244,7 +245,7 @@ class _ShipmentRecordsListScreenState extends State<ShipmentRecordsListScreen> w
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(icon: const Icon(Icons.chevron_left), onPressed: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null),
-          Text('Page $currentPage of $totalPages'),
+          Text('page_of'.tr(namedArgs: {'current': currentPage.toString(), 'total': totalPages.toString()})),
           IconButton(icon: const Icon(Icons.chevron_right), onPressed: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null),
         ],
       ),
@@ -260,7 +261,20 @@ class _ShipmentRecordsListScreenState extends State<ShipmentRecordsListScreen> w
   }
 
   String _getMonthName(int month) {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    final months = [
+      'january'.tr(),
+      'february'.tr(),
+      'march'.tr(),
+      'april'.tr(),
+      'may'.tr(),
+      'june'.tr(),
+      'july'.tr(),
+      'august'.tr(),
+      'september'.tr(),
+      'october'.tr(),
+      'november'.tr(),
+      'december'.tr()
+    ];
     return months[month - 1];
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/injection_container.dart' as di;
@@ -23,8 +24,9 @@ class PremiumHeaderBar extends StatelessWidget {
   final VoidCallback? onMenuTap;
   final VoidCallback? onTopUpTap;
   final bool showBackButton;
+  final bool showActionButtons;
 
-  const PremiumHeaderBar({super.key, this.onNotificationTap, this.onMenuTap, this.onTopUpTap, this.showBackButton = false});
+  const PremiumHeaderBar({super.key, this.onNotificationTap, this.onMenuTap, this.onTopUpTap, this.showBackButton = false, this.showActionButtons = true});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,7 @@ class PremiumHeaderBar extends StatelessWidget {
           Row(
             children: [
               if (showBackButton) ...[
-                IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop(), tooltip: 'Back'),
+                IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop(), tooltip: 'back'.tr()),
                 const SizedBox(width: 8),
               ],
               // Premium Access Card
@@ -93,23 +95,24 @@ class PremiumHeaderBar extends StatelessWidget {
           ),
 
           // Right side: Notification, Menu, Top Up Button
-          Row(
-            children: [
-              IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: onNotificationTap ?? () {}, tooltip: 'Notifications'),
-              IconButton(icon: const Icon(Icons.menu), onPressed: onMenuTap ?? () {}, tooltip: 'Menu'),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: onTopUpTap ?? () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          if (showActionButtons)
+            Row(
+              children: [
+                IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: onNotificationTap ?? () {}, tooltip: 'notifications'.tr()),
+                IconButton(icon: const Icon(Icons.menu), onPressed: onMenuTap ?? () {}, tooltip: 'menu'.tr()),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: onTopUpTap ?? () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Text('top_up_points'.tr()),
                 ),
-                child: const Text('Top Up Points'),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
     );

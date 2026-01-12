@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../cubit/version_state.dart';
 import '../../services/windows_update_installer.dart';
 
@@ -71,7 +73,7 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection: TextDirection.ltr,
+      textDirection: ui.TextDirection.ltr,
       child: Scaffold(
         body: Container(
           decoration: BoxDecoration(
@@ -91,18 +93,18 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
                     Icon(Icons.system_update, size: 80, color: Colors.white),
                     const SizedBox(height: 24),
                     Text(
-                      'Update Required',
+                      'update_required'.tr(),
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'A new version of the app is available.',
+                      'new_version_available'.tr(),
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Current: ${widget.state.currentVersion}\nLatest: ${widget.state.latestVersion}',
+                      '${'current'.tr()}: ${widget.state.currentVersion}\n${'latest'.tr()}: ${widget.state.latestVersion}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white60),
                       textAlign: TextAlign.center,
                     ),
@@ -115,7 +117,7 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'What\'s New:',
+                              'whats_new'.tr(),
                               style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
@@ -141,7 +143,9 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
                       LinearProgressIndicator(value: _progress),
                       const SizedBox(height: 8),
                       Text(
-                        _progress != null ? 'Downloading ${((_progress ?? 0) * 100).toStringAsFixed(0)}%' : 'Downloading...',
+                        _progress != null
+                            ? 'downloading_percent'.tr(namedArgs: {'percent': ((_progress ?? 0) * 100).toStringAsFixed(0)})
+                            : '${'downloading'.tr()}...',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
                       ),
                     ],
@@ -159,11 +163,11 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         disabledBackgroundColor: Colors.grey,
                       ),
-                      child: Text(_installing ? 'Updating...' : 'Update Now', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: Text(_installing ? 'updating'.tr() : 'update_now'.tr(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                     if (widget.state.downloadUrl == null || widget.state.downloadUrl!.isEmpty) ...[
                       const SizedBox(height: 16),
-                      Text('Download link not available', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white60)),
+                      Text('download_link_not_available'.tr(), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white60)),
                     ],
                   ],
                 ),

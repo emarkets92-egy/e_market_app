@@ -8,5 +8,5 @@ class AppConfig {
   static const Duration connectTimeout = Duration(minutes: 2);
   static const Duration receiveTimeout = Duration(minutes: 2);
   static const String defaultLocale = 'en';
-  static const List<String> supportedLocales = ['en', 'ar'];
+  static const List<String> supportedLocales = ['en', 'ar', 'fr', 'it', 'es'];
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
@@ -17,13 +18,13 @@ class PESTLEAnalysisScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('PESTLE Analysis')),
+      appBar: AppBar(title: Text('pestle_analysis'.tr())),
       body: BlocBuilder<SubscriptionCubit, SubscriptionState>(
         bloc: di.sl<SubscriptionCubit>(),
         builder: (context, state) {
           final exploration = state.marketExploration;
           if (exploration == null || exploration.pestleAnalysis == null) {
-            return const Center(child: Text('No PESTLE analysis available'));
+            return Center(child: Text('no_pestle_analysis'.tr()));
           }
 
           final analysis = exploration.pestleAnalysis!;
@@ -50,12 +51,12 @@ class PESTLEAnalysisScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (analysis.political != null) _buildSection('Political', analysis.political!),
-                          if (analysis.economic != null) _buildSection('Economic', analysis.economic!),
-                          if (analysis.social != null) _buildSection('Social', analysis.social!),
-                          if (analysis.technological != null) _buildSection('Technological', analysis.technological!),
-                          if (analysis.legal != null) _buildSection('Legal', analysis.legal!),
-                          if (analysis.environmental != null) _buildSection('Environmental', analysis.environmental!),
+                          if (analysis.political != null) _buildSection('political'.tr(), analysis.political!),
+                          if (analysis.economic != null) _buildSection('economic'.tr(), analysis.economic!),
+                          if (analysis.social != null) _buildSection('social'.tr(), analysis.social!),
+                          if (analysis.technological != null) _buildSection('technological'.tr(), analysis.technological!),
+                          if (analysis.legal != null) _buildSection('legal'.tr(), analysis.legal!),
+                          if (analysis.environmental != null) _buildSection('environmental'.tr(), analysis.environmental!),
                         ],
                       ),
                     ),

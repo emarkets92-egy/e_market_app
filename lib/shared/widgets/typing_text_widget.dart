@@ -12,7 +12,7 @@ class TypingTextWidget extends StatefulWidget {
     super.key,
     required this.text,
     this.style,
-    this.speed = const Duration(milliseconds: 30),
+    this.speed = const Duration(milliseconds: 8),
     this.showCursor = true,
     this.delay = Duration.zero,
   });

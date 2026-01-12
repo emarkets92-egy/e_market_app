@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../core/utils/validators.dart';
@@ -60,17 +61,17 @@ class _LoginFormState extends State<LoginForm> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Welcome heading
-            const Text(
-              'Welcome back',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
+            Text(
+              'welcome_back'.tr(),
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
             const SizedBox(height: 8),
-            Text('Please enter your details to sign in.', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+            Text('please_enter_details'.tr(), style: TextStyle(fontSize: 16, color: Colors.grey[600])),
             const SizedBox(height: 32),
             // Email field
             AppTextField(
-              label: 'Email address',
-              hint: 'name@company.com',
+              label: 'email_address'.tr(),
+              hint: 'email_hint'.tr(),
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               validator: Validators.email,
@@ -79,7 +80,7 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(height: 20),
             // Password field
             AppTextField(
-              label: 'Password',
+              label: 'password'.tr(),
               controller: _passwordController,
               obscureText: _obscurePassword,
               validator: Validators.password,
@@ -108,21 +109,21 @@ class _LoginFormState extends State<LoginForm> {
                         });
                       },
                     ),
-                    Text('Remember me', style: TextStyle(color: Colors.grey[700], fontSize: 14)),
+                    Text('remember_me'.tr(), style: TextStyle(color: Colors.grey[700], fontSize: 14)),
                   ],
                 ),
                 TextButton(
                   onPressed: () {
                     // TODO: Implement forgot password
                   },
-                  child: Text('Forgot password?', style: TextStyle(color: AppTheme.primaryBlue, fontSize: 14)),
+                  child: Text('forgot_password'.tr(), style: TextStyle(color: AppTheme.primaryBlue, fontSize: 14)),
                 ),
               ],
             ),
             const SizedBox(height: 24),
             // Login button
             AppButton(
-              text: 'Login',
+              text: 'login'.tr(),
               onPressed: _handleSubmit,
               icon: Icons.arrow_forward,
               iconOnRight: true,
@@ -134,14 +135,14 @@ class _LoginFormState extends State<LoginForm> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Don't have an account? ", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                Text('dont_have_account'.tr(), style: TextStyle(color: Colors.grey[600], fontSize: 14)),
                 TextButton(
                   onPressed: () {
                     context.go(RouteNames.register);
                   },
                   style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   child: Text(
-                    'Sign up',
+                    'sign_up'.tr(),
                     style: TextStyle(color: AppTheme.primaryBlue, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -150,7 +151,7 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(height: 24),
             // Copyright footer
             Text(
-              '© 2023 E Market. All rights reserved.',
+              'copyright'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[500], fontSize: 12),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ProductSearchBar extends StatelessWidget {
   final TextEditingController hscodeController;
@@ -15,22 +16,22 @@ class ProductSearchBar extends StatelessWidget {
         children: [
           TextField(
             controller: hscodeController,
-            decoration: const InputDecoration(labelText: 'HS Code', hintText: 'Enter HS Code', prefixIcon: Icon(Icons.search), border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: 'hs_code'.tr(), hintText: 'hs_code'.tr(), prefixIcon: const Icon(Icons.search), border: const OutlineInputBorder()),
             onSubmitted: (_) => onSearch(),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: nameController,
-            decoration: const InputDecoration(
-              labelText: 'Product Name',
-              hintText: 'Enter product name',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: 'name'.tr(),
+              hintText: 'name'.tr(),
+              prefixIcon: const Icon(Icons.search),
+              border: const OutlineInputBorder(),
             ),
             onSubmitted: (_) => onSearch(),
           ),
           const SizedBox(height: 8),
-          ElevatedButton.icon(onPressed: onSearch, icon: const Icon(Icons.search), label: const Text('Search')),
+          ElevatedButton.icon(onPressed: onSearch, icon: const Icon(Icons.search), label: Text('search'.tr())),
         ],
       ),
     );

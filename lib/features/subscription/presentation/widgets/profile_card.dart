@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../data/models/profile_model.dart';
 import '../../../../core/di/injection_container.dart' as di;
@@ -45,7 +46,7 @@ class ProfileCard extends StatelessWidget {
               // Shipment Records - always visible
               if (profile.shipmentRecords != null)
                 Text(
-                  'Shipment Records: ${profile.shipmentRecords}',
+                  'shipment_records_count'.tr(namedArgs: {'count': profile.shipmentRecords.toString()}),
                   style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.blue),
                 ),
               const SizedBox(height: 16),
@@ -60,12 +61,12 @@ class ProfileCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (profile.companyName != null && profile.isSeen) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Company: ${profile.companyName}')),
-                    if (profile.email != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Email: ${profile.email}')),
-                    if (profile.phone != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Phone: ${profile.phone}')),
-                    if (profile.whatsapp != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('WhatsApp: ${profile.whatsapp}')),
-                    if (profile.website != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Website: ${profile.website}')),
-                    if (profile.address != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('Address: ${profile.address}')),
+                    if (profile.companyName != null && profile.isSeen) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('${'company_name'.tr()}: ${profile.companyName}')),
+                    if (profile.email != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('${'email'.tr()}: ${profile.email}')),
+                    if (profile.phone != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('${'phone'.tr()}: ${profile.phone}')),
+                    if (profile.whatsapp != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('${'whatsapp'.tr()}: ${profile.whatsapp}')),
+                    if (profile.website != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('${'website'.tr()}: ${profile.website}')),
+                    if (profile.address != null) Padding(padding: const EdgeInsets.only(bottom: 8.0), child: Text('${'address'.tr()}: ${profile.address}')),
                   ],
                 ),
               ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../config/routes/route_names.dart';
 import '../../../../config/theme.dart';
+import '../../../../core/storage/local_storage.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../subscription/presentation/cubit/subscription_cubit.dart';
@@ -50,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 // If user is null but not loading, something went wrong - show error or redirect
                 if (authState.user == null) {
-                  return const Center(child: Text('Unable to load user. Please try again.'));
+                  return Center(child: Text('unable_to_load_user'.tr()));
                 }
 
                 return Column(
@@ -66,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // Welcome Section
-                            _WelcomeSection(userName: authState.user?.name ?? 'Exporter'),
+                            _WelcomeSection(userName: authState.user?.name ?? 'exporter'.tr()),
 
                             const SizedBox(height: 32),
 
@@ -97,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _TopHeader extends StatelessWidget {
+  const _TopHeader();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -105,6 +108,87 @@ class _TopHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          // Language Switcher
+          Builder(
+            builder: (context) {
+              final currentLocale = context.locale;
+              return PopupMenuButton<String>(
+                icon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.language, color: AppTheme.primaryBlue),
+                    const SizedBox(width: 4),
+                    Text(
+                      _getLanguageName(context, currentLocale.languageCode),
+                      style: const TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+                tooltip: 'select_language'.tr(),
+                onSelected: (String languageCode) async {
+                  await context.setLocale(Locale(languageCode));
+                  await LocalStorage.saveLocale(languageCode);
+                },
+                itemBuilder: (BuildContext context) {
+                  final locale = context.locale;
+                  return [
+                    PopupMenuItem<String>(
+                      value: 'en',
+                      child: Row(
+                        children: [
+                          if (locale.languageCode == 'en') const Icon(Icons.check, color: AppTheme.primaryBlue, size: 20),
+                          if (locale.languageCode == 'en') const SizedBox(width: 8),
+                          Text('english'.tr()),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'ar',
+                      child: Row(
+                        children: [
+                          if (locale.languageCode == 'ar') const Icon(Icons.check, color: AppTheme.primaryBlue, size: 20),
+                          if (locale.languageCode == 'ar') const SizedBox(width: 8),
+                          Text('arabic'.tr()),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'fr',
+                      child: Row(
+                        children: [
+                          if (locale.languageCode == 'fr') const Icon(Icons.check, color: AppTheme.primaryBlue, size: 20),
+                          if (locale.languageCode == 'fr') const SizedBox(width: 8),
+                          Text('french'.tr()),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'it',
+                      child: Row(
+                        children: [
+                          if (locale.languageCode == 'it') const Icon(Icons.check, color: AppTheme.primaryBlue, size: 20),
+                          if (locale.languageCode == 'it') const SizedBox(width: 8),
+                          Text('italian'.tr()),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'es',
+                      child: Row(
+                        children: [
+                          if (locale.languageCode == 'es') const Icon(Icons.check, color: AppTheme.primaryBlue, size: 20),
+                          if (locale.languageCode == 'es') const SizedBox(width: 8),
+                          Text('spanish'.tr()),
+                        ],
+                      ),
+                    ),
+                  ];
+                },
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          // Logout Button
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
@@ -113,11 +197,28 @@ class _TopHeader extends StatelessWidget {
                 context.go(RouteNames.login);
               }
             },
-            tooltip: 'Logout',
+            tooltip: 'logout'.tr(),
           ),
         ],
       ),
     );
+  }
+  
+  String _getLanguageName(BuildContext context, String languageCode) {
+    switch (languageCode) {
+      case 'en':
+        return 'english'.tr();
+      case 'ar':
+        return 'arabic'.tr();
+      case 'fr':
+        return 'french'.tr();
+      case 'it':
+        return 'italian'.tr();
+      case 'es':
+        return 'spanish'.tr();
+      default:
+        return 'english'.tr();
+    }
   }
 }
 
@@ -136,9 +237,9 @@ class _WelcomeSection extends StatelessWidget {
             text: TextSpan(
               style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
               children: [
-                const TextSpan(
-                  text: 'Welcome back, ',
-                  style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.black),
+                TextSpan(
+                  text: '${'welcome_back'.tr()}, ',
+                  style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.black),
                 ),
                 TextSpan(
                   text: '$userName.',
@@ -149,7 +250,7 @@ class _WelcomeSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Your gateway to global trade. Manage your products and discover new\nopportunities seamlessly.',
+            'gateway_to_global_trade'.tr(),
             style: TextStyle(fontSize: 18, color: Colors.grey[600], height: 1.5),
             textAlign: TextAlign.center,
           ),
@@ -185,15 +286,15 @@ class _ExportProductsCard extends StatelessWidget {
                 child: const Icon(Icons.inventory_2_outlined, color: Colors.white, size: 48),
               ),
               const SizedBox(height: 10),
-              const Text(
-                'Export Products',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+              Text(
+                'start'.tr(),
+                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
               ),
               const SizedBox(height: 16),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 600),
                 child: Text(
-                  'Manage your inventory, update listings, and prepare shipments for global delivery with our comprehensive tools.',
+                  'manage_inventory_description'.tr(),
                   style: TextStyle(fontSize: 16, color: Colors.grey[700], height: 1.5),
                   textAlign: TextAlign.center,
                 ),
@@ -216,24 +317,24 @@ class _ServiceCards extends StatelessWidget {
       children: [
         Expanded(
           child: _ServiceCardItem(
-            title: 'Marketing Plan',
-            description: 'We help you build a sales and marketing plan tailored to your product and target markets.',
+            title: 'marketing_plan'.tr(),
+            description: 'marketing_plan_description'.tr(),
             icon: Icons.verified_user_outlined,
           ),
         ),
         const SizedBox(width: 24),
         Expanded(
           child: _ServiceCardItem(
-            title: 'Market Analysis',
-            description: 'SWOT and PESTEL analysis plus competitive insights to enter markets confidently.',
+            title: 'market_analysis'.tr(),
+            description: 'market_analysis_description'.tr(),
             icon: Icons.analytics_outlined,
           ),
         ),
         const SizedBox(width: 24),
         Expanded(
           child: _ServiceCardItem(
-            title: 'Target Market',
-            description: 'Identify the countries with the highest demand for your product using HS Codes and data analysis',
+            title: 'target_market'.tr(),
+            description: 'target_market_description'.tr(),
             icon: Icons.public,
           ),
         ),
@@ -263,7 +364,7 @@ class _ServiceCardItem extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: AppTheme.lightBlue.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: AppTheme.lightBlue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: AppTheme.primaryBlue, size: 32),
           ),
           const SizedBox(height: 24),

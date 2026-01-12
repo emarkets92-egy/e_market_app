@@ -6,6 +6,7 @@ class ProfileModel {
   final String? whatsapp;
   final String? website;
   final String? address;
+  final String? countryName;
   final int? shipmentRecords;
   final bool isSeen;
   final int unlockCost;
@@ -19,6 +20,7 @@ class ProfileModel {
     this.whatsapp,
     this.website,
     this.address,
+    this.countryName,
     this.shipmentRecords,
     required this.isSeen,
     required this.unlockCost,
@@ -34,6 +36,7 @@ class ProfileModel {
       whatsapp: json['whatsapp'] as String?,
       website: json['website'] as String?,
       address: json['address'] as String?,
+      countryName: json['countryName'] as String?,
       shipmentRecords: json['shipmentRecords'] != null ? (json['shipmentRecords'] as num).toInt() : null,
       isSeen: json['isSeen'] as bool? ?? false,
       unlockCost: json['unlockCost'] != null ? (json['unlockCost'] as num).toInt() : 0, // Default to 0 if not provided (e.g., in unlock response)
@@ -50,6 +53,7 @@ class ProfileModel {
       if (whatsapp != null) 'whatsapp': whatsapp,
       if (website != null) 'website': website,
       if (address != null) 'address': address,
+      if (countryName != null) 'countryName': countryName,
       if (shipmentRecords != null) 'shipmentRecords': shipmentRecords,
       'isSeen': isSeen,
       'unlockCost': unlockCost,
@@ -65,6 +69,7 @@ class ProfileModel {
     String? whatsapp,
     String? website,
     String? address,
+    String? countryName,
     int? shipmentRecords,
     bool? isSeen,
     int? unlockCost,
@@ -78,6 +83,7 @@ class ProfileModel {
       whatsapp: whatsapp ?? this.whatsapp,
       website: website ?? this.website,
       address: address ?? this.address,
+      countryName: countryName ?? this.countryName,
       shipmentRecords: shipmentRecords ?? this.shipmentRecords,
       isSeen: isSeen ?? this.isSeen,
       unlockCost: unlockCost ?? this.unlockCost,

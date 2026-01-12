@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'config/theme.dart';
 import 'config/routes/app_router.dart';
 import 'core/di/injection_container.dart' as di;
-import 'core/storage/local_storage.dart';
-import 'shared/localization/app_localizations.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/product/presentation/cubit/product_cubit.dart';
 import 'features/subscription/presentation/cubit/subscription_cubit.dart';
@@ -19,9 +17,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = LocalStorage.getLocale();
-    final localeObj = Locale(locale);
-
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: di.sl<AuthCubit>()),
@@ -33,18 +28,13 @@ class MyApp extends StatelessWidget {
       child: VersionCheckWrapper(
         child: AuthInitWrapper(
           child: MaterialApp.router(
-            title: 'E-Market',
+            title: 'app_name'.tr(),
             theme: AppTheme.lightTheme.copyWith(scaffoldBackgroundColor: Colors.white),
             debugShowCheckedModeBanner: false,
             themeMode: ThemeMode.light,
-            locale: localeObj,
-            supportedLocales: AppLocalizations.supportedLocales,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
             routerConfig: appRouter,
           ),
         ),

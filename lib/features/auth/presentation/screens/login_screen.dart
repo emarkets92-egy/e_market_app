@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection_container.dart' as di;
@@ -144,7 +145,7 @@ class LoginScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(width: 16),
-                      const Text('Trusted by exporters globally', style: TextStyle(color: Colors.white, fontSize: 14)),
+                      Text('trusted_by_exporters'.tr(), style: const TextStyle(color: Colors.white, fontSize: 14)),
                     ],
                   ),
                   const Spacer(),

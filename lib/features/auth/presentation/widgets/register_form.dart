@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../core/utils/validators.dart';
@@ -49,10 +50,10 @@ class _RegisterFormState extends State<RegisterForm> {
 
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
+      return 'please_confirm_password'.tr();
     }
     if (value != _passwordController.text) {
-      return 'Passwords do not match';
+      return 'passwords_do_not_match'.tr();
     }
     return null;
   }
@@ -60,7 +61,7 @@ class _RegisterFormState extends State<RegisterForm> {
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       if (_selectedCountryId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a country')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('please_select_country'.tr())));
         return;
       }
 
@@ -116,28 +117,28 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
             const SizedBox(height: 24),
             // Title
-            const Text(
-              'Create Your Account',
+            Text(
+              'create_your_account'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
             const SizedBox(height: 8),
             // Subtitle
             Text(
-              'Join E Market and start exploring global export opportunities today.',
+              'join_e_market'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 32),
             // Full Name
             AppTextField(
-              label: 'Full Name',
-              hint: 'Enter your full name',
+              label: 'full_name'.tr(),
+              hint: 'enter_full_name'.tr(),
               controller: _fullNameController,
               prefixIcon: Icon(Icons.person_outline, color: Colors.grey[600]),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter your full name';
+                  return 'please_enter_full_name'.tr();
                 }
                 return null;
               },
@@ -145,8 +146,8 @@ class _RegisterFormState extends State<RegisterForm> {
             const SizedBox(height: 20),
             // Email Address
             AppTextField(
-              label: 'Email Address',
-              hint: 'name@company.com',
+              label: 'email_address'.tr(),
+              hint: 'email_hint'.tr(),
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[600]),
@@ -155,7 +156,7 @@ class _RegisterFormState extends State<RegisterForm> {
             const SizedBox(height: 20),
             // Phone Number
             AppTextField(
-              label: 'Phone Number',
+              label: 'phone_number'.tr(),
               hint: '+1 (555) 000-0000',
               controller: _phoneController,
               keyboardType: TextInputType.phone,
@@ -165,7 +166,7 @@ class _RegisterFormState extends State<RegisterForm> {
             const SizedBox(height: 20),
             // WhatsApp Number
             AppTextField(
-              label: 'WhatsApp Number',
+              label: 'whatsapp_number'.tr(),
               hint: '+1 (555) 000-0000',
               controller: _whatsappController,
               keyboardType: TextInputType.phone,
@@ -174,13 +175,13 @@ class _RegisterFormState extends State<RegisterForm> {
             const SizedBox(height: 20),
             // Company Name
             AppTextField(
-              label: 'Company Name',
-              hint: 'Enter company name',
+              label: 'company_name'.tr(),
+              hint: 'company_name'.tr(),
               controller: _companyController,
               prefixIcon: Icon(Icons.business_outlined, color: Colors.grey[600]),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter company name';
+                  return 'company_name'.tr() + ' ' + 'is required';
                 }
                 return null;
               },
@@ -190,8 +191,8 @@ class _RegisterFormState extends State<RegisterForm> {
             DropdownButtonFormField<int>(
               value: _selectedCountryId,
               decoration: InputDecoration(
-                labelText: 'Company Country',
-                hintText: 'Select country',
+                labelText: 'company_country'.tr(),
+                hintText: 'select_country'.tr(),
                 prefixIcon: Icon(Icons.public_outlined, color: Colors.grey[600]),
                 filled: true,
                 fillColor: Colors.grey[50],
@@ -214,7 +215,7 @@ class _RegisterFormState extends State<RegisterForm> {
               onChanged: (value) => setState(() => _selectedCountryId = value),
               validator: (value) {
                 if (value == null) {
-                  return 'Please select a country';
+                  return 'please_select_country'.tr();
                 }
                 return null;
               },
@@ -225,7 +226,7 @@ class _RegisterFormState extends State<RegisterForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Company Type',
+                  'company_type'.tr(),
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700]),
                 ),
                 const SizedBox(height: 8),
@@ -233,7 +234,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   children: [
                     Expanded(
                       child: _buildCompanyTypeButton(
-                        label: 'Exporter',
+                        label: 'exporter'.tr(),
                         icon: Icons.trending_up,
                         value: AppConstants.userTypeExporter,
                         isSelected: _selectedUserType == AppConstants.userTypeExporter,
@@ -242,7 +243,7 @@ class _RegisterFormState extends State<RegisterForm> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: _buildCompanyTypeButton(
-                        label: 'Importer',
+                        label: 'importer'.tr(),
                         icon: Icons.trending_down,
                         value: AppConstants.userTypeImporter,
                         isSelected: _selectedUserType == AppConstants.userTypeImporter,
@@ -258,7 +259,7 @@ class _RegisterFormState extends State<RegisterForm> {
               controller: _websiteController,
               keyboardType: TextInputType.url,
               decoration: InputDecoration(
-                labelText: 'Company Website (Optional)',
+                labelText: 'company_website_optional'.tr(),
                 hintText: 'example.com',
                 prefixIcon: Icon(Icons.public_outlined, color: Colors.grey[600]),
                 prefixText: 'https://',
@@ -287,7 +288,7 @@ class _RegisterFormState extends State<RegisterForm> {
             const SizedBox(height: 20),
             // Password
             AppTextField(
-              label: 'Password',
+              label: 'password'.tr(),
               controller: _passwordController,
               obscureText: _obscurePassword,
               prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[600]),
@@ -304,7 +305,7 @@ class _RegisterFormState extends State<RegisterForm> {
             const SizedBox(height: 20),
             // Confirm Password
             AppTextField(
-              label: 'Confirm Password',
+              label: 'confirm_password'.tr(),
               controller: _confirmPasswordController,
               obscureText: _obscureConfirmPassword,
               prefixIcon: Icon(Icons.refresh_outlined, color: Colors.grey[600]),
@@ -320,20 +321,20 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
             const SizedBox(height: 32),
             // Register Button
-            AppButton(text: 'Create Account', onPressed: _handleSubmit, backgroundColor: AppTheme.primaryBlue, textColor: Colors.white),
+            AppButton(text: 'create_account'.tr(), onPressed: _handleSubmit, backgroundColor: AppTheme.primaryBlue, textColor: Colors.white),
             const SizedBox(height: 24),
             // Sign in link
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Already have an account? ', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                Text('already_have_account'.tr(), style: TextStyle(color: Colors.grey[600], fontSize: 14)),
                 TextButton(
                   onPressed: () {
                     context.go(RouteNames.login);
                   },
                   style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   child: Text(
-                    'Sign in',
+                    'sign_in'.tr(),
                     style: TextStyle(color: AppTheme.primaryBlue, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
