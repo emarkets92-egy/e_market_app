@@ -277,7 +277,7 @@ class _ProfileListScreenState extends State<ProfileListScreen> with SingleTicker
               color: Colors.grey[100],
               border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 SizedBox(
                   width: 80,

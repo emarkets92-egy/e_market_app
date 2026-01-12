@@ -488,49 +488,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
     );
   }
 
-  Widget _buildStatCard({required String label, required String value, String? subValue, Color? subValueColor, bool isTrend = false, bool showFlag = false}) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.transparent),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey[500], letterSpacing: 0.5),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              if (showFlag) ...[const Icon(Icons.flag, size: 20, color: Colors.red), const SizedBox(width: 8)],
-              Text(
-                value,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
-            ],
-          ),
-          if (subValue != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                if (isTrend) ...[Icon(Icons.trending_up, size: 16, color: subValueColor ?? Colors.green), const SizedBox(width: 4)],
-                Text(
-                  subValue,
-                  style: TextStyle(fontSize: 12, color: subValueColor ?? Colors.grey[500], fontWeight: isTrend ? FontWeight.w600 : FontWeight.normal),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
   Widget _buildHistoryTable(BuildContext context, SubscriptionState state) {
     final records = _showSeenRecords ? state.seenShipmentRecords : state.unseenShipmentRecords;
 

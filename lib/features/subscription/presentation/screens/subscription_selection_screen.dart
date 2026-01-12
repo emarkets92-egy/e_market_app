@@ -145,7 +145,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
               bloc: di.sl<SubscriptionCubit>(),
               listener: (context, state) {
                 // Show dialog for profile unlock success
-                if (state.successMessage != null && 
+                if (state.successMessage != null &&
                     state.successMessage!.toLowerCase().contains('profile unlocked') &&
                     state.successMessage != _lastShownSuccessMessage) {
                   _lastShownSuccessMessage = state.successMessage;
@@ -153,8 +153,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                     _showUnlockSuccessDialog(context);
                     di.sl<SubscriptionCubit>().clearSuccessMessage();
                   });
-                } else if (state.successMessage != null && 
-                           !state.successMessage!.toLowerCase().contains('profile unlocked')) {
+                } else if (state.successMessage != null && !state.successMessage!.toLowerCase().contains('profile unlocked')) {
                   // Show snackbar for other success messages
                   ScaffoldMessenger.of(
                     context,
@@ -204,7 +203,9 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                                   ),
                                   const SizedBox(width: 16),
                                   Text(
-                                    'results_count'.tr(namedArgs: {'count': (_selectedViewType == 'new' ? state.unseenProfilesTotal : state.seenProfilesTotal).toString()}),
+                                    'results_count'.tr(
+                                      namedArgs: {'count': (_selectedViewType == 'new' ? state.unseenProfilesTotal : state.seenProfilesTotal).toString()},
+                                    ),
                                     style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w500),
                                   ),
                                 ],
@@ -231,14 +232,14 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                           _buildPagination(state),
                         ] else ...[
                           // Prompt to select
-                          const Center(
+                          Center(
                             child: Padding(
                               padding: EdgeInsets.only(top: 64.0),
                               child: Column(
                                 children: [
                                   Icon(Icons.filter_list, size: 48, color: Colors.grey),
                                   SizedBox(height: 16),
-                                  Text('please_select_filters'.tr(), style: TextStyle(color: Colors.grey, fontSize: 16)),
+                                  Text('please_select_filters'.tr(), style: const TextStyle(color: Colors.grey, fontSize: 16)),
                                 ],
                               ),
                             ),
@@ -453,7 +454,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
           isExpanded: true,
           value: _selectedViewType,
           icon: const Icon(Icons.keyboard_arrow_down, color: Colors.blue),
-          items: const [
+          items: [
             DropdownMenuItem(
               value: 'new',
               child: Text('new_profiles'.tr(), style: const TextStyle(fontSize: 14)),
@@ -479,47 +480,47 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: const BoxDecoration(color: Colors.transparent),
-      child: const Row(
+      child: Row(
         children: [
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    'importer_name'.tr().toUpperCase(),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'email'.tr().toUpperCase(),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'phone'.tr().toUpperCase(),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'website'.tr().toUpperCase(),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                SizedBox(
-                  width: 160,
-                  child: Text(
-                    'actions'.tr().toUpperCase(),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-                  ),
-                ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              'importer_name'.tr().toUpperCase(),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'email'.tr().toUpperCase(),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'phone'.tr().toUpperCase(),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'website'.tr().toUpperCase(),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          const SizedBox(width: 16),
+          SizedBox(
+            width: 160,
+            child: Text(
+              'actions'.tr().toUpperCase(),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
         ],
       ),
     );
@@ -561,7 +562,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
       width: double.infinity,
       padding: const EdgeInsets.all(48),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-      child: const Column(
+      child: Column(
         children: [
           Icon(Icons.search_off, size: 48, color: Colors.grey),
           SizedBox(height: 16),
@@ -625,31 +626,22 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
               Icon(Icons.check_circle, color: Colors.green, size: 28),
               SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  'profile_unlocked'.tr(),
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+                child: Text('profile_unlocked'.tr(), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
-          content: Text(
-            'profile_unlocked_success_message'.tr(),
-            style: const TextStyle(fontSize: 16),
-          ),
+          content: Text('profile_unlocked_success_message'.tr(), style: const TextStyle(fontSize: 16)),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: Text(
-                'no'.tr(),
-                style: const TextStyle(fontSize: 16),
-              ),
+              child: Text('no'.tr(), style: const TextStyle(fontSize: 16)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -661,14 +653,9 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: Text(
-                'yes'.tr(),
-                style: const TextStyle(fontSize: 16),
-              ),
+              child: Text('yes'.tr(), style: const TextStyle(fontSize: 16)),
             ),
           ],
         );
