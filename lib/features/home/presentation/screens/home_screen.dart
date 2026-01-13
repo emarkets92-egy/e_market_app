@@ -5,10 +5,11 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../config/routes/route_names.dart';
 import '../../../../config/theme.dart';
-import '../../../../core/storage/local_storage.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../subscription/presentation/cubit/subscription_cubit.dart';
+import '../../../locale/presentation/cubit/locale_cubit.dart';
+import '../../../locale/presentation/cubit/locale_state.dart';
 import '../widgets/sidebar_navigation.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -109,9 +110,9 @@ class _TopHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           // Language Switcher
-          Builder(
-            builder: (context) {
-              final currentLocale = context.locale;
+          BlocBuilder<LocaleCubit, LocaleState>(
+            builder: (context, localeState) {
+              final currentLocale = localeState.locale;
               return PopupMenuButton<String>(
                 icon: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -125,12 +126,11 @@ class _TopHeader extends StatelessWidget {
                   ],
                 ),
                 tooltip: 'select_language'.tr(),
-                onSelected: (String languageCode) async {
-                  await context.setLocale(Locale(languageCode));
-                  await LocalStorage.saveLocale(languageCode);
+                onSelected: (String languageCode) {
+                  context.read<LocaleCubit>().changeLocaleByCode(languageCode);
                 },
                 itemBuilder: (BuildContext context) {
-                  final locale = context.locale;
+                  final locale = localeState.locale;
                   return [
                     PopupMenuItem<String>(
                       value: 'en',

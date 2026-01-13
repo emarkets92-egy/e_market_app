@@ -9,6 +9,8 @@ import 'features/product/presentation/cubit/product_cubit.dart';
 import 'features/subscription/presentation/cubit/subscription_cubit.dart';
 import 'features/home/presentation/cubit/home_cubit.dart';
 import 'features/localization/presentation/cubit/localization_cubit.dart';
+import 'features/locale/presentation/cubit/locale_cubit.dart';
+import 'features/locale/presentation/cubit/locale_state.dart';
 import 'shared/widgets/auth_init_wrapper.dart';
 import 'shared/widgets/version_check_wrapper.dart';
 
@@ -24,19 +26,32 @@ class MyApp extends StatelessWidget {
         BlocProvider.value(value: di.sl<SubscriptionCubit>()),
         BlocProvider.value(value: di.sl<HomeCubit>()),
         BlocProvider.value(value: di.sl<LocalizationCubit>()),
+        BlocProvider.value(value: di.sl<LocaleCubit>()),
       ],
-      child: VersionCheckWrapper(
-        child: AuthInitWrapper(
-          child: MaterialApp.router(
-            title: 'app_name'.tr(),
-            theme: AppTheme.lightTheme.copyWith(scaffoldBackgroundColor: Colors.white),
-            debugShowCheckedModeBanner: false,
-            themeMode: ThemeMode.light,
-            localizationsDelegates: context.localizationDelegates,
-            supportedLocales: context.supportedLocales,
-            locale: context.locale,
-            routerConfig: appRouter,
-          ),
+      child: BlocListener<LocaleCubit, LocaleState>(
+        listener: (context, state) {
+          // Update EasyLocalization context when locale changes
+          if (context.mounted && context.locale != state.locale) {
+            context.setLocale(state.locale);
+          }
+        },
+        child: BlocBuilder<LocaleCubit, LocaleState>(
+          builder: (context, localeState) {
+            return VersionCheckWrapper(
+              child: AuthInitWrapper(
+                child: MaterialApp.router(
+                  title: 'app_name'.tr(),
+                  theme: AppTheme.lightTheme.copyWith(scaffoldBackgroundColor: Colors.white),
+                  debugShowCheckedModeBanner: false,
+                  themeMode: ThemeMode.light,
+                  localizationsDelegates: context.localizationDelegates,
+                  supportedLocales: context.supportedLocales,
+                  locale: localeState.locale,
+                  routerConfig: appRouter,
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

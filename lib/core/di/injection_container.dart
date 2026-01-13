@@ -33,6 +33,9 @@ import '../../features/subscription/presentation/cubit/subscription_cubit.dart';
 // Home
 import '../../features/home/presentation/cubit/home_cubit.dart';
 
+// Locale
+import '../../features/locale/presentation/cubit/locale_cubit.dart';
+
 // Version
 import '../../features/version/data/datasources/version_remote_datasource.dart';
 import '../../features/version/data/repositories/version_repository_impl.dart';
@@ -101,6 +104,8 @@ Future<void> init() async {
   sl.registerLazySingleton<SubscriptionCubit>(() => SubscriptionCubit(sl<SubscriptionRepository>()));
 
   sl.registerLazySingleton<HomeCubit>(() => HomeCubit());
+
+  sl.registerLazySingleton<LocaleCubit>(() => LocaleCubit());
 
   sl.registerLazySingleton<VersionCubit>(() => VersionCubit(versionRepository: sl<VersionRepository>()));
 }
