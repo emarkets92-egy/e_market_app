@@ -21,18 +21,11 @@ class MarketExplorationResponseModel {
   });
 
   factory MarketExplorationResponseModel.fromJson(Map<String, dynamic> json) {
-    try {
-      // Log which analysis fields are present in the response
+    try { 
       final hasCompetitive = json.containsKey('competitiveAnalysis') && json['competitiveAnalysis'] != null;
       final hasPestle = json.containsKey('pestleAnalysis') && json['pestleAnalysis'] != null;
       final hasSwot = json.containsKey('swotAnalysis') && json['swotAnalysis'] != null;
       final hasMarketPlan = json.containsKey('marketPlan') && json['marketPlan'] != null;
-
-      print('📊 Parsing MarketExplorationResponseModel:');
-      print('  - competitiveAnalysis: ${hasCompetitive ? "✅" : "❌"}');
-      print('  - pestleAnalysis: ${hasPestle ? "✅" : "❌"}');
-      print('  - swotAnalysis: ${hasSwot ? "✅" : "❌"}');
-      print('  - marketPlan: ${hasMarketPlan ? "✅" : "❌"}');
 
       // Parse competitiveAnalysis with error handling
       CompetitiveAnalysisModel? competitiveAnalysis;
@@ -40,7 +33,6 @@ class MarketExplorationResponseModel {
         try {
           competitiveAnalysis = CompetitiveAnalysisModel.fromJson(json['competitiveAnalysis'] as Map<String, dynamic>);
         } catch (e) {
-          print('⚠️ Error parsing competitiveAnalysis: $e');
           competitiveAnalysis = null;
         }
       }
@@ -51,7 +43,6 @@ class MarketExplorationResponseModel {
         try {
           pestleAnalysis = PESTLEAnalysisModel.fromJson(json['pestleAnalysis'] as Map<String, dynamic>);
         } catch (e) {
-          print('⚠️ Error parsing pestleAnalysis: $e');
           pestleAnalysis = null;
         }
       }
@@ -62,7 +53,6 @@ class MarketExplorationResponseModel {
         try {
           swotAnalysis = SWOTAnalysisModel.fromJson(json['swotAnalysis'] as Map<String, dynamic>);
         } catch (e) {
-          print('⚠️ Error parsing swotAnalysis: $e');
           swotAnalysis = null;
         }
       }
@@ -73,7 +63,6 @@ class MarketExplorationResponseModel {
         try {
           marketPlan = MarketPlanModel.fromJson(json['marketPlan'] as Map<String, dynamic>);
         } catch (e) {
-          print('⚠️ Error parsing marketPlan: $e');
           marketPlan = null;
         }
       }
@@ -88,8 +77,6 @@ class MarketExplorationResponseModel {
         marketPlan: marketPlan,
       );
     } catch (e) {
-      print('❌ Error parsing MarketExplorationResponseModel: $e');
-      print('JSON keys: ${json.keys.toList()}');
       rethrow;
     }
   }

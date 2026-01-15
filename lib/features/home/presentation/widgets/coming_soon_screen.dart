@@ -19,7 +19,7 @@ class ComingSoonScreen extends StatelessWidget {
             Container(
               width: 120,
               height: 120,
-              decoration: BoxDecoration(color: AppTheme.lightBlue.withOpacity(0.1), shape: BoxShape.circle),
+              decoration: BoxDecoration(color: AppTheme.lightBlue.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: Icon(icon, size: 60, color: AppTheme.primaryBlue),
             ),
             const SizedBox(height: 32),
@@ -41,7 +41,7 @@ class ComingSoonScreen extends StatelessWidget {
             const SizedBox(height: 48),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(color: AppTheme.lightBlue.withOpacity(0.1), borderRadius: BorderRadius.circular(24)),
+              decoration: BoxDecoration(color: AppTheme.lightBlue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(24)),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

@@ -7,30 +7,20 @@ class ConversationParticipant {
   final String? companyName;
   final String email;
 
-  ConversationParticipant({
-    this.userId,
-    required this.profileId,
-    this.name,
-    this.companyName,
-    required this.email,
-  });
+  ConversationParticipant({this.userId, required this.profileId, this.name, this.companyName, required this.email});
 
   factory ConversationParticipant.fromJson(Map<String, dynamic> json) {
     try {
-      print('[ConversationParticipant] Parsing JSON: $json');
-      
       final profileId = json['profileId'];
       if (profileId == null) {
         throw Exception('profileId is null in JSON: $json');
       }
-      print('[ConversationParticipant] profileId: $profileId (type: ${profileId.runtimeType})');
-      
+
       final email = json['email'];
       if (email == null) {
         throw Exception('email is null in JSON: $json');
       }
-      print('[ConversationParticipant] email: $email (type: ${email.runtimeType})');
-      
+
       return ConversationParticipant(
         userId: json['userId'] as String?,
         profileId: profileId as String,
@@ -38,10 +28,7 @@ class ConversationParticipant {
         companyName: json['companyName'] as String?,
         email: email as String,
       );
-    } catch (e, stackTrace) {
-      print('[ConversationParticipant] ERROR parsing JSON: $e');
-      print('[ConversationParticipant] JSON data: $json');
-      print('[ConversationParticipant] Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }
@@ -56,13 +43,7 @@ class ConversationParticipant {
     };
   }
 
-  ConversationParticipant copyWith({
-    String? userId,
-    String? profileId,
-    String? name,
-    String? companyName,
-    String? email,
-  }) {
+  ConversationParticipant copyWith({String? userId, String? profileId, String? name, String? companyName, String? email}) {
     return ConversationParticipant(
       userId: userId ?? this.userId,
       profileId: profileId ?? this.profileId,
@@ -94,32 +75,26 @@ class Conversation {
 
   factory Conversation.fromJson(Map<String, dynamic> json) {
     try {
-      print('[Conversation] Parsing JSON: $json');
-      
       final roomId = json['roomId'];
       if (roomId == null) {
         throw Exception('roomId is null in JSON: $json');
       }
-      print('[Conversation] roomId: $roomId (type: ${roomId.runtimeType})');
-      
+
       final publicId = json['publicId'];
       if (publicId == null) {
         throw Exception('publicId is null in JSON: $json');
       }
-      print('[Conversation] publicId: $publicId (type: ${publicId.runtimeType})');
-      
+
       final participant = json['participant'];
       if (participant == null) {
         throw Exception('participant is null in JSON: $json');
       }
-      print('[Conversation] participant: $participant');
-      
+
       final createdAt = json['createdAt'];
       if (createdAt == null) {
         throw Exception('createdAt is null in JSON: $json');
       }
-      print('[Conversation] createdAt: $createdAt (type: ${createdAt.runtimeType})');
-      
+
       return Conversation(
         roomId: roomId as String,
         publicId: publicId as String,
@@ -129,10 +104,7 @@ class Conversation {
         createdAt: DateTime.parse(createdAt as String),
         lastMessageAt: json['lastMessageAt'] != null ? DateTime.parse(json['lastMessageAt'] as String) : null,
       );
-    } catch (e, stackTrace) {
-      print('[Conversation] ERROR parsing JSON: $e');
-      print('[Conversation] JSON data: $json');
-      print('[Conversation] Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }

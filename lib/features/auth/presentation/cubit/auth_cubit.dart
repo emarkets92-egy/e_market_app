@@ -12,30 +12,13 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this._repository) : super(const AuthState.initial());
 
   Future<void> login(String email, String password) async {
-    print('[LOGIN CUBIT] Login initiated');
-    print('[LOGIN CUBIT] Email: $email');
-    print('[LOGIN CUBIT] Password provided: ${password.isNotEmpty}');
-
     emit(state.copyWith(isLoading: true, error: null));
-    print('[LOGIN CUBIT] State updated: isLoading = true');
 
     try {
-      print('[LOGIN CUBIT] Calling repository login method...');
       final result = await _repository.login(email, password);
-      print('[LOGIN CUBIT] Repository login completed successfully');
-      print('[LOGIN CUBIT] User authenticated: ${result.user.email}');
-
       emit(state.copyWith(isLoading: false, user: result.user, isAuthenticated: true, error: null));
-      print('[LOGIN CUBIT] State updated: isAuthenticated = true, isLoading = false');
-      print('[LOGIN CUBIT] Login flow completed successfully');
-    } catch (e, stackTrace) {
-      print('[LOGIN CUBIT] Login failed');
-      print('[LOGIN CUBIT] Error type: ${e.runtimeType}');
-      print('[LOGIN CUBIT] Error message: $e');
-      print('[LOGIN CUBIT] Stack trace: $stackTrace');
-
+    } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString(), isAuthenticated: false));
-      print('[LOGIN CUBIT] State updated: isAuthenticated = false, isLoading = false, error = ${e.toString()}');
     }
   }
 
@@ -83,7 +66,7 @@ class AuthCubit extends Cubit<AuthState> {
             await _repository.logout();
           } catch (logoutError) {
             // Even if logout API call fails, state is reset
-            print('Logout failed during checkAuthStatus: $logoutError');
+            // ignore
           }
           emit(const AuthState.initial());
         }
@@ -92,7 +75,7 @@ class AuthCubit extends Cubit<AuthState> {
       }
     } catch (e) {
       // Handle any unexpected errors in isAuthenticated check
-      print('Error checking auth status: $e');
+      // ignore
       emit(const AuthState.initial());
     }
   }

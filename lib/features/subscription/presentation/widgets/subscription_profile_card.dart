@@ -54,7 +54,7 @@ class SubscriptionProfileCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16), // More rounded
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4))],
         // border: Border.all(color: Colors.grey[200]!), // Removed border to match clean look or keep subtle
       ),
       padding: EdgeInsets.all(profile.isSeen ? 20 : 20), // Reduced padding for locked card

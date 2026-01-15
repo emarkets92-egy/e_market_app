@@ -57,16 +57,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       );
       final result = await _repository.exploreMarket(request);
 
-      // Log the parsed result to debug missing analysis data
-      print('✅ exploreMarket result parsed successfully');
-      print('  - competitiveAnalysis: ${result.competitiveAnalysis != null ? "✅" : "❌"}');
-      print('  - pestleAnalysis: ${result.pestleAnalysis != null ? "✅" : "❌"}');
-      print('  - swotAnalysis: ${result.swotAnalysis != null ? "✅" : "❌"}');
-      print('  - marketPlan: ${result.marketPlan != null ? "✅" : "❌"}');
-
       // Warn if analysis data is missing
       if (result.competitiveAnalysis == null && result.pestleAnalysis == null && result.swotAnalysis == null && result.marketPlan == null) {
-        print('⚠️ WARNING: All analysis data is missing from API response!');
+        throw Exception('All analysis data is missing from API response!');
       }
 
       emit(
@@ -118,14 +111,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
               return profile;
             }).toList();
 
-            emit(
-              state.copyWith(
-                isUnlocking: false,
-                unseenProfiles: updatedUnseenProfiles,
-                successMessage: 'Profile unlocked successfully!',
-                error: null,
-              ),
-            );
+            emit(state.copyWith(isUnlocking: false, unseenProfiles: updatedUnseenProfiles, successMessage: 'Profile unlocked successfully!', error: null));
           } else {
             // Profile is already in seen list, refresh from page 1 to update order
             if (_lastProductId != null && _lastMarketType != null && _lastCountryId != null) {
@@ -227,14 +213,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
               return profile;
             }).toList();
 
-            emit(
-              state.copyWith(
-                isUnlocking: false,
-                unseenProfiles: updatedUnseenProfiles,
-                successMessage: 'Profile unlocked successfully!',
-                error: null,
-              ),
-            );
+            emit(state.copyWith(isUnlocking: false, unseenProfiles: updatedUnseenProfiles, successMessage: 'Profile unlocked successfully!', error: null));
           } else {
             final updatedSeenProfiles = state.seenProfiles.map((profile) {
               if (profile.id == targetId) {

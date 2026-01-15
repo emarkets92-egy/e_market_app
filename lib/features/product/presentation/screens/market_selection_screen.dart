@@ -34,8 +34,6 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
   bool _isExporter(BuildContext context) {
     try {
       final userTypeId = context.read<AuthCubit>().state.user?.userTypeId;
-      print('userTypeId: $userTypeId');
-      print('AppConstants.userTypeExporter: ${AppConstants.userTypeExporter}');
       return userTypeId == AppConstants.userTypeExporter;
     } catch (e) {
       return true; // Default to exporter if error

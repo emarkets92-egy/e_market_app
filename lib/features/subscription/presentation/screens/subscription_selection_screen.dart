@@ -264,7 +264,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -369,7 +369,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
       decoration: BoxDecoration(
         color: _selectedProduct == null ? Colors.grey[50] : const Color(0xFFF0F7FF), // Blue tint when active
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _selectedProduct == null ? Colors.grey[300]! : Colors.blue.withOpacity(0.3)),
+        border: Border.all(color: _selectedProduct == null ? Colors.grey[300]! : Colors.blue.withValues(alpha: 0.3)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -537,7 +537,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
       child: Column(
         children: profiles.map((profile) {

@@ -98,7 +98,7 @@ class _RegisterFormState extends State<RegisterForm> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 4))],
       ),
       child: Form(
         key: _formKey,
@@ -181,7 +181,7 @@ class _RegisterFormState extends State<RegisterForm> {
               prefixIcon: Icon(Icons.business_outlined, color: Colors.grey[600]),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'company_name'.tr() + ' ' + 'is required';
+                  return '${'company_name'.tr()} is required';
                 }
                 return null;
               },
@@ -189,7 +189,7 @@ class _RegisterFormState extends State<RegisterForm> {
             const SizedBox(height: 20),
             // Company Country
             DropdownButtonFormField<int>(
-              value: _selectedCountryId,
+              initialValue: _selectedCountryId,
               decoration: InputDecoration(
                 labelText: 'company_country'.tr(),
                 hintText: 'select_country'.tr(),

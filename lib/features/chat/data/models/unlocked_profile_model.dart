@@ -25,29 +25,19 @@ class UnlockedProfileModel {
 
   factory UnlockedProfileModel.fromJson(Map<String, dynamic> json) {
     try {
-      print('[UnlockedProfileModel] Parsing JSON: $json');
-      
       final profileId = json['profileId'];
       if (profileId == null) {
         throw Exception('profileId is null in JSON: $json');
       }
-      print('[UnlockedProfileModel] profileId: $profileId (type: ${profileId.runtimeType})');
-      
       final email = json['email'];
-      print('[UnlockedProfileModel] email: $email (type: ${email?.runtimeType})');
-      
       final countryId = json['countryId'];
       if (countryId == null) {
         throw Exception('countryId is null in JSON: $json');
       }
-      print('[UnlockedProfileModel] countryId: $countryId (type: ${countryId.runtimeType})');
-      
       final unlockedAt = json['unlockedAt'];
       if (unlockedAt == null) {
         throw Exception('unlockedAt is null in JSON: $json');
       }
-      print('[UnlockedProfileModel] unlockedAt: $unlockedAt (type: ${unlockedAt.runtimeType})');
-      
       return UnlockedProfileModel(
         profileId: profileId as String,
         userId: json['userId'] as String?,
@@ -60,10 +50,7 @@ class UnlockedProfileModel {
         hasExistingChat: json['hasExistingChat'] as bool? ?? false,
         roomId: json['roomId'] as String?,
       );
-    } catch (e, stackTrace) {
-      print('[UnlockedProfileModel] ERROR parsing JSON: $e');
-      print('[UnlockedProfileModel] JSON data: $json');
-      print('[UnlockedProfileModel] Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }

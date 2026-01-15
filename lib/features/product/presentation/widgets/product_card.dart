@@ -18,7 +18,7 @@ class ProductCard extends StatelessWidget {
         subtitle: product.hscode != null ? Text('${'hs_code'.tr()}: ${product.hscode}') : null,
         trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () {
-          context.push('${RouteNames.productDetail.replaceAll(':id', product.id)}');
+          context.push(RouteNames.productDetail.replaceAll(':id', product.id));
         },
       ),
     );

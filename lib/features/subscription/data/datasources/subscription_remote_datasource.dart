@@ -55,14 +55,6 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         ),
       );
 
-      // Log the response to debug incomplete data issues
-      print('🔍 exploreMarket API Response received');
-      print('Response keys: ${(response.data as Map<String, dynamic>).keys.toList()}');
-      print('Has competitiveAnalysis: ${(response.data as Map<String, dynamic>).containsKey('competitiveAnalysis')}');
-      print('Has pestleAnalysis: ${(response.data as Map<String, dynamic>).containsKey('pestleAnalysis')}');
-      print('Has swotAnalysis: ${(response.data as Map<String, dynamic>).containsKey('swotAnalysis')}');
-      print('Has marketPlan: ${(response.data as Map<String, dynamic>).containsKey('marketPlan')}');
-
       // Validate response structure
       if (response.data is! Map<String, dynamic>) {
         throw Exception('Invalid response format: expected Map but got ${response.data.runtimeType}');
@@ -76,17 +68,9 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
       }
 
       return MarketExplorationResponseModel.fromJson(responseData);
-    } on DioException catch (e) {
-      // Log DioException details for debugging
-      print('❌ exploreMarket API Error: ${e.type}');
-      print('Error message: ${e.message}');
-      if (e.response != null) {
-        print('Response status: ${e.response?.statusCode}');
-        print('Response data: ${e.response?.data}');
-      }
+    } on DioException {
       rethrow;
     } catch (e) {
-      print('❌ exploreMarket Unexpected Error: $e');
       rethrow;
     }
   }

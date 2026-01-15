@@ -6,11 +6,6 @@ class ExploreMarketRequestModel {
   final int? unseenLimit;
   final int? seenPage;
   final int? seenLimit;
-  // Deprecated: kept for backward compatibility
-  @Deprecated('Use unseenPage and seenPage instead')
-  final int? page;
-  @Deprecated('Use unseenLimit and seenLimit instead')
-  final int? limit;
 
   ExploreMarketRequestModel({
     required this.productId,
@@ -20,8 +15,6 @@ class ExploreMarketRequestModel {
     this.unseenLimit,
     this.seenPage,
     this.seenLimit,
-    @Deprecated('Use unseenPage and seenPage instead') this.page,
-    @Deprecated('Use unseenLimit and seenLimit instead') this.limit,
   });
 
   factory ExploreMarketRequestModel.fromJson(Map<String, dynamic> json) {
@@ -33,8 +26,6 @@ class ExploreMarketRequestModel {
       unseenLimit: json['unseenLimit'] != null ? (json['unseenLimit'] as num).toInt() : null,
       seenPage: json['seenPage'] != null ? (json['seenPage'] as num).toInt() : null,
       seenLimit: json['seenLimit'] != null ? (json['seenLimit'] as num).toInt() : null,
-      page: json['page'] != null ? (json['page'] as num).toInt() : null,
-      limit: json['limit'] != null ? (json['limit'] as num).toInt() : null,
     );
   }
 
@@ -47,9 +38,6 @@ class ExploreMarketRequestModel {
       'unseenLimit': unseenLimit ?? 10, // Always include with default
       'seenPage': seenPage ?? 1, // Always include with default
       'seenLimit': seenLimit ?? 10, // Always include with default
-      // Include deprecated fields for backward compatibility
-      if (page != null) 'page': page,
-      if (limit != null) 'limit': limit,
     };
   }
 }

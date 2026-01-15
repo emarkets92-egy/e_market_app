@@ -63,7 +63,7 @@ class LoginScreen extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [AppTheme.primaryBlue, AppTheme.primaryBlue.withOpacity(0.8)],
+                colors: [AppTheme.primaryBlue, AppTheme.primaryBlue.withValues(alpha: 0.8)],
               ),
             ),
           ),
@@ -79,7 +79,7 @@ class LoginScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
                         child: const Icon(Icons.public, color: Colors.white, size: 24),
                       ),
                       const SizedBox(width: 12),
@@ -99,7 +99,7 @@ class LoginScreen extends StatelessWidget {
                   // Description
                   Text(
                     'Connect with verified importers worldwide and scale your business beyond borders with our trusted platform.',
-                    style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 18, height: 1.5),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 18, height: 1.5),
                   ),
                   const SizedBox(height: 48),
                   // Social proof

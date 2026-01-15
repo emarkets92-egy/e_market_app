@@ -24,7 +24,7 @@ class ProfileCard extends StatelessWidget {
       margin: EdgeInsets.zero, // Margin is handled by GridView spacing
       child: InkWell(
         onTap: () {
-          context.push('${RouteNames.profileDetail.replaceAll(':id', profile.id)}');
+          context.push(RouteNames.profileDetail.replaceAll(':id', profile.id));
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),

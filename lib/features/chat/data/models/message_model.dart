@@ -23,43 +23,36 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     try {
-      print('[Message] Parsing JSON: $json');
       
       final id = json['id'];
       if (id == null) {
         throw Exception('id is null in JSON: $json');
       }
-      print('[Message] id: $id (type: ${id.runtimeType})');
       
       final roomId = json['roomId'];
       if (roomId == null) {
         throw Exception('roomId is null in JSON: $json');
       }
-      print('[Message] roomId: $roomId (type: ${roomId.runtimeType})');
       
       final senderId = json['senderId'];
       if (senderId == null) {
         throw Exception('senderId is null in JSON: $json');
       }
-      print('[Message] senderId: $senderId (type: ${senderId.runtimeType})');
       
       final senderProfileId = json['senderProfileId'];
       if (senderProfileId == null) {
         throw Exception('senderProfileId is null in JSON: $json');
       }
-      print('[Message] senderProfileId: $senderProfileId (type: ${senderProfileId.runtimeType})');
       
       final content = json['content'];
       if (content == null) {
         throw Exception('content is null in JSON: $json');
       }
-      print('[Message] content: $content (type: ${content.runtimeType})');
       
       final createdAt = json['createdAt'];
       if (createdAt == null) {
         throw Exception('createdAt is null in JSON: $json');
       }
-      print('[Message] createdAt: $createdAt (type: ${createdAt.runtimeType})');
       
       return Message(
         id: id as String,
@@ -72,10 +65,7 @@ class Message {
         createdAt: DateTime.parse(createdAt as String),
         metadata: json['metadata'] as Map<String, dynamic>?,
       );
-    } catch (e, stackTrace) {
-      print('[Message] ERROR parsing JSON: $e');
-      print('[Message] JSON data: $json');
-      print('[Message] Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }

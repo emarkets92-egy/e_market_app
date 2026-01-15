@@ -5,7 +5,6 @@ class ChatPollingService {
   final ChatCubit chatCubit;
   Timer? _conversationsTimer;
   Timer? _messagesTimer;
-  String? _currentRoomId;
 
   ChatPollingService(this.chatCubit);
 
@@ -21,7 +20,6 @@ class ChatPollingService {
   }
 
   void startMessagesPolling(String roomId) {
-    _currentRoomId = roomId;
     _messagesTimer?.cancel();
     _messagesTimer = Timer.periodic(const Duration(seconds: 12), (timer) {
       if (chatCubit.state.isPolling && chatCubit.state.currentRoomId == roomId) {
@@ -37,7 +35,6 @@ class ChatPollingService {
     _conversationsTimer = null;
     _messagesTimer?.cancel();
     _messagesTimer = null;
-    _currentRoomId = null;
   }
 
   void dispose() {

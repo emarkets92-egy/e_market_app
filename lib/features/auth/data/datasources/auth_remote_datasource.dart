@@ -30,41 +30,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<AuthResponseModel> login(LoginRequestModel request) async {
-    print('[LOGIN API] Starting login request');
-    print('[LOGIN API] Endpoint: ${Endpoints.login}');
-    print('[LOGIN API] Request data: {email: ${request.email}, password: ***}');
-
     try {
       final response = await apiClient.post(Endpoints.login, data: request.toJson());
-
-      print('[LOGIN API] Login request successful');
-      print('[LOGIN API] Response status code: ${response.statusCode}');
-      print('[LOGIN API] Response data keys: ${response.data is Map ? (response.data as Map).keys.join(", ") : "N/A"}');
-
       final authResponse = AuthResponseModel.fromJson(response.data);
-      print('[LOGIN API] Auth response parsed successfully');
-      print('[LOGIN API] User ID: ${authResponse.user.id}');
-      print('[LOGIN API] Access token length: ${authResponse.accessToken.length}');
-      print('[LOGIN API] Refresh token length: ${authResponse.refreshToken.length}');
-
       return authResponse;
-    } on DioException catch (e) {
-      print('[LOGIN API] Login request failed with DioException');
-      print('[LOGIN API] Error type: ${e.type}');
-      print('[LOGIN API] Error message: ${e.message}');
-      print('[LOGIN API] Response status code: ${e.response?.statusCode ?? "N/A"}');
-      print('[LOGIN API] Response data: ${e.response?.data ?? "N/A"}');
-      print('[LOGIN API] Request path: ${e.requestOptions.path}');
-      print('[LOGIN API] Request method: ${e.requestOptions.method}');
-      if (e.response?.data != null) {
-        print('[LOGIN API] Error response body: ${e.response!.data}');
-      }
+    } on DioException {
       rethrow;
-    } catch (e, stackTrace) {
-      print('[LOGIN API] Login request failed with unexpected error');
-      print('[LOGIN API] Error type: ${e.runtimeType}');
-      print('[LOGIN API] Error message: $e');
-      print('[LOGIN API] Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }

@@ -152,7 +152,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         child: Container(
                           width: 36,
                           height: 36,
-                          decoration: BoxDecoration(color: AppTheme.primaryBlue.withOpacity(0.1), shape: BoxShape.circle),
+                          decoration: BoxDecoration(color: AppTheme.primaryBlue.withValues(alpha: 0.1), shape: BoxShape.circle),
                           child: const Icon(Icons.person, color: AppTheme.primaryBlue, size: 20),
                         ),
                       ),
@@ -377,7 +377,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               if (rank != null)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
                   child: Text(
                     '#$rank',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color),
@@ -662,7 +662,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -674,7 +674,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: statusColor.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
                 child: Text(
                   status,
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: statusColor),
@@ -985,7 +985,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -995,7 +995,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                 child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(width: 12),
@@ -1228,7 +1228,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1238,7 +1238,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                 child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(width: 12),

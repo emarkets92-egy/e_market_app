@@ -46,17 +46,13 @@ class _AuthInitWrapperState extends State<AuthInitWrapper> {
                   router.go(RouteNames.login);
                 }
               } catch (e) {
-                // If router is not available yet, try to navigate after a short delay
-                // This handles the case where router is not initialized yet
                 Future.delayed(const Duration(milliseconds: 100), () {
                   if (context.mounted) {
                     try {
                       final router = GoRouter.of(context);
                       router.go(RouteNames.login);
                     } catch (e2) {
-                      // If still not available, the redirect in app_router.dart
-                      // will handle navigation when the router is ready
-                      print('GoRouter not available yet, redirect will handle navigation');
+                      // Do nothing
                     }
                   }
                 });

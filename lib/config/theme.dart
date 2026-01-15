@@ -13,12 +13,10 @@ class AppTheme {
         primary: primaryBlue,
         secondary: lightBlue,
         surface: Colors.white,
-        background: Colors.white,
         error: Colors.red,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: Colors.grey[900]!,
-        onBackground: Colors.grey[900]!,
         onError: Colors.white,
       ),
       appBarTheme: const AppBarTheme(
@@ -67,8 +65,8 @@ class AppTheme {
         ),
       ),
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
             return primaryBlue;
           }
           return null;

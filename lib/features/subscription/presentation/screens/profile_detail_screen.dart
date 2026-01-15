@@ -282,7 +282,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -416,7 +416,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
           ),
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -492,7 +492,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
         decoration: BoxDecoration(
           color: isActive ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          boxShadow: isActive ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)] : null,
+          boxShadow: isActive ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)] : null,
         ),
         child: Text(
           text,
@@ -517,8 +517,8 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(
-        headingRowColor: MaterialStateProperty.all(Colors.transparent),
-        dataRowColor: MaterialStateProperty.all(Colors.transparent),
+        headingRowColor: WidgetStateProperty.all(Colors.transparent),
+        dataRowColor: WidgetStateProperty.all(Colors.transparent),
         columnSpacing: 24,
         horizontalMargin: 0,
         columns: [

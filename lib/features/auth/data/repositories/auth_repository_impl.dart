@@ -19,36 +19,15 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthResponseModel> login(String email, String password) async {
-    print('[LOGIN REPOSITORY] Starting login process');
-    print('[LOGIN REPOSITORY] Email: $email');
-    print('[LOGIN REPOSITORY] Password length: ${password.length}');
-
     try {
       final request = LoginRequestModel(email: email, password: password);
-      print('[LOGIN REPOSITORY] Created login request model');
-
       final response = await remoteDataSource.login(request);
-      print('[LOGIN REPOSITORY] Received response from remote data source');
-      print('[LOGIN REPOSITORY] User: ${response.user.email} (ID: ${response.user.id})');
-
       // Save tokens locally
-      print('[LOGIN REPOSITORY] Saving tokens to local storage...');
       await localDataSource.saveAccessToken(response.accessToken);
-      print('[LOGIN REPOSITORY] Access token saved successfully');
-
       await localDataSource.saveRefreshToken(response.refreshToken);
-      print('[LOGIN REPOSITORY] Refresh token saved successfully');
-
       await localDataSource.saveUser(response.user);
-      print('[LOGIN REPOSITORY] User data saved successfully');
-
-      print('[LOGIN REPOSITORY] Login process completed successfully');
       return response;
-    } catch (e, stackTrace) {
-      print('[LOGIN REPOSITORY] Login process failed');
-      print('[LOGIN REPOSITORY] Error type: ${e.runtimeType}');
-      print('[LOGIN REPOSITORY] Error message: $e');
-      print('[LOGIN REPOSITORY] Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }

@@ -39,28 +39,16 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   @override
   Future<List<Conversation>> getConversations() async {
     try {
-      print('[ChatRemoteDataSource] getConversations called');
       final response = await apiClient.get(Endpoints.chatConversations);
-      print('[ChatRemoteDataSource] getConversations response received: ${response.data}');
       final conversationsList = response.data as List<dynamic>;
-      print('[ChatRemoteDataSource] getConversations list length: ${conversationsList.length}');
       return conversationsList.map((item) {
         try {
           return Conversation.fromJson(item as Map<String, dynamic>);
-        } catch (e, stackTrace) {
-          print('[ChatRemoteDataSource] getConversations ERROR parsing conversation item: $e');
-          print('[ChatRemoteDataSource] Conversation item data: $item');
-          print('[ChatRemoteDataSource] Stack trace: $stackTrace');
+        } catch (e) {
           rethrow;
         }
       }).toList();
-    } on DioException catch (e) {
-      print('[ChatRemoteDataSource] getConversations DioException: $e');
-      print('[ChatRemoteDataSource] Response data: ${e.response?.data}');
-      rethrow;
-    } catch (e, stackTrace) {
-      print('[ChatRemoteDataSource] getConversations ERROR: $e');
-      print('[ChatRemoteDataSource] Stack trace: $stackTrace');
+    } on DioException {
       rethrow;
     }
   }
@@ -100,21 +88,15 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   @override
   Future<SearchProfilesResponseModel> searchUnlockedProfiles({String? query, int page = 1, int limit = 20, bool excludeExistingChats = false}) async {
     try {
-      print('[ChatRemoteDataSource] searchUnlockedProfiles called with: query=$query, page=$page, limit=$limit, excludeExistingChats=$excludeExistingChats');
       final queryParameters = <String, dynamic>{'page': page, 'limit': limit, 'excludeExistingChats': excludeExistingChats};
       if (query != null && query.isNotEmpty) {
         queryParameters['query'] = query;
       }
       final response = await apiClient.get(Endpoints.chatSearchProfiles, queryParameters: queryParameters);
-      print('[ChatRemoteDataSource] searchUnlockedProfiles response received: ${response.data}');
       return SearchProfilesResponseModel.fromJson(response.data);
-    } on DioException catch (e) {
-      print('[ChatRemoteDataSource] searchUnlockedProfiles DioException: $e');
-      print('[ChatRemoteDataSource] Response data: ${e.response?.data}');
+    } on DioException {
       rethrow;
-    } catch (e, stackTrace) {
-      print('[ChatRemoteDataSource] searchUnlockedProfiles ERROR: $e');
-      print('[ChatRemoteDataSource] Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }
