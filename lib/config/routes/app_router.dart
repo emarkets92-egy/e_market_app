@@ -10,22 +10,17 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/complete_profile_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
-import '../../features/home/presentation/screens/inbox_screen.dart';
-import '../../features/home/presentation/screens/opportunities_screen.dart';
-import '../../features/home/presentation/screens/notifications_screen.dart';
-import '../../features/home/presentation/screens/profile_screen.dart';
 import '../../features/product/presentation/screens/product_list_screen.dart';
 import '../../features/product/presentation/screens/product_detail_screen.dart';
 import '../../features/product/presentation/screens/market_selection_screen.dart';
 import '../../features/subscription/presentation/screens/profile_list_screen.dart';
 import '../../features/subscription/presentation/screens/profile_detail_screen.dart';
-import '../../features/subscription/presentation/screens/shipment_records_list_screen.dart';
 import '../../features/subscription/presentation/screens/analysis_screen.dart';
-import '../../features/subscription/presentation/screens/competitive_analysis_screen.dart';
-import '../../features/subscription/presentation/screens/pestle_analysis_screen.dart';
-import '../../features/subscription/presentation/screens/swot_analysis_screen.dart';
-import '../../features/subscription/presentation/screens/market_plan_screen.dart';
 import '../../features/subscription/presentation/screens/subscription_selection_screen.dart';
+import '../../features/chat/presentation/screens/conversations_list_screen.dart';
+import '../../features/chat/presentation/screens/chat_screen.dart';
+import '../../features/chat/presentation/screens/search_unlocked_profiles_screen.dart';
+import '../../features/chat/presentation/cubit/chat_cubit.dart';
 import 'route_names.dart';
 
 final appRouter = GoRouter(
@@ -64,35 +59,39 @@ final appRouter = GoRouter(
           BlocProvider.value(value: di.sl<HomeCubit>()),
           BlocProvider.value(value: di.sl<SubscriptionCubit>()),
         ],
-        child: const HomeScreen(),
+        child: HomeScreen(),
       ),
     ),
     GoRoute(
       path: RouteNames.inbox,
       builder: (context, state) => MultiBlocProvider(
-        providers: [BlocProvider.value(value: di.sl<HomeCubit>())],
-        child: const InboxScreen(),
+        providers: [
+          BlocProvider.value(value: di.sl<HomeCubit>()),
+          BlocProvider.value(value: di.sl<ChatCubit>()),
+        ],
+        child: const ConversationsListScreen(),
+      ),
+    ),
+    // More specific route must come before parameterized route
+    GoRoute(
+      path: RouteNames.searchUnlockedProfiles,
+      builder: (context, state) => MultiBlocProvider(
+        providers: [BlocProvider.value(value: di.sl<ChatCubit>())],
+        child: const SearchUnlockedProfilesScreen(),
       ),
     ),
     GoRoute(
-      path: RouteNames.opportunities,
+      path: '${RouteNames.chat}/:roomId',
       builder: (context, state) => MultiBlocProvider(
-        providers: [BlocProvider.value(value: di.sl<HomeCubit>())],
-        child: const OpportunitiesScreen(),
+        providers: [BlocProvider.value(value: di.sl<ChatCubit>())],
+        child: ChatScreen(roomId: state.pathParameters['roomId'], recipientProfileId: state.uri.queryParameters['recipientProfileId']),
       ),
     ),
     GoRoute(
-      path: RouteNames.notifications,
+      path: RouteNames.chat,
       builder: (context, state) => MultiBlocProvider(
-        providers: [BlocProvider.value(value: di.sl<HomeCubit>())],
-        child: const NotificationsScreen(),
-      ),
-    ),
-    GoRoute(
-      path: RouteNames.profile,
-      builder: (context, state) => MultiBlocProvider(
-        providers: [BlocProvider.value(value: di.sl<HomeCubit>())],
-        child: const ProfileScreen(),
+        providers: [BlocProvider.value(value: di.sl<ChatCubit>())],
+        child: ChatScreen(roomId: null, recipientProfileId: state.uri.queryParameters['recipientProfileId']),
       ),
     ),
     GoRoute(
@@ -140,45 +139,10 @@ final appRouter = GoRouter(
       ),
     ),
     GoRoute(
-      path: RouteNames.shipmentRecordsList,
-      builder: (context, state) => BlocProvider.value(
-        value: di.sl<SubscriptionCubit>(),
-        child: ShipmentRecordsListScreen(profileId: state.pathParameters['profileId']!),
-      ),
-    ),
-    GoRoute(
       path: RouteNames.analysis,
       builder: (context, state) => BlocProvider.value(
         value: di.sl<SubscriptionCubit>(),
         child: AnalysisScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
-      ),
-    ),
-    GoRoute(
-      path: RouteNames.competitiveAnalysis,
-      builder: (context, state) => BlocProvider.value(
-        value: di.sl<SubscriptionCubit>(),
-        child: CompetitiveAnalysisScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
-      ),
-    ),
-    GoRoute(
-      path: RouteNames.pestleAnalysis,
-      builder: (context, state) => BlocProvider.value(
-        value: di.sl<SubscriptionCubit>(),
-        child: PESTLEAnalysisScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
-      ),
-    ),
-    GoRoute(
-      path: RouteNames.swotAnalysis,
-      builder: (context, state) => BlocProvider.value(
-        value: di.sl<SubscriptionCubit>(),
-        child: SWOTAnalysisScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
-      ),
-    ),
-    GoRoute(
-      path: RouteNames.marketPlan,
-      builder: (context, state) => BlocProvider.value(
-        value: di.sl<SubscriptionCubit>(),
-        child: MarketPlanScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
       ),
     ),
   ],

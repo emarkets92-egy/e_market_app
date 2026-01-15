@@ -7,6 +7,8 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/premium_header_bar.dart';
+import '../../../../shared/widgets/app_button.dart';
+import '../../../../config/routes/route_names.dart';
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 import '../../data/models/subscription_model.dart';
@@ -144,17 +146,9 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
             child: BlocConsumer<SubscriptionCubit, SubscriptionState>(
               bloc: di.sl<SubscriptionCubit>(),
               listener: (context, state) {
-                // Show dialog for profile unlock success
-                if (state.successMessage != null &&
-                    state.successMessage!.toLowerCase().contains('profile unlocked') &&
-                    state.successMessage != _lastShownSuccessMessage) {
+                // Show snackbar for success messages (including profile unlock)
+                if (state.successMessage != null && state.successMessage != _lastShownSuccessMessage) {
                   _lastShownSuccessMessage = state.successMessage;
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _showUnlockSuccessDialog(context);
-                    di.sl<SubscriptionCubit>().clearSuccessMessage();
-                  });
-                } else if (state.successMessage != null && !state.successMessage!.toLowerCase().contains('profile unlocked')) {
-                  // Show snackbar for other success messages
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text(state.successMessage!), backgroundColor: Colors.green, duration: const Duration(seconds: 2)));
@@ -209,6 +203,13 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                                     style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w500),
                                   ),
                                 ],
+                              ),
+                              // Analysis button
+                              AppButton(
+                                text: 'analysis'.tr(),
+                                onPressed: () {
+                                  context.push('${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}');
+                                },
                               ),
                             ],
                           ),
@@ -618,48 +619,6 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
           ),
         ],
       ),
-    );
-  }
-
-  void _showUnlockSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 28),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text('profile_unlocked'.tr(), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-          content: Text('profile_unlocked_success_message'.tr(), style: const TextStyle(fontSize: 16)),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: Text('no'.tr(), style: const TextStyle(fontSize: 16)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _selectedViewType = 'unlocked';
-                });
-                Navigator.of(dialogContext).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: Text('yes'.tr(), style: const TextStyle(fontSize: 16)),
-            ),
-          ],
-        );
-      },
     );
   }
 }

@@ -9,6 +9,7 @@ import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../subscription/presentation/cubit/subscription_cubit.dart';
 import '../../../subscription/presentation/cubit/subscription_state.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class MarketSelectionScreen extends StatefulWidget {
   final String productId;
@@ -30,12 +31,19 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
     di.sl<SubscriptionCubit>().exploreMarket(productId: widget.productId, marketType: widget.marketType, countryId: widget.countryId);
   }
 
+  bool _isExporter(BuildContext context) {
+    try {
+      final userTypeId = context.read<AuthCubit>().state.user?.userTypeId;
+      print('userTypeId: $userTypeId');
+      print('AppConstants.userTypeExporter: ${AppConstants.userTypeExporter}');
+      return userTypeId == AppConstants.userTypeExporter;
+    } catch (e) {
+      return true; // Default to exporter if error
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Get user type from auth (simplified - should come from auth state)
-    // For now, show both options
-    final isExporter = true; // TODO: Get from auth state
-
     return Scaffold(
       appBar: AppBar(title: Text('market_selection'.tr())),
       body: BlocBuilder<SubscriptionCubit, SubscriptionState>(
@@ -67,6 +75,11 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
             );
           }
 
+          final isExporter = _isExporter(context);
+          final isTargetMarket = widget.marketType == AppConstants.marketTypeTarget;
+          final isOtherMarket = widget.marketType == AppConstants.marketTypeOther;
+          final isImporterMarket = widget.marketType == AppConstants.marketTypeImporter;
+
           return Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -76,50 +89,31 @@ class _MarketSelectionScreenState extends State<MarketSelectionScreen> {
                 const SizedBox(height: 8),
                 Text('${'country_id'.tr()}: ${widget.countryId}', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 32),
-                if (isExporter && widget.marketType == AppConstants.marketTypeTarget) ...[
+                // Show profile list button based on user type and market type
+                if (isExporter && (isTargetMarket || isOtherMarket)) ...[
                   AppButton(
-                    text: 'importer'.tr() + ' List',
+                    text: '${'importer'.tr()} List',
                     onPressed: () {
                       context.push('${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}');
                     },
                   ),
                   const SizedBox(height: 16),
+                ] else if (!isExporter && isImporterMarket) ...[
                   AppButton(
-                    text: 'analysis'.tr(),
-                    onPressed: () {
-                      context.push('${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}');
-                    },
-                  ),
-                ] else if (isExporter && widget.marketType == AppConstants.marketTypeOther) ...[
-                  AppButton(
-                    text: 'importer'.tr() + ' List',
+                    text: '${'exporter'.tr()} List',
                     onPressed: () {
                       context.push('${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}');
                     },
                   ),
                   const SizedBox(height: 16),
-                  AppButton(
-                    text: 'analysis'.tr(),
-                    onPressed: () {
-                      context.push('${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}');
-                    },
-                  ),
-                ] else ...[
-                  // Importer
-                  AppButton(
-                    text: 'exporter'.tr() + ' List',
-                    onPressed: () {
-                      context.push('${RouteNames.profileList}?productId=${widget.productId}&countryId=${widget.countryId}&marketType=${widget.marketType}');
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  AppButton(
-                    text: 'analysis'.tr(),
-                    onPressed: () {
-                      context.push('${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}');
-                    },
-                  ),
                 ],
+                // Always show analysis button regardless of user type or market type
+                AppButton(
+                  text: 'analysis'.tr(),
+                  onPressed: () {
+                    context.push('${RouteNames.analysis}?productId=${widget.productId}&countryId=${widget.countryId}');
+                  },
+                ),
               ],
             ),
           );

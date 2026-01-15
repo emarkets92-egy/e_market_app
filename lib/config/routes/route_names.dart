@@ -26,4 +26,11 @@ class RouteNames {
   static const String pestleAnalysis = '/analysis/pestle';
   static const String swotAnalysis = '/analysis/swot';
   static const String marketPlan = '/analysis/market-plan';
+
+  // Chat routes
+  static const String conversations = '/conversations';
+  static const String chat = '/chat';
+  static String chatWithRoomId(String roomId) => '/chat/$roomId';
+  static String chatWithRecipient(String recipientProfileId) => '/chat?recipientProfileId=$recipientProfileId';
+  static const String searchUnlockedProfiles = '/chat/search-profiles';
 }

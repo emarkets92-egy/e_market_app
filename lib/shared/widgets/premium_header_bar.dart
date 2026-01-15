@@ -76,7 +76,7 @@ class PremiumHeaderBar extends StatelessWidget {
                               text: TextSpan(
                                 style: const TextStyle(fontSize: 14, color: Colors.grey),
                                 children: [
-                                  const TextSpan(text: 'Available Points: '),
+                                  TextSpan(text: 'available_points'.tr()),
                                   TextSpan(
                                     text: _formatNumber(points),
                                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),

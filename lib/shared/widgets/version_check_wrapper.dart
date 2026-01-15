@@ -41,7 +41,10 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
         if (state is VersionChecking) {
           return Directionality(
             textDirection: ui.TextDirection.ltr,
-            child: const Scaffold(body: Center(child: CircularProgressIndicator())),
+            child: const Scaffold(
+              backgroundColor: Colors.white,
+              body: Center(child: CircularProgressIndicator()),
+            ),
           );
         }
 
@@ -50,6 +53,7 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
           return Directionality(
             textDirection: ui.TextDirection.ltr,
             child: Scaffold(
+              backgroundColor: Colors.white,
               body: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),

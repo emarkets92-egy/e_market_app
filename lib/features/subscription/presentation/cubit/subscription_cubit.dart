@@ -108,31 +108,24 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
           final isInUnseen = state.unseenProfiles.any((profile) => profile.id == targetId);
 
           if (isInUnseen) {
-            // Remove from unseen
-            final updatedUnseenProfiles = state.unseenProfiles.where((profile) => profile.id != targetId).toList();
+            // Update the profile in place (keep it in the same position, just mark as unlocked)
+            final unlockedProfile = result.data!.contentData as ProfileModel;
+            final updatedUnseenProfiles = state.unseenProfiles.map((profile) {
+              if (profile.id == targetId) {
+                // Replace with unlocked profile data, keeping same position
+                return unlockedProfile;
+              }
+              return profile;
+            }).toList();
 
             emit(
               state.copyWith(
                 isUnlocking: false,
                 unseenProfiles: updatedUnseenProfiles,
-                unseenProfilesTotal: (state.unseenProfilesTotal - 1).clamp(0, double.infinity).toInt(),
                 successMessage: 'Profile unlocked successfully!',
                 error: null,
               ),
             );
-
-            // Refresh seen profiles from page 1 to show newly unlocked item at the top
-            // (backend sorts by unlockedAt DESC, so new items appear first)
-            if (_lastProductId != null && _lastMarketType != null && _lastCountryId != null) {
-              await exploreMarket(
-                productId: _lastProductId!,
-                marketType: _lastMarketType!,
-                countryId: _lastCountryId!,
-                seenPage: 1, // Reset to page 1 to see newly unlocked item
-                // Keep current unseen page to maintain position
-                unseenPage: state.unseenProfilesPage,
-              );
-            }
           } else {
             // Profile is already in seen list, refresh from page 1 to update order
             if (_lastProductId != null && _lastMarketType != null && _lastCountryId != null) {
@@ -224,18 +217,20 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
           }
 
           if (profileInUnseen != null) {
-            final updatedUnseenProfiles = state.unseenProfiles.where((profile) => profile.id != targetId).toList();
-
+            // Update the profile in place (keep it in the same position, just mark as unlocked)
             final unlockedProfile = profileInUnseen.copyWith(isSeen: true);
-            final updatedSeenProfiles = [...state.seenProfiles, unlockedProfile];
+            final updatedUnseenProfiles = state.unseenProfiles.map((profile) {
+              if (profile.id == targetId) {
+                // Replace with unlocked profile data, keeping same position
+                return unlockedProfile;
+              }
+              return profile;
+            }).toList();
 
             emit(
               state.copyWith(
                 isUnlocking: false,
                 unseenProfiles: updatedUnseenProfiles,
-                seenProfiles: updatedSeenProfiles,
-                unseenProfilesTotal: (state.unseenProfilesTotal - 1).clamp(0, double.infinity).toInt(),
-                seenProfilesTotal: state.seenProfilesTotal + 1,
                 successMessage: 'Profile unlocked successfully!',
                 error: null,
               ),

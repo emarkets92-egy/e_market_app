@@ -7,6 +7,9 @@ import '../../../../config/theme.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
+import '../../../chat/presentation/cubit/chat_cubit.dart';
+import '../../../chat/presentation/cubit/chat_state.dart';
+import '../../../chat/presentation/widgets/unread_badge.dart';
 
 class SidebarNavigation extends StatelessWidget {
   final bool hasUnreadNotifications;
@@ -35,7 +38,34 @@ class SidebarNavigation extends StatelessWidget {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [_NavItem(icon: Icons.home, label: 'home'.tr(), isActive: currentRoute == RouteNames.home, hasNotification: false, onTap: () => context.go(RouteNames.home))],
+              children: [
+                _NavItem(
+                  icon: Icons.home,
+                  label: 'home'.tr(),
+                  isActive: currentRoute == RouteNames.home,
+                  hasNotification: false,
+                  onTap: () => context.go(RouteNames.home),
+                ),
+                BlocBuilder<ChatCubit, ChatState>(
+                  bloc: di.sl<ChatCubit>(),
+                  builder: (context, chatState) {
+                    final totalUnread = chatState.totalUnread;
+                    return _NavItem(
+                      icon: Icons.inbox,
+                      label: 'inbox'.tr(),
+                      isActive: currentRoute == RouteNames.inbox,
+                      hasNotification: totalUnread > 0,
+                      unreadCount: totalUnread > 0 ? totalUnread : null,
+                      onTap: () {
+                        context.go(RouteNames.inbox);
+                        // Load conversations when navigating
+                        di.sl<ChatCubit>().loadConversations();
+                        di.sl<ChatCubit>().getUnseenMessages();
+                      },
+                    );
+                  },
+                ),
+              ],
             ),
           ),
 
@@ -93,9 +123,17 @@ class _NavItem extends StatelessWidget {
   final String label;
   final bool isActive;
   final bool hasNotification;
+  final int? unreadCount;
   final VoidCallback onTap;
 
-  const _NavItem({required this.icon, required this.label, required this.isActive, required this.hasNotification, required this.onTap});
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.isActive,
+    required this.hasNotification,
+    this.unreadCount,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -120,11 +158,13 @@ class _NavItem extends StatelessWidget {
               ),
             ),
             if (hasNotification)
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-              ),
+              unreadCount != null && unreadCount! > 0
+                  ? UnreadBadge(count: unreadCount!)
+                  : Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                    ),
           ],
         ),
       ),

@@ -98,7 +98,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () => context.pop(),
-                    tooltip: 'Back',
+                    tooltip: 'back'.tr(),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -122,7 +122,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                             const Icon(Icons.stars, color: Colors.amber, size: 18),
                             const SizedBox(width: 6),
                             Text(
-                              '${user?.points ?? 0} Points',
+                              '${user?.points ?? 0} ${'points'.tr()}',
                               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
                             ),
                           ],
@@ -142,7 +142,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         onPressed: () {
                           // Handle notifications
                         },
-                        tooltip: 'Notifications',
+                        tooltip: 'notifications'.tr(),
                       ),
                       // Profile
                       GestureDetector(

@@ -11,6 +11,7 @@ import 'features/home/presentation/cubit/home_cubit.dart';
 import 'features/localization/presentation/cubit/localization_cubit.dart';
 import 'features/locale/presentation/cubit/locale_cubit.dart';
 import 'features/locale/presentation/cubit/locale_state.dart';
+import 'features/chat/presentation/cubit/chat_cubit.dart';
 import 'shared/widgets/auth_init_wrapper.dart';
 import 'shared/widgets/version_check_wrapper.dart';
 
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         BlocProvider.value(value: di.sl<HomeCubit>()),
         BlocProvider.value(value: di.sl<LocalizationCubit>()),
         BlocProvider.value(value: di.sl<LocaleCubit>()),
+        BlocProvider.value(value: di.sl<ChatCubit>()),
       ],
       child: BlocListener<LocaleCubit, LocaleState>(
         listener: (context, state) {
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
             return VersionCheckWrapper(
               child: AuthInitWrapper(
                 child: MaterialApp.router(
+                  key: ValueKey(localeState.locale.languageCode), // Force rebuild on locale change
                   title: 'app_name'.tr(),
                   theme: AppTheme.lightTheme.copyWith(scaffoldBackgroundColor: Colors.white),
                   debugShowCheckedModeBanner: false,

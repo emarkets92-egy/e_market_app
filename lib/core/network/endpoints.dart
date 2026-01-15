@@ -28,4 +28,13 @@ class Endpoints {
 
   // Version Check
   static const String checkVersion = '/app/version/check';
+
+  // Chat
+  static const String chatUnseenMessages = '/chat/unseen-messages';
+  static const String chatConversations = '/chat/conversations';
+  static String chatMessages(String roomId) => '/chat/rooms/$roomId/messages';
+  static const String chatSendMessage = '/chat/messages';
+  static String chatMarkRead(String roomId) => '/chat/rooms/$roomId/mark-read';
+  static const String chatSearchProfiles = '/chat/search-profiles';
+  static const String chatStart = '/chat/start';
 }

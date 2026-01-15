@@ -42,6 +42,13 @@ import '../../features/version/data/repositories/version_repository_impl.dart';
 import '../../features/version/domain/repositories/version_repository.dart';
 import '../../features/version/presentation/cubit/version_cubit.dart';
 
+// Chat
+import '../../features/chat/data/datasources/chat_remote_datasource.dart';
+import '../../features/chat/data/repositories/chat_repository_impl.dart';
+import '../../features/chat/domain/repositories/chat_repository.dart';
+import '../../features/chat/presentation/cubit/chat_cubit.dart';
+import '../../features/chat/presentation/services/chat_polling_service.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -79,6 +86,9 @@ Future<void> init() async {
   // Data Sources - Version
   sl.registerLazySingleton<VersionRemoteDataSource>(() => VersionRemoteDataSourceImpl(sl<ApiClient>()));
 
+  // Data Sources - Chat
+  sl.registerLazySingleton<ChatRemoteDataSource>(() => ChatRemoteDataSourceImpl(sl<ApiClient>()));
+
   // Repositories - Auth
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>(), localDataSource: sl<AuthLocalDataSource>()));
 
@@ -94,6 +104,9 @@ Future<void> init() async {
   // Repositories - Version
   sl.registerLazySingleton<VersionRepository>(() => VersionRepositoryImpl(remoteDataSource: sl<VersionRemoteDataSource>()));
 
+  // Repositories - Chat
+  sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(remoteDataSource: sl<ChatRemoteDataSource>()));
+
   // Cubits - Register as lazy singletons
   sl.registerLazySingleton<AuthCubit>(() => AuthCubit(sl<AuthRepository>()));
 
@@ -108,4 +121,8 @@ Future<void> init() async {
   sl.registerLazySingleton<LocaleCubit>(() => LocaleCubit());
 
   sl.registerLazySingleton<VersionCubit>(() => VersionCubit(versionRepository: sl<VersionRepository>()));
+
+  sl.registerLazySingleton<ChatCubit>(() => ChatCubit(sl<ChatRepository>()));
+
+  sl.registerLazySingleton<ChatPollingService>(() => ChatPollingService(sl<ChatCubit>()));
 }

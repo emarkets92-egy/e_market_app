@@ -254,9 +254,23 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
             ),
           ],
         ),
-        // Send Message Button (Hidden based on requirements, but logic kept structure)
-        // You mentioned "remove save and hide send message now"
-        // I will comment them out or remove them.
+        // Send Message Button
+        if (profile.isSeen)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                context.push(RouteNames.chatWithRecipient(profile.id));
+              },
+              icon: const Icon(Icons.message),
+              label: Text('send_message'.tr()),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              ),
+            ),
+          ),
       ],
     );
   }
