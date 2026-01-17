@@ -55,6 +55,12 @@ import '../../features/sales_request/data/repositories/sales_request_repository_
 import '../../features/sales_request/domain/repositories/sales_request_repository.dart';
 import '../../features/sales_request/presentation/cubit/sales_request_cubit.dart';
 
+// Notifications
+import '../../features/notifications/data/datasources/notification_remote_datasource.dart';
+import '../../features/notifications/data/repositories/notification_repository_impl.dart';
+import '../../features/notifications/domain/repositories/notification_repository.dart';
+import '../../features/notifications/presentation/cubit/notification_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -98,6 +104,9 @@ Future<void> init() async {
   // Data Sources - Sales Request
   sl.registerLazySingleton<SalesRequestRemoteDataSource>(() => SalesRequestRemoteDataSourceImpl(sl<ApiClient>()));
 
+  // Data Sources - Notifications
+  sl.registerLazySingleton<NotificationRemoteDataSource>(() => NotificationRemoteDataSourceImpl(sl<ApiClient>()));
+
   // Repositories - Auth
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>(), localDataSource: sl<AuthLocalDataSource>()));
 
@@ -119,6 +128,9 @@ Future<void> init() async {
   // Repositories - Sales Request
   sl.registerLazySingleton<SalesRequestRepository>(() => SalesRequestRepositoryImpl(remoteDataSource: sl<SalesRequestRemoteDataSource>()));
 
+  // Repositories - Notifications
+  sl.registerLazySingleton<NotificationRepository>(() => NotificationRepositoryImpl(remoteDataSource: sl<NotificationRemoteDataSource>()));
+
   // Cubits - Register as lazy singletons
   sl.registerLazySingleton<AuthCubit>(() => AuthCubit(sl<AuthRepository>()));
 
@@ -137,6 +149,8 @@ Future<void> init() async {
   sl.registerLazySingleton<ChatCubit>(() => ChatCubit(sl<ChatRepository>()));
 
   sl.registerLazySingleton<SalesRequestCubit>(() => SalesRequestCubit(sl<SalesRequestRepository>()));
+
+  sl.registerLazySingleton<NotificationCubit>(() => NotificationCubit(sl<NotificationRepository>()));
 
   sl.registerLazySingleton<ChatPollingService>(() => ChatPollingService(sl<ChatCubit>()));
 }

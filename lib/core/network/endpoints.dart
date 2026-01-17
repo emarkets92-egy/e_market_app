@@ -46,4 +46,11 @@ class Endpoints {
 
   // Products Summary
   static const String productsSummary = '/products/summary';
+
+  // Notifications
+  static const String notifications = '/notifications';
+  static const String notificationsUnreadCount = '/notifications/unread-count';
+  static String notificationById(String id) => '/notifications/$id';
+  static String notificationMarkRead(String id) => '/notifications/$id/read';
+  static const String notificationsMarkAllRead = '/notifications/read-all';
 }

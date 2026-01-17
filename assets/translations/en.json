@@ -288,5 +288,12 @@
   "linkedin": "LinkedIn",
   "twitter": "Twitter",
   "instagram": "Instagram",
-  "youtube": "YouTube"
+  "youtube": "YouTube",
+  "notification": "Notification",
+  "delete": "Delete",
+  "all": "All",
+  "unread": "Unread",
+  "mark_all_read": "Mark All Read",
+  "no_notifications": "No notifications",
+  "you_will_see_notifications_here": "You will see notifications here"
 }

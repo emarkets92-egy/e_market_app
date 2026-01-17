@@ -10,6 +10,7 @@ import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../subscription/presentation/cubit/subscription_cubit.dart';
 import '../../../locale/presentation/cubit/locale_cubit.dart';
 import '../../../locale/presentation/cubit/locale_state.dart';
+import '../../../notifications/presentation/cubit/notification_cubit.dart';
 import '../widgets/sidebar_navigation.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -30,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     // Load subscriptions
     di.sl<SubscriptionCubit>().getSubscriptions(activeOnly: true);
+    // Load notifications unread count
+    di.sl<NotificationCubit>().getUnreadCount();
   }
 
   @override
@@ -38,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Row(
         children: [
           // Sidebar Navigation
-          const SidebarNavigation(hasUnreadNotifications: false),
+          const SidebarNavigation(),
 
           // Main Content Area
           Expanded(

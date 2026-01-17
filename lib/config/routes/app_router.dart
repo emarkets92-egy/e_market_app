@@ -24,6 +24,8 @@ import '../../features/chat/presentation/cubit/chat_cubit.dart';
 import '../../features/sales_request/presentation/screens/create_sales_request_screen.dart';
 import '../../features/sales_request/presentation/screens/sales_request_list_screen.dart';
 import '../../features/sales_request/presentation/cubit/sales_request_cubit.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
+import '../../features/notifications/presentation/cubit/notification_cubit.dart';
 import 'route_names.dart';
 
 final appRouter = GoRouter(
@@ -95,6 +97,16 @@ final appRouter = GoRouter(
           BlocProvider.value(value: di.sl<ChatCubit>()),
         ],
         child: const ConversationsListScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteNames.notifications,
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: di.sl<HomeCubit>()),
+          BlocProvider.value(value: di.sl<NotificationCubit>()),
+        ],
+        child: const NotificationsScreen(),
       ),
     ),
     // More specific route must come before parameterized route

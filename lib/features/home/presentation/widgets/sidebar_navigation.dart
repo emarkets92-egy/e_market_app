@@ -10,13 +10,13 @@ import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../chat/presentation/cubit/chat_cubit.dart';
 import '../../../chat/presentation/cubit/chat_state.dart';
 import '../../../chat/presentation/widgets/unread_badge.dart';
+import '../../../notifications/presentation/cubit/notification_cubit.dart';
+import '../../../notifications/presentation/cubit/notification_state.dart';
 import '../../../../shared/widgets/about_us_section.dart';
 import '../../../../shared/widgets/contact_us_section.dart';
 
 class SidebarNavigation extends StatelessWidget {
-  final bool hasUnreadNotifications;
-
-  const SidebarNavigation({super.key, this.hasUnreadNotifications = false});
+  const SidebarNavigation({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +63,25 @@ class SidebarNavigation extends StatelessWidget {
                         // Load conversations when navigating
                         di.sl<ChatCubit>().loadConversations();
                         di.sl<ChatCubit>().getUnseenMessages();
+                      },
+                    );
+                  },
+                ),
+                BlocBuilder<NotificationCubit, NotificationState>(
+                  bloc: di.sl<NotificationCubit>(),
+                  builder: (context, notificationState) {
+                    final unreadCount = notificationState.unreadCount;
+                    return _NavItem(
+                      icon: Icons.notifications_outlined,
+                      label: 'notifications'.tr(),
+                      isActive: currentRoute == RouteNames.notifications,
+                      hasNotification: unreadCount > 0,
+                      unreadCount: unreadCount > 0 ? unreadCount : null,
+                      onTap: () {
+                        context.go(RouteNames.notifications);
+                        // Load notifications when navigating
+                        di.sl<NotificationCubit>().loadNotifications();
+                        di.sl<NotificationCubit>().getUnreadCount();
                       },
                     );
                   },
