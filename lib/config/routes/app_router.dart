@@ -21,6 +21,9 @@ import '../../features/chat/presentation/screens/conversations_list_screen.dart'
 import '../../features/chat/presentation/screens/chat_screen.dart';
 import '../../features/chat/presentation/screens/search_unlocked_profiles_screen.dart';
 import '../../features/chat/presentation/cubit/chat_cubit.dart';
+import '../../features/sales_request/presentation/screens/create_sales_request_screen.dart';
+import '../../features/sales_request/presentation/screens/sales_request_list_screen.dart';
+import '../../features/sales_request/presentation/cubit/sales_request_cubit.dart';
 import 'route_names.dart';
 
 final appRouter = GoRouter(
@@ -28,12 +31,34 @@ final appRouter = GoRouter(
   redirect: (context, state) async {
     final isAuthenticated = await SecureStorage.getAccessToken() != null;
     final isLoginRoute = state.matchedLocation == RouteNames.login || state.matchedLocation == RouteNames.register;
+    final isCompleteProfileRoute = state.matchedLocation == RouteNames.completeProfile;
+    final isSalesRequestRoute = state.matchedLocation == RouteNames.salesRequestCreate || 
+                                state.matchedLocation == RouteNames.salesRequestList;
 
-    if (!isAuthenticated && !isLoginRoute) {
+    if (!isAuthenticated && !isLoginRoute && !isCompleteProfileRoute) {
       return RouteNames.login;
     }
 
     if (isAuthenticated && isLoginRoute) {
+      // Check subscription status from AuthCubit
+      final authCubit = di.sl<AuthCubit>();
+      final authState = authCubit.state;
+      
+      // If user is loaded and not subscribed, redirect to sales request flow
+      if (authState.user != null && !authState.user!.isUserSubscribed) {
+        // Allow navigation to sales request routes
+        if (isSalesRequestRoute) {
+          return null;
+        }
+        return RouteNames.salesRequestCreate;
+      }
+      
+      // If subscribed, go to home
+      if (authState.user != null && authState.user!.isUserSubscribed) {
+        return RouteNames.home;
+      }
+      
+      // If user not loaded yet, go to home (will be redirected by AuthInitWrapper if needed)
       return RouteNames.home;
     }
 
@@ -143,6 +168,21 @@ final appRouter = GoRouter(
       builder: (context, state) => BlocProvider.value(
         value: di.sl<SubscriptionCubit>(),
         child: AnalysisScreen(productId: state.uri.queryParameters['productId']!, countryId: int.parse(state.uri.queryParameters['countryId']!)),
+      ),
+    ),
+    // Sales Request routes
+    GoRoute(
+      path: RouteNames.salesRequestCreate,
+      builder: (context, state) => BlocProvider.value(
+        value: di.sl<SalesRequestCubit>(),
+        child: const CreateSalesRequestScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteNames.salesRequestList,
+      builder: (context, state) => BlocProvider.value(
+        value: di.sl<SalesRequestCubit>(),
+        child: const SalesRequestListScreen(),
       ),
     ),
   ],

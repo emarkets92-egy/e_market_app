@@ -37,4 +37,13 @@ class Endpoints {
   static String chatMarkRead(String roomId) => '/chat/rooms/$roomId/mark-read';
   static const String chatSearchProfiles = '/chat/search-profiles';
   static const String chatStart = '/chat/start';
+
+  // Sales Requests
+  static const String salesRequests = '/sales-requests';
+  static String salesRequestById(String id) => '/sales-requests/$id';
+  static const String salesRequestsAdminAll = '/sales-requests/admin/all';
+  static String salesRequestAdminUpdate(String id) => '/sales-requests/admin/$id';
+
+  // Products Summary
+  static const String productsSummary = '/products/summary';
 }

@@ -33,4 +33,9 @@ class RouteNames {
   static String chatWithRoomId(String roomId) => '/chat/$roomId';
   static String chatWithRecipient(String recipientProfileId) => '/chat?recipientProfileId=$recipientProfileId';
   static const String searchUnlockedProfiles = '/chat/search-profiles';
+
+  // Sales Request routes
+  static const String salesRequestCreate = '/sales-requests/create';
+  static const String salesRequestList = '/sales-requests';
+  static String salesRequestDetail(String id) => '/sales-requests/$id';
 }

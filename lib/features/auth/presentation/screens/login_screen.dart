@@ -19,8 +19,13 @@ class LoginScreen extends StatelessWidget {
       body: BlocConsumer<AuthCubit, AuthState>(
         bloc: di.sl<AuthCubit>(),
         listener: (context, state) {
-          if (state.isAuthenticated) {
-            context.go(RouteNames.home);
+          if (state.isAuthenticated && state.user != null) {
+            // Navigate based on subscription status
+            if (state.user!.isUserSubscribed) {
+              context.go(RouteNames.home);
+            } else {
+              context.go(RouteNames.salesRequestCreate);
+            }
           }
           if (state.error != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.error!)));

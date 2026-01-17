@@ -49,6 +49,12 @@ import '../../features/chat/domain/repositories/chat_repository.dart';
 import '../../features/chat/presentation/cubit/chat_cubit.dart';
 import '../../features/chat/presentation/services/chat_polling_service.dart';
 
+// Sales Request
+import '../../features/sales_request/data/datasources/sales_request_remote_datasource.dart';
+import '../../features/sales_request/data/repositories/sales_request_repository_impl.dart';
+import '../../features/sales_request/domain/repositories/sales_request_repository.dart';
+import '../../features/sales_request/presentation/cubit/sales_request_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -89,6 +95,9 @@ Future<void> init() async {
   // Data Sources - Chat
   sl.registerLazySingleton<ChatRemoteDataSource>(() => ChatRemoteDataSourceImpl(sl<ApiClient>()));
 
+  // Data Sources - Sales Request
+  sl.registerLazySingleton<SalesRequestRemoteDataSource>(() => SalesRequestRemoteDataSourceImpl(sl<ApiClient>()));
+
   // Repositories - Auth
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>(), localDataSource: sl<AuthLocalDataSource>()));
 
@@ -107,6 +116,9 @@ Future<void> init() async {
   // Repositories - Chat
   sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(remoteDataSource: sl<ChatRemoteDataSource>()));
 
+  // Repositories - Sales Request
+  sl.registerLazySingleton<SalesRequestRepository>(() => SalesRequestRepositoryImpl(remoteDataSource: sl<SalesRequestRemoteDataSource>()));
+
   // Cubits - Register as lazy singletons
   sl.registerLazySingleton<AuthCubit>(() => AuthCubit(sl<AuthRepository>()));
 
@@ -123,6 +135,8 @@ Future<void> init() async {
   sl.registerLazySingleton<VersionCubit>(() => VersionCubit(versionRepository: sl<VersionRepository>()));
 
   sl.registerLazySingleton<ChatCubit>(() => ChatCubit(sl<ChatRepository>()));
+
+  sl.registerLazySingleton<SalesRequestCubit>(() => SalesRequestCubit(sl<SalesRequestRepository>()));
 
   sl.registerLazySingleton<ChatPollingService>(() => ChatPollingService(sl<ChatCubit>()));
 }

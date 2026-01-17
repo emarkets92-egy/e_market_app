@@ -10,6 +10,8 @@ import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../chat/presentation/cubit/chat_cubit.dart';
 import '../../../chat/presentation/cubit/chat_state.dart';
 import '../../../chat/presentation/widgets/unread_badge.dart';
+import '../../../../shared/widgets/about_us_section.dart';
+import '../../../../shared/widgets/contact_us_section.dart';
 
 class SidebarNavigation extends StatelessWidget {
   final bool hasUnreadNotifications;
@@ -65,6 +67,25 @@ class SidebarNavigation extends StatelessWidget {
                     );
                   },
                 ),
+                const Divider(height: 1),
+                _NavItem(
+                  icon: Icons.info_outline,
+                  label: 'about_us'.tr(),
+                  isActive: false,
+                  hasNotification: false,
+                  onTap: () {
+                    _showAboutUsDialog(context);
+                  },
+                ),
+                _NavItem(
+                  icon: Icons.contact_mail_outlined,
+                  label: 'contact_us'.tr(),
+                  isActive: false,
+                  hasNotification: false,
+                  onTap: () {
+                    _showContactUsDialog(context);
+                  },
+                ),
               ],
             ),
           ),
@@ -113,6 +134,72 @@ class SidebarNavigation extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  void _showAboutUsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        insetPadding: const EdgeInsets.all(24),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 800, maxHeight: 600),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppBar(
+                title: Text('about_us'.tr()),
+                automaticallyImplyLeading: false,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: const AboutUsSection(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showContactUsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        insetPadding: const EdgeInsets.all(24),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 800, maxHeight: 600),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppBar(
+                title: Text('contact_us'.tr()),
+                automaticallyImplyLeading: false,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: const ContactUsSection(),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -22,29 +22,42 @@ class RegisterForm extends StatefulWidget {
 class _RegisterFormState extends State<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _whatsappController = TextEditingController();
   final _companyController = TextEditingController();
   final _websiteController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  // Multiple inputs - lists of controllers
+  final List<TextEditingController> _emailControllers = [TextEditingController()];
+  final List<TextEditingController> _phoneControllers = [];
+  final List<TextEditingController> _whatsappControllers = [];
+  final List<TextEditingController> _addressControllers = [];
+
   int? _selectedUserType = AppConstants.userTypeExporter; // Exporter selected by default
   int? _selectedCountryId;
+  final List<int> _additionalCountryIds = []; // Additional countries
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
     _fullNameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _whatsappController.dispose();
     _companyController.dispose();
     _websiteController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    for (var controller in _emailControllers) {
+      controller.dispose();
+    }
+    for (var controller in _phoneControllers) {
+      controller.dispose();
+    }
+    for (var controller in _whatsappControllers) {
+      controller.dispose();
+    }
+    for (var controller in _addressControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -65,24 +78,43 @@ class _RegisterFormState extends State<RegisterForm> {
         return;
       }
 
+      // Validate at least one email
+      final emails = _emailControllers.map((c) => c.text.trim()).where((e) => e.isNotEmpty).toList();
+      if (emails.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('please_enter_email_address'.tr())));
+        return;
+      }
+
       // Build website URL with https:// prefix if provided
       String? website = _websiteController.text.trim();
       if (website.isNotEmpty && !website.startsWith('http')) {
         website = 'https://$website';
       }
 
+      // Collect phones, whatsapps, addresses (filter empty values)
+      final phones = _phoneControllers.map((c) => c.text.trim()).where((p) => p.isNotEmpty).toList();
+      final whatsapps = _whatsappControllers.map((c) => c.text.trim()).where((w) => w.isNotEmpty).toList();
+      final addresses = _addressControllers.map((c) => c.text.trim()).where((a) => a.isNotEmpty).toList();
+
+      // Use first email as primary email, but send all as arrays
       final request = RegisterRequestModel(
-        email: _emailController.text.trim(),
+        email: emails.first,
         password: _passwordController.text,
         name: _fullNameController.text.trim().isEmpty ? null : _fullNameController.text.trim(),
         companyName: _companyController.text.trim().isEmpty ? null : _companyController.text.trim(),
-        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        whatsapp: _whatsappController.text.trim().isEmpty ? null : _whatsappController.text.trim(),
+        phone: phones.isNotEmpty ? phones.first : null,
+        whatsapp: whatsapps.isNotEmpty ? whatsapps.first : null,
         website: website.isEmpty ? null : website,
-        address: null,
+        address: addresses.isNotEmpty ? addresses.first : null,
         userTypeId: _selectedUserType,
         countryId: _selectedCountryId!,
+        countries: _additionalCountryIds.isNotEmpty ? _additionalCountryIds : null,
         fcmToken: null,
+        // Pass arrays directly
+        emails: emails,
+        phones: phones.isNotEmpty ? phones : null,
+        whatsapps: whatsapps.isNotEmpty ? whatsapps : null,
+        addresses: addresses.isNotEmpty ? addresses : null,
       );
 
       widget.onRegister(request);
@@ -102,10 +134,11 @@ class _RegisterFormState extends State<RegisterForm> {
       ),
       child: Form(
         key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             // Logo
             Center(
               child: Container(
@@ -144,34 +177,17 @@ class _RegisterFormState extends State<RegisterForm> {
               },
             ),
             const SizedBox(height: 20),
-            // Email Address
-            AppTextField(
-              label: 'email_address'.tr(),
-              hint: 'email_hint'.tr(),
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[600]),
-              validator: Validators.email,
-            ),
+            // Email Addresses (Multiple)
+            _buildMultipleEmailsSection(),
             const SizedBox(height: 20),
-            // Phone Number
-            AppTextField(
-              label: 'phone_number'.tr(),
-              hint: '+1 (555) 000-0000',
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              prefixIcon: Icon(Icons.phone_outlined, color: Colors.grey[600]),
-              validator: Validators.phone,
-            ),
+            // Phone Numbers (Multiple)
+            _buildMultiplePhonesSection(),
             const SizedBox(height: 20),
-            // WhatsApp Number
-            AppTextField(
-              label: 'whatsapp_number'.tr(),
-              hint: '+1 (555) 000-0000',
-              controller: _whatsappController,
-              keyboardType: TextInputType.phone,
-              prefixIcon: Icon(Icons.chat_bubble_outline, color: Colors.grey[600]),
-            ),
+            // WhatsApp Numbers (Multiple)
+            _buildMultipleWhatsappsSection(),
+            const SizedBox(height: 20),
+            // Addresses (Multiple)
+            _buildMultipleAddressesSection(),
             const SizedBox(height: 20),
             // Company Name
             AppTextField(
@@ -187,9 +203,9 @@ class _RegisterFormState extends State<RegisterForm> {
               },
             ),
             const SizedBox(height: 20),
-            // Company Country
+            // Primary Company Country
             DropdownButtonFormField<int>(
-              initialValue: _selectedCountryId,
+              value: _selectedCountryId,
               decoration: InputDecoration(
                 labelText: 'company_country'.tr(),
                 hintText: 'select_country'.tr(),
@@ -209,7 +225,9 @@ class _RegisterFormState extends State<RegisterForm> {
                   borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
                 ),
               ),
-              items: widget.countries.map((country) {
+              items: widget.countries
+                  .where((country) => country['id'] != _selectedCountryId && !_additionalCountryIds.contains(country['id']))
+                  .map((country) {
                 return DropdownMenuItem(value: country['id'] as int, child: Text(country['name'] as String));
               }).toList(),
               onChanged: (value) => setState(() => _selectedCountryId = value),
@@ -220,6 +238,9 @@ class _RegisterFormState extends State<RegisterForm> {
                 return null;
               },
             ),
+            const SizedBox(height: 20),
+            // Additional Countries
+            _buildAdditionalCountriesSection(),
             const SizedBox(height: 20),
             // Company Type - Segmented Buttons
             Column(
@@ -340,8 +361,402 @@ class _RegisterFormState extends State<RegisterForm> {
                 ),
               ],
             ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMultipleEmailsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'email_address'.tr(),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700]),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _emailControllers.add(TextEditingController());
+                });
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
           ],
         ),
+        const SizedBox(height: 8),
+        ...List.generate(_emailControllers.length, (index) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: index < _emailControllers.length - 1 ? 12 : 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppTextField(
+                    label: index == 0 ? 'email_address'.tr() : '${'email_address'.tr()} ${index + 1}',
+                    hint: 'email_hint'.tr(),
+                    controller: _emailControllers[index],
+                    keyboardType: TextInputType.emailAddress,
+                    prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[600]),
+                    validator: index == 0
+                        ? Validators.email
+                        : (value) {
+                            if (value != null && value.trim().isNotEmpty) {
+                              return Validators.email(value);
+                            }
+                            return null;
+                          },
+                  ),
+                ),
+                if (_emailControllers.length > 1)
+                  IconButton(
+                    icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                    onPressed: () {
+                      setState(() {
+                        _emailControllers[index].dispose();
+                        _emailControllers.removeAt(index);
+                      });
+                    },
+                  ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildMultiplePhonesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'phone_number'.tr(),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700]),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _phoneControllers.add(TextEditingController());
+                });
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (_phoneControllers.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              '${'phone_number'.tr()} (Optional)',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic),
+            ),
+          ),
+        ...List.generate(_phoneControllers.length, (index) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: index < _phoneControllers.length - 1 ? 12 : 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppTextField(
+                    label: '${'phone_number'.tr()} ${index + 1}',
+                    hint: '+1 (555) 000-0000',
+                    controller: _phoneControllers[index],
+                    keyboardType: TextInputType.phone,
+                    prefixIcon: Icon(Icons.phone_outlined, color: Colors.grey[600]),
+                    validator: (value) {
+                      if (value != null && value.trim().isNotEmpty) {
+                        return Validators.phone(value);
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                  onPressed: () {
+                    setState(() {
+                      _phoneControllers[index].dispose();
+                      _phoneControllers.removeAt(index);
+                    });
+                  },
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildMultipleWhatsappsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'whatsapp_number'.tr(),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700]),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _whatsappControllers.add(TextEditingController());
+                });
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (_whatsappControllers.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              '${'whatsapp_number'.tr()} (Optional)',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic),
+            ),
+          ),
+        ...List.generate(_whatsappControllers.length, (index) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: index < _whatsappControllers.length - 1 ? 12 : 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppTextField(
+                    label: '${'whatsapp_number'.tr()} ${index + 1}',
+                    hint: '+1 (555) 000-0000',
+                    controller: _whatsappControllers[index],
+                    keyboardType: TextInputType.phone,
+                    prefixIcon: Icon(Icons.chat_bubble_outline, color: Colors.grey[600]),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                  onPressed: () {
+                    setState(() {
+                      _whatsappControllers[index].dispose();
+                      _whatsappControllers.removeAt(index);
+                    });
+                  },
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildMultipleAddressesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'address'.tr(),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700]),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _addressControllers.add(TextEditingController());
+                });
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (_addressControllers.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              '${'address'.tr()} (Optional)',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic),
+            ),
+          ),
+        ...List.generate(_addressControllers.length, (index) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: index < _addressControllers.length - 1 ? 12 : 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppTextField(
+                    label: '${'address'.tr()} ${index + 1}',
+                    hint: 'Enter address',
+                    controller: _addressControllers[index],
+                    prefixIcon: Icon(Icons.location_on_outlined, color: Colors.grey[600]),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                  onPressed: () {
+                    setState(() {
+                      _addressControllers[index].dispose();
+                      _addressControllers.removeAt(index);
+                    });
+                  },
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildAdditionalCountriesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Additional Countries',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700]),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                // Show dialog to select additional country
+                _showCountryPicker();
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (_additionalCountryIds.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              'Additional Countries (Optional)',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic),
+            ),
+          ),
+        ...List.generate(_additionalCountryIds.length, (index) {
+          final countryId = _additionalCountryIds[index];
+          final country = widget.countries.firstWhere((c) => c['id'] == countryId);
+          return Padding(
+            padding: EdgeInsets.only(bottom: index < _additionalCountryIds.length - 1 ? 8 : 0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.public_outlined, size: 18, color: Colors.grey[600]),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      country['name'] as String,
+                      style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 18, color: Colors.red),
+                    onPressed: () {
+                      setState(() {
+                        _additionalCountryIds.removeAt(index);
+                      });
+                    },
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  void _showCountryPicker() {
+    final availableCountries = widget.countries
+        .where((country) => country['id'] != _selectedCountryId && !_additionalCountryIds.contains(country['id']))
+        .toList();
+
+    if (availableCountries.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No more countries available')));
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('select_country'.tr()),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: availableCountries.length,
+            itemBuilder: (context, index) {
+              final country = availableCountries[index];
+              return ListTile(
+                title: Text(country['name'] as String),
+                onTap: () {
+                  setState(() {
+                    _additionalCountryIds.add(country['id'] as int);
+                  });
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('cancel'.tr()),
+          ),
+        ],
       ),
     );
   }

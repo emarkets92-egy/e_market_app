@@ -30,19 +30,18 @@ class _AuthInitWrapperState extends State<AuthInitWrapper> {
     return BlocListener<AuthCubit, AuthState>(
       bloc: di.sl<AuthCubit>(),
       listener: (context, state) {
+        if (!context.mounted) return;
+
         // If user becomes unauthenticated, navigate to login
-        // The router redirect will handle preventing duplicate navigation
-        if (!state.isAuthenticated && state.user == null && context.mounted) {
-          // Use post-frame callback to ensure router is available
+        if (!state.isAuthenticated && state.user == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (context.mounted) {
               try {
-                // Check if GoRouter is available in context
                 final router = GoRouter.of(context);
-                // Get current location from the router state
                 final currentLocation = router.routerDelegate.currentConfiguration.uri.path;
-                // Only navigate if we're not already on login or register page
-                if (currentLocation != RouteNames.login && currentLocation != RouteNames.register && currentLocation != RouteNames.completeProfile) {
+                if (currentLocation != RouteNames.login && 
+                    currentLocation != RouteNames.register && 
+                    currentLocation != RouteNames.completeProfile) {
                   router.go(RouteNames.login);
                 }
               } catch (e) {
@@ -56,6 +55,43 @@ class _AuthInitWrapperState extends State<AuthInitWrapper> {
                     }
                   }
                 });
+              }
+            }
+          });
+          return;
+        }
+
+        // If user is authenticated, check subscription status and redirect accordingly
+        if (state.isAuthenticated && state.user != null && context.mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              try {
+                final router = GoRouter.of(context);
+                final currentLocation = router.routerDelegate.currentConfiguration.uri.path;
+                
+                // Skip redirect if already on appropriate route
+                final isLoginRoute = currentLocation == RouteNames.login || currentLocation == RouteNames.register;
+                final isCompleteProfileRoute = currentLocation == RouteNames.completeProfile;
+                final isSalesRequestRoute = currentLocation == RouteNames.salesRequestCreate || 
+                                            currentLocation == RouteNames.salesRequestList ||
+                                            currentLocation.startsWith('/sales-requests/');
+                
+                if (isLoginRoute || isCompleteProfileRoute) {
+                  // User just logged in/registered - redirect based on subscription
+                  if (state.user!.isUserSubscribed) {
+                    router.go(RouteNames.home);
+                  } else {
+                    router.go(RouteNames.salesRequestCreate);
+                  }
+                } else if (!state.user!.isUserSubscribed && !isSalesRequestRoute && currentLocation != RouteNames.home) {
+                  // User is not subscribed and not on sales request flow - redirect to sales request
+                  router.go(RouteNames.salesRequestCreate);
+                } else if (state.user!.isUserSubscribed && isSalesRequestRoute) {
+                  // User is subscribed but on sales request route - redirect to home
+                  router.go(RouteNames.home);
+                }
+              } catch (e) {
+                // Router not available yet, ignore
               }
             }
           });
