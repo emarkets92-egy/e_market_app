@@ -79,7 +79,7 @@ class _ProductSelectionScreenState extends State<ProductSelectionScreen> {
       return;
     }
     widget.onProductsSelected(_selectedProductIds.toList());
-    Navigator.of(context).pop();
+    // Navigation is handled by the callback in create_sales_request_screen.dart
   }
 
   @override

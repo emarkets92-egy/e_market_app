@@ -15,7 +15,7 @@ class MessagesListResponse {
       if (messagesList == null) {
         throw Exception('messages is null in JSON: $json');
       }
-      final messages = (messagesList).map((item) {
+      final messages = (messagesList as List<dynamic>).map((item) {
         try {
           return Message.fromJson(item as Map<String, dynamic>);
         } catch (e) {

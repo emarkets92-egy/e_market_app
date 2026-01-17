@@ -226,7 +226,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 ),
               ),
               items: widget.countries
-                  .where((country) => country['id'] != _selectedCountryId && !_additionalCountryIds.contains(country['id']))
+                  .where((country) => !_additionalCountryIds.contains(country['id']))
                   .map((country) {
                 return DropdownMenuItem(value: country['id'] as int, child: Text(country['name'] as String));
               }).toList(),
@@ -283,7 +283,6 @@ class _RegisterFormState extends State<RegisterForm> {
                 labelText: 'company_website_optional'.tr(),
                 hintText: 'example.com',
                 prefixIcon: Icon(Icons.public_outlined, color: Colors.grey[600]),
-                prefixText: 'https://',
                 filled: true,
                 fillColor: Colors.grey[50],
                 border: OutlineInputBorder(
@@ -301,7 +300,12 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
               validator: (value) {
                 if (value != null && value.trim().isNotEmpty) {
-                  return Validators.url(value);
+                  // Add https:// prefix if not present for validation
+                  String urlToValidate = value.trim();
+                  if (!urlToValidate.startsWith('http://') && !urlToValidate.startsWith('https://')) {
+                    urlToValidate = 'https://$urlToValidate';
+                  }
+                  return Validators.url(urlToValidate);
                 }
                 return null;
               },
