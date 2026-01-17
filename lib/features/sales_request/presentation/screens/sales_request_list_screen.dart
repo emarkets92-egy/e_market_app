@@ -10,6 +10,7 @@ import '../cubit/sales_request_cubit.dart';
 import '../cubit/sales_request_state.dart';
 import '../../../../shared/widgets/about_us_section.dart';
 import '../../../../shared/widgets/contact_us_section.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class SalesRequestListScreen extends StatefulWidget {
   const SalesRequestListScreen({super.key});
@@ -67,6 +68,17 @@ class _SalesRequestListScreenState extends State<SalesRequestListScreen> {
               context.go(RouteNames.salesRequestCreate);
             },
             tooltip: 'create_new_request'.tr(),
+          ),
+          // Logout Button
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await di.sl<AuthCubit>().logout();
+              if (context.mounted) {
+                context.go(RouteNames.login);
+              }
+            },
+            tooltip: 'logout'.tr(),
           ),
         ],
       ),

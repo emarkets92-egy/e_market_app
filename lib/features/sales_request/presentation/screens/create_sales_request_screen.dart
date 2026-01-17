@@ -10,6 +10,7 @@ import '../../data/models/create_sales_request_model.dart';
 import 'product_selection_screen.dart';
 import '../../../../shared/widgets/about_us_section.dart';
 import '../../../../shared/widgets/contact_us_section.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class CreateSalesRequestScreen extends StatefulWidget {
   const CreateSalesRequestScreen({super.key});
@@ -71,6 +72,19 @@ class _CreateSalesRequestScreenState extends State<CreateSalesRequestScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('create_sales_request'.tr()),
+        actions: [
+          // Logout Button
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await di.sl<AuthCubit>().logout();
+              if (context.mounted) {
+                context.go(RouteNames.login);
+              }
+            },
+            tooltip: 'logout'.tr(),
+          ),
+        ],
       ),
       body: BlocListener<SalesRequestCubit, SalesRequestState>(
         bloc: di.sl<SalesRequestCubit>(),

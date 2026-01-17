@@ -17,9 +17,15 @@ class AuthInterceptor extends Interceptor {
       return;
     }
 
-    final token = await SecureStorage.getAccessToken();
-    if (token != null) {
-      options.headers['Authorization'] = 'Bearer $token';
+    try {
+      final token = await SecureStorage.getAccessToken();
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
+    } catch (e) {
+      // If token retrieval fails (e.g., corrupted storage), continue without token
+      // The request will proceed unauthenticated, which may result in a 401
+      // that will be handled by onError
     }
     handler.next(options);
   }
@@ -42,9 +48,20 @@ class AuthInterceptor extends Interceptor {
       _isRefreshing = true;
 
       try {
-        final refreshToken = await SecureStorage.getRefreshToken();
+        String? refreshToken;
+        try {
+          refreshToken = await SecureStorage.getRefreshToken();
+        } catch (e) {
+          // If refresh token retrieval fails, treat as if token is null
+          refreshToken = null;
+        }
+        
         if (refreshToken == null) {
-          await SecureStorage.clearAll();
+          try {
+            await SecureStorage.clearAll();
+          } catch (e) {
+            // Ignore errors when clearing storage
+          }
           // Notify AuthCubit to update state and trigger navigation
           _notifyAuthFailure();
           handler.next(err);
@@ -62,8 +79,13 @@ class AuthInterceptor extends Interceptor {
 
         if (refreshResponse.statusCode == 200) {
           final data = refreshResponse.data as Map<String, dynamic>;
-          await SecureStorage.saveAccessToken(data['accessToken'] as String);
-          await SecureStorage.saveRefreshToken(data['refreshToken'] as String);
+          try {
+            await SecureStorage.saveAccessToken(data['accessToken'] as String);
+            await SecureStorage.saveRefreshToken(data['refreshToken'] as String);
+          } catch (e) {
+            // If saving tokens fails, continue anyway - tokens are in memory
+            // The next request will try to save again
+          }
 
           // Retry the original request with new token
           final opts = err.requestOptions;
@@ -90,7 +112,11 @@ class AuthInterceptor extends Interceptor {
         }
       } catch (e) {
         // Refresh failed, clear tokens and fail the request
-        await SecureStorage.clearAll();
+        try {
+          await SecureStorage.clearAll();
+        } catch (clearError) {
+          // Ignore errors when clearing storage
+        }
         // Notify AuthCubit to update state and trigger navigation
         _notifyAuthFailure();
         handler.next(err);
