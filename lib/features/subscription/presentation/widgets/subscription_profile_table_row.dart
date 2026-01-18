@@ -11,8 +11,9 @@ class SubscriptionProfileTableRow extends StatelessWidget {
   final ProfileModel profile;
   final VoidCallback onUnlock;
   final bool isUnlocking;
+  final bool disableUnlockButton;
 
-  const SubscriptionProfileTableRow({super.key, required this.profile, required this.onUnlock, this.isUnlocking = false});
+  const SubscriptionProfileTableRow({super.key, required this.profile, required this.onUnlock, this.isUnlocking = false, this.disableUnlockButton = false});
 
   int _getCurrentBalance(BuildContext context) {
     try {
@@ -144,7 +145,7 @@ class SubscriptionProfileTableRow extends StatelessWidget {
                 : SizedBox(
                     height: 40,
                     child: ElevatedButton.icon(
-                      onPressed: isUnlocking ? null : onUnlock,
+                      onPressed: (isUnlocking || disableUnlockButton) ? null : onUnlock,
                       icon: isUnlocking
                           ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                           : const Icon(Icons.lock_open, size: 16, color: Colors.white),

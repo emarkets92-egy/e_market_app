@@ -41,6 +41,7 @@ class SubscriptionState {
   final int unseenShipmentRecordsTotalPages;
   final int? shipmentRecordsUnlockCost;
   final String? currentProfileId;
+  final String? unlockingTargetId;
   final String? error;
   final String? successMessage;
 
@@ -74,6 +75,7 @@ class SubscriptionState {
     this.unseenShipmentRecordsTotalPages = 0,
     this.shipmentRecordsUnlockCost,
     this.currentProfileId,
+    this.unlockingTargetId,
     this.error,
     this.successMessage,
   });
@@ -108,6 +110,7 @@ class SubscriptionState {
       unseenShipmentRecordsTotalPages = 0,
       shipmentRecordsUnlockCost = null,
       currentProfileId = null,
+      unlockingTargetId = null,
       error = null,
       successMessage = null;
 
@@ -141,6 +144,7 @@ class SubscriptionState {
       unseenShipmentRecordsTotalPages = 0,
       shipmentRecordsUnlockCost = null,
       currentProfileId = null,
+      unlockingTargetId = null,
       error = null,
       successMessage = null;
 
@@ -174,6 +178,7 @@ class SubscriptionState {
     int? unseenShipmentRecordsTotalPages,
     Object? shipmentRecordsUnlockCost = _noValue,
     String? currentProfileId,
+    Object? unlockingTargetId = _noValue,
     Object? error = _noValue,
     Object? successMessage = _noValue,
   }) {
@@ -207,6 +212,7 @@ class SubscriptionState {
       unseenShipmentRecordsTotalPages: unseenShipmentRecordsTotalPages ?? this.unseenShipmentRecordsTotalPages,
       shipmentRecordsUnlockCost: shipmentRecordsUnlockCost == _noValue ? this.shipmentRecordsUnlockCost : shipmentRecordsUnlockCost as int?,
       currentProfileId: currentProfileId ?? this.currentProfileId,
+      unlockingTargetId: unlockingTargetId == _noValue ? this.unlockingTargetId : unlockingTargetId as String?,
       error: error == _noValue ? this.error : error as String?,
       successMessage: successMessage == _noValue ? this.successMessage : successMessage as String?,
     );

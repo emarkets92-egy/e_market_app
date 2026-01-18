@@ -85,7 +85,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
   }
 
   Future<void> unlock({required ContentType contentType, required String targetId}) async {
-    emit(state.copyWith(isUnlocking: true, error: null, successMessage: null));
+    emit(state.copyWith(isUnlocking: true, unlockingTargetId: targetId, error: null, successMessage: null));
 
     try {
       final result = await _repository.unlock(contentType: contentType, targetId: targetId);
@@ -111,7 +111,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
               return profile;
             }).toList();
 
-            emit(state.copyWith(isUnlocking: false, unseenProfiles: updatedUnseenProfiles, successMessage: 'Profile unlocked successfully!', error: null));
+            emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, unseenProfiles: updatedUnseenProfiles, successMessage: 'Profile unlocked successfully!', error: null));
           } else {
             // Profile is already in seen list, refresh from page 1 to update order
             if (_lastProductId != null && _lastMarketType != null && _lastCountryId != null) {
@@ -123,8 +123,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
                 // Keep current unseen page to maintain position
                 unseenPage: state.unseenProfilesPage,
               );
+              emit(state.copyWith(isUnlocking: false, unlockingTargetId: null));
             } else {
-              emit(state.copyWith(isUnlocking: false, error: null));
+              emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, error: null));
             }
           }
         } else if (contentType == ContentType.competitiveAnalysis && result.data!.contentData is CompetitiveAnalysisModel) {
@@ -132,28 +133,28 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
           final unlockedAnalysis = result.data!.contentData as CompetitiveAnalysisModel;
           final updatedExploration = state.marketExploration?.copyWith(competitiveAnalysis: unlockedAnalysis);
 
-          emit(state.copyWith(isUnlocking: false, marketExploration: updatedExploration ?? state.marketExploration, error: null));
+          emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, marketExploration: updatedExploration ?? state.marketExploration, error: null));
         } else if (contentType == ContentType.pestleAnalysis && result.data!.contentData is PESTLEAnalysisModel) {
           // Update PESTLE analysis with unlocked data
           final unlockedAnalysis = result.data!.contentData as PESTLEAnalysisModel;
           final updatedExploration = state.marketExploration?.copyWith(pestleAnalysis: unlockedAnalysis);
 
-          emit(state.copyWith(isUnlocking: false, marketExploration: updatedExploration ?? state.marketExploration, error: null));
+          emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, marketExploration: updatedExploration ?? state.marketExploration, error: null));
         } else if (contentType == ContentType.swotAnalysis && result.data!.contentData is SWOTAnalysisModel) {
           // Update SWOT analysis with unlocked data
           final unlockedAnalysis = result.data!.contentData as SWOTAnalysisModel;
           final updatedExploration = state.marketExploration?.copyWith(swotAnalysis: unlockedAnalysis);
 
-          emit(state.copyWith(isUnlocking: false, marketExploration: updatedExploration ?? state.marketExploration, error: null));
+          emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, marketExploration: updatedExploration ?? state.marketExploration, error: null));
         } else if (contentType == ContentType.marketPlan && result.data!.contentData is MarketPlanModel) {
           // Update market plan with unlocked data
           final unlockedPlan = result.data!.contentData as MarketPlanModel;
           final updatedExploration = state.marketExploration?.copyWith(marketPlan: unlockedPlan);
 
-          emit(state.copyWith(isUnlocking: false, marketExploration: updatedExploration ?? state.marketExploration, error: null));
+          emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, marketExploration: updatedExploration ?? state.marketExploration, error: null));
         } else {
           // Fallback: just set isSeen if data structure doesn't match
-          emit(state.copyWith(isUnlocking: false, error: null));
+          emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, error: null));
         }
       } else if (contentType == ContentType.shipmentRecords) {
         // Handle shipment record unlock
@@ -166,6 +167,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
           emit(
             state.copyWith(
               isUnlocking: false,
+              unlockingTargetId: null,
               unseenShipmentRecords: updatedUnseenRecords,
               unseenShipmentRecordsTotal: (state.unseenShipmentRecordsTotal - 1).clamp(0, double.infinity).toInt(),
               successMessage: 'Shipment record unlocked successfully!',
@@ -189,7 +191,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
               seenPage: 1, // Reset to page 1 to see updated order
             );
           } else {
-            emit(state.copyWith(isUnlocking: false, error: null));
+            emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, error: null));
           }
         }
       } else {
@@ -213,7 +215,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
               return profile;
             }).toList();
 
-            emit(state.copyWith(isUnlocking: false, unseenProfiles: updatedUnseenProfiles, successMessage: 'Profile unlocked successfully!', error: null));
+            emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, unseenProfiles: updatedUnseenProfiles, successMessage: 'Profile unlocked successfully!', error: null));
           } else {
             final updatedSeenProfiles = state.seenProfiles.map((profile) {
               if (profile.id == targetId) {
@@ -222,7 +224,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
               return profile;
             }).toList();
 
-            emit(state.copyWith(isUnlocking: false, seenProfiles: updatedSeenProfiles, error: null));
+            emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, seenProfiles: updatedSeenProfiles, error: null));
           }
         } else {
           // For analysis types, update the market exploration
@@ -241,11 +243,11 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
                 : state.marketExploration?.marketPlan,
           );
 
-          emit(state.copyWith(isUnlocking: false, marketExploration: updatedExploration ?? state.marketExploration, error: null));
+          emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, marketExploration: updatedExploration ?? state.marketExploration, error: null));
         }
       }
     } catch (e) {
-      emit(state.copyWith(isUnlocking: false, error: e.toString()));
+      emit(state.copyWith(isUnlocking: false, unlockingTargetId: null, error: e.toString()));
     }
   }
 

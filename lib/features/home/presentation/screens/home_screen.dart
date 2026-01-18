@@ -377,10 +377,14 @@ class _ServiceCardItem extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          Text(
-            description,
-            style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.5),
-            textAlign: TextAlign.center,
+          Expanded(
+            child: Text(
+              description,
+              style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.5),
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),

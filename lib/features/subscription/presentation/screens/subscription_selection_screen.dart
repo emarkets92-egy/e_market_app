@@ -349,6 +349,15 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
   }
 
   Widget _buildProductDropdown(List<SubscriptionModel> subscriptions) {
+    // Resolve value from current list: DropdownButton matches by object identity, but
+    // subscriptions are new instances after each fetch. Match by productId so the
+    // selected item is the one from the current items list.
+    SubscriptionModel? resolvedValue;
+    if (_selectedProduct != null) {
+      final idx = subscriptions.indexWhere((s) => s.productId == _selectedProduct!.productId);
+      if (idx >= 0) resolvedValue = subscriptions[idx];
+    }
+
     return Container(
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -360,7 +369,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
       child: DropdownButtonHideUnderline(
         child: DropdownButton<SubscriptionModel>(
           isExpanded: true,
-          value: _selectedProduct,
+          value: resolvedValue,
           hint: Text('select_product'.tr(), style: const TextStyle(fontSize: 14)),
           icon: const Icon(Icons.keyboard_arrow_down, color: Colors.blue),
           items: subscriptions.map((subscription) {
@@ -573,7 +582,8 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
             },
             child: SubscriptionProfileTableRow(
               profile: profile,
-              isUnlocking: state.isUnlocking,
+              isUnlocking: state.unlockingTargetId == profile.id,
+              disableUnlockButton: state.isUnlocking,
               onUnlock: () {
                 di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
               },
@@ -622,7 +632,8 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
           },
           child: SubscriptionProfileCard(
             profile: profile,
-            isUnlocking: state.isUnlocking,
+            isUnlocking: state.unlockingTargetId == profile.id,
+            disableUnlockButton: state.isUnlocking,
             onUnlock: () {
               di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
             },

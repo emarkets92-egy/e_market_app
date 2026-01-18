@@ -46,6 +46,14 @@ jobs:
       - name: Generate app icons (Windows, Android, iOS, etc.)
         run: dart run flutter_launcher_icons
 
+      # Force .rc to be recompiled so app_icon.ico is re-embedded (RC does not
+      # track .ico; Release would otherwise reuse a cached .res with old icon).
+      - name: Clean build to force app icon re-embed in Release
+        run: flutter clean
+
+      - name: Install dependencies (after clean)
+        run: flutter pub get
+
       - name: Build Windows runner
         run: flutter build windows --release
 

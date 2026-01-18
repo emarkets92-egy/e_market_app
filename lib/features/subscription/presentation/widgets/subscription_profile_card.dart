@@ -11,8 +11,9 @@ class SubscriptionProfileCard extends StatelessWidget {
   final ProfileModel profile;
   final VoidCallback onUnlock;
   final bool isUnlocking;
+  final bool disableUnlockButton;
 
-  const SubscriptionProfileCard({super.key, required this.profile, required this.onUnlock, this.isUnlocking = false});
+  const SubscriptionProfileCard({super.key, required this.profile, required this.onUnlock, this.isUnlocking = false, this.disableUnlockButton = false});
 
   int _getCurrentBalance(BuildContext context) {
     try {
@@ -99,7 +100,7 @@ class SubscriptionProfileCard extends StatelessWidget {
                   width: double.infinity,
                   height: 44,
                   child: ElevatedButton(
-                    onPressed: isUnlocking ? null : onUnlock,
+                    onPressed: (isUnlocking || disableUnlockButton) ? null : onUnlock,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
