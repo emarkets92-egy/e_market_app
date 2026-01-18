@@ -27,16 +27,30 @@ class ProfileModel {
     this.unlockedAt,
   });
 
+  static String? _cleanNullableString(dynamic value) {
+    if (value == null) return null;
+    if (value is String) {
+      final trimmed = value.trim();
+      if (trimmed.isEmpty) return null;
+      // Defensive: some backends (or web layers) can send stringified objects like "[object Object]".
+      if (trimmed.toLowerCase().contains('[object')) return null;
+      return trimmed;
+    }
+    // Sometimes APIs send phone numbers as numeric types.
+    if (value is num) return value.toString();
+    return null;
+  }
+
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
       id: json['id'] as String,
-      companyName: json['companyName'] as String?,
-      email: json['email'] as String?,
-      phone: json['phone'] as String?,
-      whatsapp: json['whatsapp'] as String?,
-      website: json['website'] as String?,
-      address: json['address'] as String?,
-      countryName: json['countryName'] as String?,
+      companyName: _cleanNullableString(json['companyName']),
+      email: _cleanNullableString(json['email']),
+      phone: _cleanNullableString(json['phone']),
+      whatsapp: _cleanNullableString(json['whatsapp']),
+      website: _cleanNullableString(json['website']),
+      address: _cleanNullableString(json['address']),
+      countryName: _cleanNullableString(json['countryName']),
       shipmentRecords: json['shipmentRecords'] != null ? (json['shipmentRecords'] as num).toInt() : null,
       isSeen: json['isSeen'] as bool? ?? false,
       unlockCost: json['unlockCost'] != null ? (json['unlockCost'] as num).toInt() : 0, // Default to 0 if not provided (e.g., in unlock response)

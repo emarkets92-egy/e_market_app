@@ -16,6 +16,7 @@ import '../../../../features/localization/data/models/country_model.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../data/models/unlock_item_model.dart';
 import '../widgets/subscription_profile_table_row.dart';
+import '../widgets/subscription_profile_card.dart';
 
 class SubscriptionSelectionScreen extends StatefulWidget {
   const SubscriptionSelectionScreen({super.key});
@@ -29,6 +30,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
   String? _selectedMarketType;
   CountryModel? _selectedCountry; // This maps to "Import Country"
   String _selectedViewType = 'new'; // 'new' or 'unlocked'
+  bool _isTableView = true; // false = card view, true = table view (default: table)
   String? _lastShownSuccessMessage; // Track last shown success message to avoid duplicate dialogs
 
   @override
@@ -204,19 +206,43 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                                   ),
                                 ],
                               ),
-                              // Analysis button
-                              AppButton(
-                                text: 'analysis'.tr(),
-                                onPressed: () {
-                                  context.push('${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}');
-                                },
+                              Row(
+                                children: [
+                                  // View Toggle (table ↔ card)
+                                  Container(
+                                    decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        _buildViewToggleButton(
+                                          icon: Icons.view_list,
+                                          isSelected: _isTableView,
+                                          onTap: () => setState(() => _isTableView = true),
+                                        ),
+                                        _buildViewToggleButton(
+                                          icon: Icons.grid_view,
+                                          isSelected: !_isTableView,
+                                          onTap: () => setState(() => _isTableView = false),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  // Analysis button
+                                  AppButton(
+                                    text: 'analysis'.tr(),
+                                    onPressed: () {
+                                      context.push('${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}');
+                                    },
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
 
                           // Table Header
-                          _buildTableHeader(),
+                          if (_isTableView) _buildTableHeader(),
 
                           // Content
                           if (state.isLoading && state.marketExploration == null)
@@ -227,7 +253,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                               (_selectedViewType == 'unlocked' && state.seenProfiles.isEmpty))
                             _buildEmptyState()
                           else
-                            _buildTableContent(state),
+                            _isTableView ? _buildTableContent(state) : _buildGridContent(state),
 
                           // Pagination
                           _buildPagination(state),
@@ -555,6 +581,54 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
           );
         }).toList(),
       ),
+    );
+  }
+
+  Widget _buildViewToggleButton({required IconData icon, required bool isSelected, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(color: isSelected ? Colors.blue : Colors.transparent, borderRadius: BorderRadius.circular(8)),
+        child: Icon(icon, color: isSelected ? Colors.white : Colors.grey[600], size: 20),
+      ),
+    );
+  }
+
+  Widget _buildGridContent(SubscriptionState state) {
+    final profiles = _selectedViewType == 'new' ? state.unseenProfiles : state.seenProfiles;
+    if (profiles.isEmpty) return _buildEmptyState();
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth > 1100 ? 3 : (screenWidth > 700 ? 2 : 1);
+    final childAspectRatio = crossAxisCount == 1 ? 1.9 : 1.55;
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(0),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: childAspectRatio,
+      ),
+      itemCount: profiles.length,
+      itemBuilder: (context, index) {
+        final profile = profiles[index];
+        return InkWell(
+          onTap: () {
+            context.push('/profiles/${profile.id}');
+          },
+          child: SubscriptionProfileCard(
+            profile: profile,
+            isUnlocking: state.isUnlocking,
+            onUnlock: () {
+              di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
+            },
+          ),
+        );
+      },
     );
   }
 
