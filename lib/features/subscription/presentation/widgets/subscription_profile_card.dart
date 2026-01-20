@@ -184,14 +184,7 @@ class SubscriptionProfileCard extends StatelessWidget {
           isSeen: profile.isSeen,
           balance: balance,
           onTap: () => _launchUrl(profile.email, scheme: 'mailto'),
-        ),
-        const SizedBox(height: 12),
-        _buildContactPill(
-          icon: Icons.phone,
-          value: profile.phone,
-          isSeen: profile.isSeen,
-          balance: balance,
-          onTap: () => _launchUrl(profile.phone, scheme: 'tel'),
+          emptyPlaceholder: 'Soon',
         ),
 
         const Spacer(),
@@ -203,16 +196,20 @@ class SubscriptionProfileCard extends StatelessWidget {
           children: [
             // Website Link
             InkWell(
-              onTap: () => _launchUrl(profile.website),
+              onTap: (profile.website != null && profile.website!.isNotEmpty) ? () => _launchUrl(profile.website) : null,
               borderRadius: BorderRadius.circular(4),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.link, size: 18, color: Colors.blue[600]),
+                  Icon(Icons.link, size: 18, color: (profile.website != null && profile.website!.isNotEmpty) ? Colors.blue[600] : Colors.grey[400]),
                   const SizedBox(width: 8),
                   Text(
-                    'Website',
-                    style: TextStyle(color: Colors.blue[600], fontWeight: FontWeight.w500, fontSize: 14),
+                    (profile.website != null && profile.website!.isNotEmpty) ? 'Website' : 'Soon',
+                    style: TextStyle(
+                      color: (profile.website != null && profile.website!.isNotEmpty) ? Colors.blue[600] : Colors.grey[400],
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
@@ -245,14 +242,15 @@ class SubscriptionProfileCard extends StatelessWidget {
     );
   }
 
-  Widget _buildContactPill({required IconData icon, required String? value, required bool isSeen, required int balance, VoidCallback? onTap}) {
+  Widget _buildContactPill({required IconData icon, required String? value, required bool isSeen, required int balance, VoidCallback? onTap, String emptyPlaceholder = 'N/A'}) {
+    final display = (value != null && value.isNotEmpty) ? value : emptyPlaceholder;
     return BlurredContentWidget(
       isUnlocked: isSeen,
       unlockCost: profile.unlockCost,
       currentBalance: balance,
       onUnlock: isSeen ? null : onUnlock,
       child: InkWell(
-        onTap: (isSeen && value != null) ? onTap : null,
+        onTap: (isSeen && value != null && value.isNotEmpty) ? onTap : null,
         borderRadius: BorderRadius.circular(8),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -266,8 +264,8 @@ class SubscriptionProfileCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  value ?? 'N/A',
-                  style: TextStyle(color: value != null ? const Color(0xFF555555) : Colors.grey[400], fontSize: 14),
+                  display,
+                  style: TextStyle(color: (value != null && value.isNotEmpty) ? const Color(0xFF555555) : Colors.grey[400], fontSize: 14),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../data/models/profile_model.dart';
@@ -21,6 +22,12 @@ class SubscriptionProfileTableRow extends StatelessWidget {
     } catch (e) {
       return di.sl<AuthCubit>().state.user?.points ?? 0;
     }
+  }
+
+  Future<void> _launchUrl(String? urlString) async {
+    if (urlString == null || urlString.isEmpty) return;
+    final uri = urlString.startsWith('http') ? Uri.parse(urlString) : Uri.parse('https://$urlString');
+    if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   @override
@@ -72,7 +79,7 @@ class SubscriptionProfileTableRow extends StatelessWidget {
               unlockCost: profile.unlockCost,
               currentBalance: balance,
               onUnlock: profile.isSeen ? null : onUnlock,
-              child: profile.email != null
+              child: profile.email != null && profile.email!.isNotEmpty
                   ? Row(
                       children: [
                         if (profile.isSeen) Icon(Icons.email_outlined, size: 16, color: Colors.grey[400]),
@@ -86,11 +93,11 @@ class SubscriptionProfileTableRow extends StatelessWidget {
                         ),
                       ],
                     )
-                  : Text('-', style: TextStyle(color: Colors.grey[400])),
+                  : Text('Soon', style: TextStyle(color: Colors.grey[400])),
             ),
           ),
           const SizedBox(width: 16),
-          // PHONE
+          // WEBSITE (clickable when unlocked)
           Expanded(
             flex: 2,
             child: BlurredContentWidget(
@@ -98,31 +105,19 @@ class SubscriptionProfileTableRow extends StatelessWidget {
               unlockCost: profile.unlockCost,
               currentBalance: balance,
               onUnlock: profile.isSeen ? null : onUnlock,
-              child: profile.phone != null
-                  ? Text(
-                      profile.phone!,
-                      style: TextStyle(color: profile.isSeen ? Colors.black87 : Colors.grey[400]),
-                      overflow: TextOverflow.ellipsis,
+              child: profile.website != null && profile.website!.isNotEmpty
+                  ? InkWell(
+                      onTap: profile.isSeen ? () => _launchUrl(profile.website) : null,
+                      child: Text(
+                        profile.website!,
+                        style: TextStyle(
+                          color: profile.isSeen ? Colors.blue : Colors.grey[400],
+                          decoration: profile.isSeen ? TextDecoration.underline : null,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     )
-                  : Container(width: 20, height: 20, color: Colors.grey[200]),
-            ),
-          ),
-          const SizedBox(width: 16),
-          // WEBSITE
-          Expanded(
-            flex: 2,
-            child: BlurredContentWidget(
-              isUnlocked: profile.isSeen,
-              unlockCost: profile.unlockCost,
-              currentBalance: balance,
-              onUnlock: profile.isSeen ? null : onUnlock,
-              child: profile.website != null
-                  ? Text(
-                      profile.website!,
-                      style: TextStyle(color: profile.isSeen ? Colors.blue : Colors.grey[400]),
-                      overflow: TextOverflow.ellipsis,
-                    )
-                  : Container(width: 20, height: 20, color: Colors.grey[200]),
+                  : Text('Soon', style: TextStyle(color: Colors.grey[400])),
             ),
           ),
           const SizedBox(width: 16),

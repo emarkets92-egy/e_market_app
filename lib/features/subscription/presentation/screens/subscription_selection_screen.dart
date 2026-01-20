@@ -7,8 +7,6 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/premium_header_bar.dart';
-import '../../../../shared/widgets/app_button.dart';
-import '../../../../config/routes/route_names.dart';
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 import '../../data/models/subscription_model.dart';
@@ -226,14 +224,14 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  // Analysis button
-                                  AppButton(
-                                    text: 'analysis'.tr(),
-                                    onPressed: () {
-                                      context.push('${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}');
-                                    },
-                                  ),
+                                  // const SizedBox(width: 12),
+                                  // // Analysis button
+                                  // AppButton(
+                                  //   text: 'analysis'.tr(),
+                                  //   onPressed: () {
+                                  //     context.push('${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}');
+                                  //   },
+                                  // ),
                                 ],
                               ),
                             ],
@@ -248,8 +246,9 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                             const Center(
                               child: Padding(padding: EdgeInsets.all(32.0), child: CircularProgressIndicator()),
                             )
-                          else if ((_selectedViewType == 'new' && state.unseenProfiles.isEmpty) ||
-                              (_selectedViewType == 'unlocked' && state.seenProfiles.isEmpty))
+                          else if (_selectedViewType == 'unlocked' && state.seenProfiles.isEmpty)
+                            _buildSoonState()
+                          else if (_selectedViewType == 'new' && state.unseenProfiles.isEmpty)
                             _buildEmptyState()
                           else
                             _isTableView ? _buildTableContent(state) : _buildGridContent(state),
@@ -536,14 +535,6 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
           Expanded(
             flex: 2,
             child: Text(
-              'phone'.tr().toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: Text(
               'website'.tr().toUpperCase(),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
             ),
@@ -575,18 +566,13 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
       ),
       child: Column(
         children: profiles.map((profile) {
-          return InkWell(
-            onTap: () {
-              context.push('/profiles/${profile.id}');
+          return SubscriptionProfileTableRow(
+            profile: profile,
+            isUnlocking: state.unlockingTargetId == profile.id,
+            disableUnlockButton: state.isUnlocking,
+            onUnlock: () {
+              di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
             },
-            child: SubscriptionProfileTableRow(
-              profile: profile,
-              isUnlocking: state.unlockingTargetId == profile.id,
-              disableUnlockButton: state.isUnlocking,
-              onUnlock: () {
-                di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
-              },
-            ),
           );
         }).toList(),
       ),
@@ -639,6 +625,17 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSoonState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(48),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      child: Center(
+        child: Text('Soon', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey[600])),
+      ),
     );
   }
 

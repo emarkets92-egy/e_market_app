@@ -9,6 +9,7 @@ import '../../../../config/theme.dart';
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 import '../widgets/blurred_content_widget.dart';
+import '../widgets/shipment_record_card.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../data/models/unlock_item_model.dart';
@@ -27,6 +28,7 @@ class ProfileDetailScreen extends StatefulWidget {
 class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   bool _showSeenRecords = false; // Toggle for shipment records filter
   bool _isImportHistoryExpanded = false; // Toggle for import history visibility
+  bool _isTableView = true; // true = table, false = card
 
   @override
   void initState() {
@@ -309,15 +311,8 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                 _buildSidebarItem(
                   icon: Icons.email,
                   label: 'email_address'.tr().toUpperCase(),
-                  value: profile.email ?? 'N/A',
+                  value: (profile.email != null && profile.email!.isNotEmpty) ? profile.email! : 'Soon',
                   onTap: () => _launchUrl(profile.email, scheme: 'mailto'),
-                ),
-                const SizedBox(height: 20),
-                _buildSidebarItem(
-                  icon: Icons.phone,
-                  label: 'phone_number'.tr().toUpperCase(),
-                  value: profile.phone ?? 'N/A',
-                  onTap: () => _launchUrl(profile.phone, scheme: 'tel'),
                 ),
                 const SizedBox(height: 20),
                 if (profile.whatsapp != null) ...[
@@ -329,7 +324,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                   ),
                   const SizedBox(height: 20),
                 ],
-                _buildSidebarItem(icon: Icons.location_on, label: 'headquarters'.tr().toUpperCase(), value: profile.address ?? 'N/A'),
               ],
             ),
           ),
@@ -337,16 +331,16 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
 
           Center(
             child: InkWell(
-              onTap: profile.website != null && profile.isSeen ? () => _launchUrl(profile.website) : null,
+              onTap: (profile.website != null && profile.website!.isNotEmpty && profile.isSeen) ? () => _launchUrl(profile.website) : null,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'view_company_website'.tr(),
-                    style: TextStyle(color: (profile.isSeen && profile.website != null) ? AppTheme.primaryBlue : Colors.grey, fontWeight: FontWeight.w600),
+                    style: TextStyle(color: (profile.isSeen && profile.website != null && profile.website!.isNotEmpty) ? AppTheme.primaryBlue : Colors.grey, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 4),
-                  Icon(Icons.arrow_forward, size: 16, color: (profile.isSeen && profile.website != null) ? AppTheme.primaryBlue : Colors.grey),
+                  Icon(Icons.arrow_forward, size: 16, color: (profile.isSeen && profile.website != null && profile.website!.isNotEmpty) ? AppTheme.primaryBlue : Colors.grey),
                 ],
               ),
             ),
@@ -446,6 +440,18 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
+                      // View Toggle (table ↔ card)
+                      Container(
+                        decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildViewToggleButton(icon: Icons.view_list, isSelected: _isTableView, onTap: () => setState(() => _isTableView = true)),
+                            _buildViewToggleButton(icon: Icons.grid_view, isSelected: !_isTableView, onTap: () => setState(() => _isTableView = false)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
                       // Expand/Collapse Button
                       InkWell(
                         onTap: () => setState(() => _isImportHistoryExpanded = !_isImportHistoryExpanded),
@@ -472,7 +478,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                     },
                   )
                 else
-                  _buildHistoryTable(context, state),
+                  _isTableView ? _buildHistoryTable(context, state) : _buildHistoryCards(context, state),
                 const SizedBox(height: 24),
                 if (state.error == null || state.seenShipmentRecords.isNotEmpty || state.unseenShipmentRecords.isNotEmpty) _buildTablePagination(state),
               ],
@@ -502,7 +508,88 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
     );
   }
 
+  Widget _buildViewToggleButton({required IconData icon, required bool isSelected, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primaryBlue : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: isSelected ? Colors.white : Colors.grey[600], size: 20),
+      ),
+    );
+  }
+
+  static String _formatRecordDate(DateTime? dt) {
+    if (dt == null) return '';
+    return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+  }
+
   Widget _buildHistoryTable(BuildContext context, SubscriptionState state) {
+    final records = _showSeenRecords ? state.seenShipmentRecords : state.unseenShipmentRecords;
+    final showAction = !_showSeenRecords; // No action column for seen records
+
+    if (records.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Text(_showSeenRecords ? 'no_seen_records_found'.tr() : 'no_new_records_available'.tr(), style: TextStyle(color: Colors.grey[500])),
+        ),
+      );
+    }
+
+    final columns = <DataColumn>[
+      _buildDataColumn('exporter_name'.tr().toUpperCase()),
+      _buildDataColumn('country_of_origin'.tr().toUpperCase()),
+      _buildDataColumn('net_weight'.tr().toUpperCase()),
+      _buildDataColumn('net_weight_unit'.tr().toUpperCase()),
+      _buildDataColumn('port_of_arrival'.tr().toUpperCase()),
+      _buildDataColumn('port_of_departure'.tr().toUpperCase()),
+      _buildDataColumn('notify_party'.tr().toUpperCase()),
+      _buildDataColumn('notify_address'.tr().toUpperCase()),
+      _buildDataColumn('hs_code'.tr().toUpperCase()),
+      _buildDataColumn('quantity'.tr().toUpperCase()),
+      _buildDataColumn('value'.tr().toUpperCase()),
+      _buildDataColumn('unlocked_at'.tr().toUpperCase()),
+      _buildDataColumn('id'.tr().toUpperCase()),
+      if (showAction) _buildDataColumn('action'.tr().toUpperCase()),
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        headingRowColor: WidgetStateProperty.all(Colors.transparent),
+        dataRowColor: WidgetStateProperty.all(Colors.transparent),
+        columnSpacing: 24,
+        horizontalMargin: 0,
+        columns: columns,
+        rows: records.map((record) {
+          final cells = <DataCell>[
+            DataCell(SizedBox(width: 150, child: Text(record.exporterName ?? '', style: const TextStyle(fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis))),
+            DataCell(Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.flag, size: 16, color: Colors.grey), const SizedBox(width: 8), Text(record.countryOfOrigin ?? '')])),
+            DataCell(SizedBox(width: 100, child: Text(record.netWeight ?? '', overflow: TextOverflow.ellipsis))),
+            DataCell(SizedBox(width: 80, child: Text(record.netWeightUnit ?? '', overflow: TextOverflow.ellipsis))),
+            DataCell(SizedBox(width: 100, child: Text(record.portOfArrival ?? '', overflow: TextOverflow.ellipsis))),
+            DataCell(SizedBox(width: 100, child: Text(record.portOfDeparture ?? '', overflow: TextOverflow.ellipsis))),
+            DataCell(SizedBox(width: 120, child: Text(record.notifyParty ?? '', overflow: TextOverflow.ellipsis))),
+            DataCell(SizedBox(width: 120, child: Text(record.notifyAddress ?? '', overflow: TextOverflow.ellipsis))),
+            DataCell(Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(4)), child: Text(record.hsCode ?? '', style: TextStyle(color: Colors.blue[800], fontSize: 12, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis))),
+            DataCell(Text(record.quantity?.toString() ?? '')),
+            DataCell(Text(record.value?.toString() ?? '')),
+            DataCell(SizedBox(width: 100, child: Text(_formatRecordDate(record.unlockedAt), overflow: TextOverflow.ellipsis))),
+            DataCell(SizedBox(width: 100, child: Text(record.id, overflow: TextOverflow.ellipsis))),
+            if (showAction)
+              DataCell(IconButton(icon: const Icon(Icons.lock_open, color: AppTheme.primaryBlue, size: 20), onPressed: () { di.sl<SubscriptionCubit>().unlock(contentType: ContentType.shipmentRecords, targetId: record.id); })),
+          ];
+          return DataRow(cells: cells);
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildHistoryCards(BuildContext context, SubscriptionState state) {
     final records = _showSeenRecords ? state.seenShipmentRecords : state.unseenShipmentRecords;
 
     if (records.isEmpty) {
@@ -514,66 +601,24 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
       );
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        headingRowColor: WidgetStateProperty.all(Colors.transparent),
-        dataRowColor: WidgetStateProperty.all(Colors.transparent),
-        columnSpacing: 24,
-        horizontalMargin: 0,
-        columns: [
-          _buildDataColumn('exporter_name'.tr().toUpperCase()),
-          _buildDataColumn('country_of_origin'.tr().toUpperCase()),
-          _buildDataColumn('hs_code'.tr().toUpperCase()),
-          _buildDataColumn('action'.tr().toUpperCase()), // Added for unlock/view
-        ],
-        rows: records.map((record) {
-          final isLocked = !_showSeenRecords; // Logic assumption: unseen = locked/new
-          return DataRow(
-            cells: [
-              DataCell(
-                SizedBox(
-                  width: 150,
-                  child: Text(
-                    record.exporterName ?? '-',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              DataCell(
-                Row(
-                  children: [
-                    const Icon(Icons.flag, size: 16, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Text(record.countryOfOrigin ?? '-'),
-                  ],
-                ),
-              ),
-              DataCell(
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(4)),
-                  child: Text(
-                    record.hsCode ?? '-',
-                    style: TextStyle(color: Colors.blue[800], fontSize: 12, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ),
-              DataCell(
-                isLocked
-                    ? IconButton(
-                        icon: const Icon(Icons.lock_open, color: AppTheme.primaryBlue, size: 20),
-                        onPressed: () {
-                          di.sl<SubscriptionCubit>().unlock(contentType: ContentType.shipmentRecords, targetId: record.id);
-                        },
-                      )
-                    : const Icon(Icons.check_circle, color: Colors.green, size: 20),
-              ),
-            ],
-          );
-        }).toList(),
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth > 1100 ? 3 : (screenWidth > 700 ? 2 : 1);
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(0),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.9,
       ),
+      itemCount: records.length,
+      itemBuilder: (context, index) {
+        final record = records[index];
+        return ShipmentRecordCard(record: record, isLocked: !record.isSeen);
+      },
     );
   }
 
@@ -692,9 +737,11 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
     } else if (scheme == 'tel') {
       uri = Uri.parse('tel:$urlString');
     } else {
-      uri = Uri.parse(urlString);
+      uri = urlString.startsWith('http') ? Uri.parse(urlString) : Uri.parse('https://$urlString');
     }
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: (scheme == 'mailto' || scheme == 'tel') ? LaunchMode.platformDefault : LaunchMode.externalApplication);
+    }
   }
 
   void _unlockProfile(BuildContext context, String profileId) {
