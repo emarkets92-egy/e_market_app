@@ -39,22 +39,21 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
     di.sl<SubscriptionCubit>().getSubscriptions(activeOnly: true);
   }
 
+  /// Resolves the API market type. For 'both', picks targetMarkets or otherMarkets
+  /// based on the selected country. Returns null if product, market type, or country is missing.
+  String? _getResolvedMarketType() {
+    if (_selectedProduct == null || _selectedMarketType == null || _selectedCountry == null) return null;
+    if (_selectedMarketType != 'both') return _selectedMarketType;
+    final targetMarkets = _selectedProduct!.targetMarkets ?? [];
+    final otherMarkets = _selectedProduct!.otherMarkets ?? [];
+    if (targetMarkets.any((c) => c.id == _selectedCountry!.id)) return AppConstants.marketTypeTarget;
+    if (otherMarkets.any((c) => c.id == _selectedCountry!.id)) return AppConstants.marketTypeOther;
+    return AppConstants.marketTypeTarget;
+  }
+
   void _onSelectionChanged() {
-    if (_selectedProduct != null && _selectedMarketType != null && _selectedCountry != null) {
-      String marketTypeToUse = _selectedMarketType!;
-      if (_selectedMarketType == 'both') {
-        final targetMarkets = _selectedProduct!.targetMarkets ?? [];
-        final otherMarkets = _selectedProduct!.otherMarkets ?? [];
-
-        if (targetMarkets.any((c) => c.id == _selectedCountry!.id)) {
-          marketTypeToUse = AppConstants.marketTypeTarget;
-        } else if (otherMarkets.any((c) => c.id == _selectedCountry!.id)) {
-          marketTypeToUse = AppConstants.marketTypeOther;
-        } else {
-          marketTypeToUse = AppConstants.marketTypeTarget;
-        }
-      }
-
+    final marketTypeToUse = _getResolvedMarketType();
+    if (marketTypeToUse != null) {
       di.sl<SubscriptionCubit>().exploreMarket(
         productId: _selectedProduct!.productId,
         marketType: marketTypeToUse,
@@ -661,8 +660,9 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
   Widget _buildPagination(SubscriptionState state) {
     final currentPage = _selectedViewType == 'new' ? state.unseenProfilesPage : state.seenProfilesPage;
     final totalPages = _selectedViewType == 'new' ? state.unseenProfilesTotalPages : state.seenProfilesTotalPages;
+    final marketTypeToUse = _getResolvedMarketType();
 
-    if (totalPages <= 1) return const SizedBox.shrink();
+    if (totalPages <= 1 || marketTypeToUse == null) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24.0),
@@ -674,7 +674,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                 ? () {
                     di.sl<SubscriptionCubit>().exploreMarket(
                       productId: _selectedProduct!.productId,
-                      marketType: _selectedMarketType!,
+                      marketType: marketTypeToUse,
                       countryId: _selectedCountry!.id,
                       unseenPage: _selectedViewType == 'new' ? currentPage - 1 : null,
                       seenPage: _selectedViewType == 'unlocked' ? currentPage - 1 : null,
@@ -692,7 +692,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                 ? () {
                     di.sl<SubscriptionCubit>().exploreMarket(
                       productId: _selectedProduct!.productId,
-                      marketType: _selectedMarketType!,
+                      marketType: marketTypeToUse,
                       countryId: _selectedCountry!.id,
                       unseenPage: _selectedViewType == 'new' ? currentPage + 1 : null,
                       seenPage: _selectedViewType == 'unlocked' ? currentPage + 1 : null,

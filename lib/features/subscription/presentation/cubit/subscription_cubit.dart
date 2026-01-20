@@ -57,10 +57,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       );
       final result = await _repository.exploreMarket(request);
 
-      // Warn if analysis data is missing
-      if (result.competitiveAnalysis == null && result.pestleAnalysis == null && result.swotAnalysis == null && result.marketPlan == null) {
-        throw Exception('All analysis data is missing from API response!');
-      }
+      // Note: Analysis (competitive, pestle, swot, marketPlan) may be null for some
+      // market types (e.g. otherMarkets). We still accept the response and show
+      // unseen/seen profiles; analysis is optional.
 
       emit(
         state.copyWith(
