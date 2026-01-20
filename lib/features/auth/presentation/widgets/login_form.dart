@@ -24,13 +24,6 @@ class _LoginFormState extends State<LoginForm> {
   bool _rememberMe = false;
 
   @override
-  void initState() {
-    super.initState();
-    _emailController.text = 'exporter3@test.com';
-    _passwordController.text = '123456';
-  }
-
-  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
