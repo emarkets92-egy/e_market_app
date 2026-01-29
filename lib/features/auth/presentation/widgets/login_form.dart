@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -22,6 +23,15 @@ class _LoginFormState extends State<LoginForm> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+      if (kDebugMode){
+        _emailController.text = 'admin2@test.com';
+        _passwordController.text = '12345678';
+      }
+  }
 
   @override
   void dispose() {

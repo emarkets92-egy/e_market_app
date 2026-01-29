@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -51,7 +52,7 @@ class SubscriptionProfileCard extends StatelessWidget {
     final balance = _getCurrentBalance(context);
 
     return Container(
-      height: profile.isSeen ? 390 : 320, // Reduced height for locked card to prevent overflow
+      height: profile.isSeen ? 430 : 320, // Extra room for phone pill
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16), // More rounded
@@ -187,6 +188,17 @@ class SubscriptionProfileCard extends StatelessWidget {
           emptyPlaceholder: 'Soon',
         ),
 
+        const SizedBox(height: 10),
+
+        _buildTelContactPill(
+          icon: Icons.phone,
+          value: profile.phone,
+          isSeen: profile.isSeen,
+          balance: balance,
+          onTap: () => _launchUrl(profile.phone, scheme: 'tel'),
+          emptyPlaceholder: 'Soon',
+        ),
+
         const Spacer(),
         const SizedBox(height: 8),
 
@@ -271,6 +283,53 @@ class SubscriptionProfileCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTelContactPill({
+    required IconData icon,
+    required String? value,
+    required bool isSeen,
+    required int balance,
+    VoidCallback? onTap,
+    String emptyPlaceholder = 'N/A',
+  }) {
+    final display = (value != null && value.isNotEmpty) ? value : emptyPlaceholder;
+
+    return BlurredContentWidget(
+      isUnlocked: isSeen,
+      unlockCost: profile.unlockCost,
+      currentBalance: balance,
+      onUnlock: isSeen ? null : onUnlock,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8F9FB),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: Colors.blue[600]),
+            const SizedBox(width: 12),
+            Expanded(
+              child: (value != null && value.isNotEmpty)
+                  ? SelectableText.rich(
+                      TextSpan(
+                        text: display,
+                        style: const TextStyle(color: Color(0xFF555555), fontSize: 14, decoration: TextDecoration.underline),
+                        recognizer: (TapGestureRecognizer()..onTap = () => onTap?.call()),
+                      ),
+                      maxLines: 1,
+                    )
+                  : Text(
+                      display,
+                      style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+            ),
+          ],
         ),
       ),
     );

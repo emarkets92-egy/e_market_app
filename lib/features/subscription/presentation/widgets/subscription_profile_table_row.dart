@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,6 +29,28 @@ class SubscriptionProfileTableRow extends StatelessWidget {
     if (urlString == null || urlString.isEmpty) return;
     final uri = urlString.startsWith('http') ? Uri.parse(urlString) : Uri.parse('https://$urlString');
     if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  Future<void> _launchTel(String? phone) async {
+    if (phone == null || phone.trim().isEmpty) return;
+    final uri = Uri.parse('tel:${phone.trim()}');
+    if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.platformDefault);
+  }
+
+  Widget _buildSelectableTelText(String phone, {required bool isEnabled}) {
+    final textStyle = TextStyle(
+      color: isEnabled ? Colors.blue : Colors.grey[400],
+      decoration: isEnabled ? TextDecoration.underline : null,
+    );
+
+    return SelectableText.rich(
+      TextSpan(
+        text: phone,
+        style: textStyle,
+        recognizer: isEnabled ? (TapGestureRecognizer()..onTap = () => _launchTel(phone)) : null,
+      ),
+      maxLines: 1,
+    );
   }
 
   @override
@@ -90,6 +113,28 @@ class SubscriptionProfileTableRow extends StatelessWidget {
                             style: TextStyle(color: profile.isSeen ? Colors.black87 : Colors.grey[400]),
                             overflow: TextOverflow.ellipsis,
                           ),
+                        ),
+                      ],
+                    )
+                  : Text('Soon', style: TextStyle(color: Colors.grey[400])),
+            ),
+          ),
+          const SizedBox(width: 16),
+          // PHONE (clickable + selectable when unlocked)
+          Expanded(
+            flex: 2,
+            child: BlurredContentWidget(
+              isUnlocked: profile.isSeen,
+              unlockCost: profile.unlockCost,
+              currentBalance: balance,
+              onUnlock: profile.isSeen ? null : onUnlock,
+              child: (profile.phone != null && profile.phone!.isNotEmpty)
+                  ? Row(
+                      children: [
+                        if (profile.isSeen) Icon(Icons.phone_outlined, size: 16, color: Colors.grey[400]),
+                        if (profile.isSeen) const SizedBox(width: 8),
+                        Flexible(
+                          child: _buildSelectableTelText(profile.phone!, isEnabled: profile.isSeen),
                         ),
                       ],
                     )

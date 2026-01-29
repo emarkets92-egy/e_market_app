@@ -535,6 +535,14 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
           Expanded(
             flex: 2,
             child: Text(
+              'phone'.tr().toUpperCase(),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: Text(
               'website'.tr().toUpperCase(),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
             ),

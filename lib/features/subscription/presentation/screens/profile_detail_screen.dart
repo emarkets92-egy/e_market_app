@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -145,7 +146,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           BlocBuilder<AuthCubit, AuthState>(
             bloc: di.sl<AuthCubit>(),
             builder: (context, authState) {
-              final userName = authState.user?.name ?? 'User';
+              final userName = authState.user?.companyName ?? 'User';
               return Row(
                 children: [
                   Text(userName, style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -231,7 +232,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      profile.companyName ?? 'N/A',
                       style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87),
                     ),
                     const SizedBox(height: 8),
@@ -315,6 +316,15 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                   onTap: () => _launchUrl(profile.email, scheme: 'mailto'),
                 ),
                 const SizedBox(height: 20),
+                _buildSidebarItem(
+                  icon: Icons.phone,
+                  label: 'phone'.tr().toUpperCase(),
+                  value: (profile.phone != null && profile.phone!.isNotEmpty) ? profile.phone! : 'Soon',
+                  valueWidget: (profile.phone != null && profile.phone!.isNotEmpty)
+                      ? _buildSelectableLauncherText(profile.phone!, onTap: () => _launchUrl(profile.phone, scheme: 'tel'))
+                      : null,
+                ),
+                const SizedBox(height: 20),
                 if (profile.whatsapp != null) ...[
                   _buildSidebarItem(
                     icon: Icons.chat,
@@ -350,7 +360,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
     );
   }
 
-  Widget _buildSidebarItem({required IconData icon, required String label, required String value, VoidCallback? onTap}) {
+  Widget _buildSidebarItem({required IconData icon, required String label, required String value, Widget? valueWidget, VoidCallback? onTap}) {
     return InkWell(
       onTap: onTap,
       child: Row(
@@ -371,16 +381,33 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey[500], letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B), fontWeight: FontWeight.w500),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                valueWidget ??
+                    Text(
+                      value,
+                      style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B), fontWeight: FontWeight.w500),
+                      overflow: TextOverflow.ellipsis,
+                    ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSelectableLauncherText(String text, {required VoidCallback onTap}) {
+    return SelectableText.rich(
+      TextSpan(
+        text: text,
+        style: const TextStyle(
+          fontSize: 14,
+          color: AppTheme.primaryBlue,
+          fontWeight: FontWeight.w500,
+          decoration: TextDecoration.underline,
+        ),
+        recognizer: TapGestureRecognizer()..onTap = onTap,
+      ),
+      maxLines: 1,
     );
   }
 
