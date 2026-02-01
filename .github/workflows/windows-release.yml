@@ -207,3 +207,43 @@ jobs:
             Write-Host "Status Code: $($_.Exception.Response.StatusCode.value__)"
             throw
           }
+
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set app version from tag
+        shell: bash
+        env:
+          VERSION: ${{ github.ref_name }}
+          BUILD_NUM: ${{ github.run_number }}
+        run: |
+          v="${VERSION#v}"
+          b="${BUILD_NUM}"
+          sed -i "s/^version: .*/version: ${v}+${b}/" pubspec.yaml
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+
+      - name: Enable web
+        run: flutter config --enable-web
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate app icons (Web, Windows, Android, iOS, etc.)
+        run: dart run flutter_launcher_icons
+
+      - name: Build web
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+
+      - name: Deploy to GitHub Pages (gh-pages)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/web
+          force_orphan: true

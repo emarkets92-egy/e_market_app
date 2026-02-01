@@ -7,6 +7,7 @@ import '../../core/di/injection_container.dart' as di;
 import '../../features/version/presentation/cubit/version_cubit.dart';
 import '../../features/version/presentation/cubit/version_state.dart';
 import '../../features/version/presentation/screens/update_required_screen.dart';
+import 'startup_loading_screen.dart';
 
 class VersionCheckWrapper extends StatefulWidget {
   final Widget child;
@@ -21,10 +22,8 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
   @override
   void initState() {
     super.initState();
-    // Check version immediately on app start
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      di.sl<VersionCubit>().checkVersion();
-    });
+    // Check version immediately on app start (before showing the app UI).
+    Future.microtask(() => di.sl<VersionCubit>().checkVersion());
   }
 
   @override
@@ -37,15 +36,9 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
           return UpdateRequiredScreen(state: state);
         }
 
-        // If checking, show loading
-        if (state is VersionChecking) {
-          return Directionality(
-            textDirection: ui.TextDirection.ltr,
-            child: const Scaffold(
-              backgroundColor: Colors.white,
-              body: Center(child: CircularProgressIndicator()),
-            ),
-          );
+        // On startup, render a white loading screen immediately.
+        if (state is VersionInitial || state is VersionChecking) {
+          return StartupLoadingScreen(message: 'Checking for updates…');
         }
 
         // If error, block the app (mandatory update)

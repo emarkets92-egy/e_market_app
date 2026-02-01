@@ -20,6 +20,12 @@ class ShipmentRecordModel {
   final bool isSeen;
   final int unlockCost;
   final DateTime? unlockedAt;
+  // New fields added
+  final String? productDetails;
+  final String? quantityUnit;
+  final double? amountUsd;
+  final double? fobUsd;
+  final double? cifUsd;
 
   ShipmentRecordModel({
     required this.id,
@@ -41,6 +47,11 @@ class ShipmentRecordModel {
     required this.isSeen,
     required this.unlockCost,
     this.unlockedAt,
+    this.productDetails,
+    this.quantityUnit,
+    this.amountUsd,
+    this.fobUsd,
+    this.cifUsd,
   });
 
   factory ShipmentRecordModel.fromJson(Map<String, dynamic> json, {bool? isSeen}) {
@@ -69,6 +80,11 @@ class ShipmentRecordModel {
       isSeen: isSeen ?? json['isSeen'] as bool? ?? false,
       unlockCost: json['unlockCost'] != null ? (json['unlockCost'] as num).toInt() : 0,
       unlockedAt: json['unlockedAt'] != null ? DateTime.parse(json['unlockedAt'] as String) : null,
+      productDetails: json['productDetails'] as String?,
+      quantityUnit: json['quantityUnit'] as String?,
+      amountUsd: json['amountUsd'] != null ? (json['amountUsd'] as num).toDouble() : null,
+      fobUsd: json['fobUsd'] != null ? (json['fobUsd'] as num).toDouble() : null,
+      cifUsd: json['cifUsd'] != null ? (json['cifUsd'] as num).toDouble() : null,
     );
   }
 
@@ -93,6 +109,11 @@ class ShipmentRecordModel {
       'isSeen': isSeen,
       'unlockCost': unlockCost,
       if (unlockedAt != null) 'unlockedAt': unlockedAt!.toIso8601String(),
+      if (productDetails != null) 'productDetails': productDetails,
+      if (quantityUnit != null) 'quantityUnit': quantityUnit,
+      if (amountUsd != null) 'amountUsd': amountUsd,
+      if (fobUsd != null) 'fobUsd': fobUsd,
+      if (cifUsd != null) 'cifUsd': cifUsd,
     };
   }
 
@@ -116,6 +137,11 @@ class ShipmentRecordModel {
     bool? isSeen,
     int? unlockCost,
     DateTime? unlockedAt,
+    String? productDetails,
+    String? quantityUnit,
+    double? amountUsd,
+    double? fobUsd,
+    double? cifUsd,
   }) {
     return ShipmentRecordModel(
       id: id ?? this.id,
@@ -137,6 +163,11 @@ class ShipmentRecordModel {
       isSeen: isSeen ?? this.isSeen,
       unlockCost: unlockCost ?? this.unlockCost,
       unlockedAt: unlockedAt ?? this.unlockedAt,
+      productDetails: productDetails ?? this.productDetails,
+      quantityUnit: quantityUnit ?? this.quantityUnit,
+      amountUsd: amountUsd ?? this.amountUsd,
+      fobUsd: fobUsd ?? this.fobUsd,
+      cifUsd: cifUsd ?? this.cifUsd,
     );
   }
 }

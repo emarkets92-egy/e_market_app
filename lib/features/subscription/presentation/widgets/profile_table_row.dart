@@ -11,8 +11,9 @@ class ProfileTableRow extends StatelessWidget {
   final ProfileModel profile;
   final VoidCallback onUnlock;
   final bool isUnlocking;
+  final List<String>? visibleColumns;
 
-  const ProfileTableRow({super.key, required this.profile, required this.onUnlock, this.isUnlocking = false});
+  const ProfileTableRow({super.key, required this.profile, required this.onUnlock, this.isUnlocking = false, this.visibleColumns});
 
   int _getCurrentBalance(BuildContext context) {
     try {
@@ -76,6 +77,14 @@ class ProfileTableRow extends StatelessWidget {
     final balance = _getCurrentBalance(context);
     final initials = _getInitials(profile.id);
     final avatarColor = _getAvatarColor(profile.id);
+    final columns = visibleColumns ?? ['profile', 'name', 'email', 'whatsapp'];
+    
+    final columnWidths = {
+      'profile': 80.0,
+      'name': 200.0,
+      'email': 200.0,
+      'whatsapp': 150.0,
+    };
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
@@ -85,103 +94,109 @@ class ProfileTableRow extends StatelessWidget {
       child: Column(
         children: [
           Row(
-            children: [
-              // PROFILE (Avatar)
-              SizedBox(
-                width: 80,
-                child: BlurredContentWidget(
-                  isUnlocked: profile.isSeen,
-                  unlockCost: profile.unlockCost,
-                  currentBalance: balance,
-                  onUnlock: profile.isSeen ? null : onUnlock,
-                  child: CircleAvatar(
-                    backgroundColor: avatarColor,
-                    radius: 20,
-                    child: Text(
-                      initials,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            children: columns.map((column) {
+              final width = columnWidths[column] ?? 150.0;
+              
+              Widget child;
+              switch (column) {
+                case 'profile':
+                  child = BlurredContentWidget(
+                    isUnlocked: profile.isSeen,
+                    unlockCost: profile.unlockCost,
+                    currentBalance: balance,
+                    onUnlock: profile.isSeen ? null : onUnlock,
+                    child: CircleAvatar(
+                      backgroundColor: avatarColor,
+                      radius: 20,
+                      child: Text(
+                        initials,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              // IMPORTER NAME
-              Expanded(
-                flex: 2,
-                child: BlurredContentWidget(
-                  isUnlocked: profile.isSeen,
-                  unlockCost: profile.unlockCost,
-                  currentBalance: balance,
-                  onUnlock: profile.isSeen ? null : onUnlock,
-                  child: Text(
-                    profile.companyName ??
-                        (profile.email
-                                ?.split('@')
-                                .first
-                                .replaceAll('.', ' ')
-                                .split(' ')
-                                .map((word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
-                                .join(' ') ??
-                            'Importer ${profile.id.substring(0, 8)}'),
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              // EMAIL
-              Expanded(
-                flex: 2,
-                child: BlurredContentWidget(
-                  isUnlocked: profile.isSeen,
-                  unlockCost: profile.unlockCost,
-                  currentBalance: balance,
-                  onUnlock: profile.isSeen ? null : onUnlock,
-                  child: profile.email != null
-                      ? profile.isSeen
-                            ? InkWell(
-                                onTap: () => _launchEmail(profile.email!),
-                                child: Text(
-                                  profile.email!,
-                                  style: TextStyle(color: Colors.blue[700], decoration: TextDecoration.underline),
-                                ),
-                              )
-                            : Text(profile.email!, style: TextStyle(color: Colors.grey[700]))
-                      : Text('N/A', style: TextStyle(color: Colors.grey[400])),
-                ),
-              ),
-              const SizedBox(width: 16),
-              // WHATSAPP
-              Expanded(
-                flex: 1,
-                child: BlurredContentWidget(
-                  isUnlocked: profile.isSeen,
-                  unlockCost: profile.unlockCost,
-                  currentBalance: balance,
-                  onUnlock: profile.isSeen ? null : onUnlock,
-                  child: profile.whatsapp != null
-                      ? profile.isSeen
-                            ? InkWell(
-                                onTap: () => _launchWhatsApp(profile.whatsapp!),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.chat, size: 16, color: Colors.green[700]),
-                                    const SizedBox(width: 4),
-                                    Flexible(
-                                      child: Text(
-                                        profile.whatsapp!,
-                                        style: TextStyle(color: Colors.green[700], decoration: TextDecoration.underline),
-                                        overflow: TextOverflow.ellipsis,
+                  );
+                  break;
+                case 'name':
+                  child = BlurredContentWidget(
+                    isUnlocked: profile.isSeen,
+                    unlockCost: profile.unlockCost,
+                    currentBalance: balance,
+                    onUnlock: profile.isSeen ? null : onUnlock,
+                    child: Text(
+                      profile.companyName ??
+                          (profile.email
+                                  ?.split('@')
+                                  .first
+                                  .replaceAll('.', ' ')
+                                  .split(' ')
+                                  .map((word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
+                                  .join(' ') ??
+                              'Importer ${profile.id.substring(0, 8)}'),
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  );
+                  break;
+                case 'email':
+                  child = BlurredContentWidget(
+                    isUnlocked: profile.isSeen,
+                    unlockCost: profile.unlockCost,
+                    currentBalance: balance,
+                    onUnlock: profile.isSeen ? null : onUnlock,
+                    child: profile.email != null
+                        ? profile.isSeen
+                              ? InkWell(
+                                  onTap: () => _launchEmail(profile.email!),
+                                  child: Text(
+                                    profile.email!,
+                                    style: TextStyle(color: Colors.blue[700], decoration: TextDecoration.underline),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                )
+                              : Text(profile.email!, style: TextStyle(color: Colors.grey[700]), overflow: TextOverflow.ellipsis)
+                        : Text('N/A', style: TextStyle(color: Colors.grey[400])),
+                  );
+                  break;
+                case 'whatsapp':
+                  child = BlurredContentWidget(
+                    isUnlocked: profile.isSeen,
+                    unlockCost: profile.unlockCost,
+                    currentBalance: balance,
+                    onUnlock: profile.isSeen ? null : onUnlock,
+                    child: profile.whatsapp != null
+                        ? profile.isSeen
+                              ? InkWell(
+                                  onTap: () => _launchWhatsApp(profile.whatsapp!),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.chat, size: 16, color: Colors.green[700]),
+                                      const SizedBox(width: 4),
+                                      Flexible(
+                                        child: Text(
+                                          profile.whatsapp!,
+                                          style: TextStyle(color: Colors.green[700], decoration: TextDecoration.underline),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Text(profile.whatsapp!, style: TextStyle(color: Colors.grey[700]))
-                      : Text('N/A', style: TextStyle(color: Colors.grey[400])),
+                                    ],
+                                  ),
+                                )
+                              : Text(profile.whatsapp!, style: TextStyle(color: Colors.grey[700]), overflow: TextOverflow.ellipsis)
+                        : Text('N/A', style: TextStyle(color: Colors.grey[400])),
+                  );
+                  break;
+                default:
+                  child = const SizedBox();
+              }
+              
+              return Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: SizedBox(
+                  width: width,
+                  child: child,
                 ),
-              ),
-            ],
+              );
+            }).toList(),
           ),
           // Shipment Records and Unlock Button (always visible for unseen)
           if (!profile.isSeen) ...[

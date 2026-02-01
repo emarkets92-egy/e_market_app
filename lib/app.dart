@@ -14,6 +14,7 @@ import 'features/locale/presentation/cubit/locale_state.dart';
 import 'features/chat/presentation/cubit/chat_cubit.dart';
 import 'shared/widgets/auth_init_wrapper.dart';
 import 'shared/widgets/version_check_wrapper.dart';
+import 'shared/widgets/startup_loading_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -50,6 +51,14 @@ class MyApp extends StatelessWidget {
                   localizationsDelegates: context.localizationDelegates,
                   supportedLocales: context.supportedLocales,
                   locale: localeState.locale,
+                  builder: (context, child) {
+                    // While GoRouter is resolving the initial route/redirect, `child` can be null.
+                    // Paint white immediately to avoid a black/blank window on desktop.
+                    return ColoredBox(
+                      color: Colors.white,
+                      child: child ?? const StartupLoadingScreen(),
+                    );
+                  },
                   routerConfig: appRouter,
                 ),
               ),

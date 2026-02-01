@@ -238,10 +238,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                           ),
                           const SizedBox(height: 16),
 
-                          // Table Header
-                          if (_isTableView) _buildTableHeader(),
-
-                          // Content
+                          // Content: loading, empty, or table/grid
                           if (state.isLoading && state.marketExploration == null)
                             const Center(
                               child: Padding(padding: EdgeInsets.all(32.0), child: CircularProgressIndicator()),
@@ -250,8 +247,10 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                             _buildSoonState()
                           else if (_selectedViewType == 'new' && state.unseenProfiles.isEmpty)
                             _buildEmptyState()
+                          else if (_isTableView)
+                            _buildTableContent(state)
                           else
-                            _isTableView ? _buildTableContent(state) : _buildGridContent(state),
+                            _buildGridContent(state),
 
                           // Pagination
                           _buildPagination(state),
@@ -374,7 +373,9 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
             return DropdownMenuItem<SubscriptionModel>(
               value: subscription,
               child: Text(
-                subscription.productName,
+                subscription.productHscode != null && subscription.productHscode!.isNotEmpty
+                    ? '${subscription.productName} (${subscription.productHscode})'
+                    : subscription.productName,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -510,79 +511,87 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
     );
   }
 
-  Widget _buildTableHeader() {
+  /// Static column order for the table (no dynamic show/hide).
+  static const List<String> _tableColumns = ['name', 'email', 'phone', 'website', 'actions'];
+
+  /// Flex values for full-width columns (header and rows must match).
+  static const Map<String, int> _columnFlex = {
+    'name': 2,
+    'email': 2,
+    'phone': 1,
+    'website': 2,
+    'actions': 1,
+  };
+
+  Widget _buildTableHeaderRow() {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: const BoxDecoration(color: Colors.transparent),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+      ),
       child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              'importer_name'.tr().toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+        children: _tableColumns.map((column) {
+          final flex = _columnFlex[column] ?? 1;
+          String label = '';
+          switch (column) {
+            case 'name':
+              label = 'importer_name'.tr().toUpperCase();
+              break;
+            case 'email':
+              label = 'email'.tr().toUpperCase();
+              break;
+            case 'phone':
+              label = 'phone'.tr().toUpperCase();
+              break;
+            case 'website':
+              label = 'website'.tr().toUpperCase();
+              break;
+            case 'actions':
+              label = 'actions'.tr().toUpperCase();
+              break;
+          }
+          return Expanded(
+            flex: flex,
+            child: Center(
+              child: Text(
+                label,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: Text(
-              'email'.tr().toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: Text(
-              'phone'.tr().toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: Text(
-              'website'.tr().toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-            ),
-          ),
-          const SizedBox(width: 16),
-          SizedBox(
-            width: 160,
-            child: Text(
-              'actions'.tr().toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-            ),
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }
 
   Widget _buildTableContent(SubscriptionState state) {
-    // Show profiles based on selection
     final profiles = _selectedViewType == 'new' ? state.unseenProfiles : state.seenProfiles;
-
     if (profiles.isEmpty) return _buildEmptyState();
 
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
       child: Column(
-        children: profiles.map((profile) {
-          return SubscriptionProfileTableRow(
-            profile: profile,
-            isUnlocking: state.unlockingTargetId == profile.id,
-            disableUnlockButton: state.isUnlocking,
-            onUnlock: () {
-              di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
-            },
-          );
-        }).toList(),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildTableHeaderRow(),
+          ...profiles.map((profile) {
+            return SubscriptionProfileTableRow(
+              profile: profile,
+              isUnlocking: state.unlockingTargetId == profile.id,
+              disableUnlockButton: state.isUnlocking,
+              columnFlex: _columnFlex,
+              onUnlock: () {
+                di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
+              },
+            );
+          }),
+        ],
       ),
     );
   }

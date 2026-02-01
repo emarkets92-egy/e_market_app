@@ -29,7 +29,7 @@ class ProfileDetailScreen extends StatefulWidget {
 class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   bool _showSeenRecords = false; // Toggle for shipment records filter
   bool _isImportHistoryExpanded = false; // Toggle for import history visibility
-  bool _isTableView = true; // true = table, false = card
+  bool _isTableView = false; // true = table, false = card (default: card)
 
   @override
   void initState() {
@@ -567,51 +567,129 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
       );
     }
 
-    final columns = <DataColumn>[
-      _buildDataColumn('exporter_name'.tr().toUpperCase()),
-      _buildDataColumn('country_of_origin'.tr().toUpperCase()),
-      _buildDataColumn('net_weight'.tr().toUpperCase()),
-      _buildDataColumn('net_weight_unit'.tr().toUpperCase()),
-      _buildDataColumn('port_of_arrival'.tr().toUpperCase()),
-      _buildDataColumn('port_of_departure'.tr().toUpperCase()),
-      _buildDataColumn('notify_party'.tr().toUpperCase()),
-      _buildDataColumn('notify_address'.tr().toUpperCase()),
-      _buildDataColumn('hs_code'.tr().toUpperCase()),
-      _buildDataColumn('quantity'.tr().toUpperCase()),
-      _buildDataColumn('value'.tr().toUpperCase()),
-      _buildDataColumn('unlocked_at'.tr().toUpperCase()),
-      _buildDataColumn('id'.tr().toUpperCase()),
-      if (showAction) _buildDataColumn('action'.tr().toUpperCase()),
-    ];
+    // Helper functions to check if any record has data for a field
+    bool _hasStringData(String? Function(dynamic) getter) => records.any((r) => getter(r) != null && getter(r)!.isNotEmpty);
+    bool _hasNumData(num? Function(dynamic) getter) => records.any((r) => getter(r) != null);
+    bool _hasDateData(DateTime? Function(dynamic) getter) => records.any((r) => getter(r) != null);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        headingRowColor: WidgetStateProperty.all(Colors.transparent),
-        dataRowColor: WidgetStateProperty.all(Colors.transparent),
-        columnSpacing: 24,
-        horizontalMargin: 0,
-        columns: columns,
-        rows: records.map((record) {
-          final cells = <DataCell>[
-            DataCell(SizedBox(width: 150, child: Text(record.exporterName ?? '', style: const TextStyle(fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis))),
-            DataCell(Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.flag, size: 16, color: Colors.grey), const SizedBox(width: 8), Text(record.countryOfOrigin ?? '')])),
-            DataCell(SizedBox(width: 100, child: Text(record.netWeight ?? '', overflow: TextOverflow.ellipsis))),
-            DataCell(SizedBox(width: 80, child: Text(record.netWeightUnit ?? '', overflow: TextOverflow.ellipsis))),
-            DataCell(SizedBox(width: 100, child: Text(record.portOfArrival ?? '', overflow: TextOverflow.ellipsis))),
-            DataCell(SizedBox(width: 100, child: Text(record.portOfDeparture ?? '', overflow: TextOverflow.ellipsis))),
-            DataCell(SizedBox(width: 120, child: Text(record.notifyParty ?? '', overflow: TextOverflow.ellipsis))),
-            DataCell(SizedBox(width: 120, child: Text(record.notifyAddress ?? '', overflow: TextOverflow.ellipsis))),
-            DataCell(Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(4)), child: Text(record.hsCode ?? '', style: TextStyle(color: Colors.blue[800], fontSize: 12, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis))),
-            DataCell(Text(record.quantity?.toString() ?? '')),
-            DataCell(Text(record.value?.toString() ?? '')),
-            DataCell(SizedBox(width: 100, child: Text(_formatRecordDate(record.unlockedAt), overflow: TextOverflow.ellipsis))),
-            DataCell(SizedBox(width: 100, child: Text(record.id, overflow: TextOverflow.ellipsis))),
-            if (showAction)
-              DataCell(IconButton(icon: const Icon(Icons.lock_open, color: AppTheme.primaryBlue, size: 20), onPressed: () { di.sl<SubscriptionCubit>().unlock(contentType: ContentType.shipmentRecords, targetId: record.id); })),
-          ];
-          return DataRow(cells: cells);
-        }).toList(),
+    // Build dynamic columns based on available data
+    final columns = <DataColumn>[];
+    final columnKeys = <String>[];
+
+    void _addColumn(String key, String label, bool hasData) {
+      if (hasData) {
+        columns.add(_buildDataColumn(label.toUpperCase()));
+        columnKeys.add(key);
+      }
+    }
+
+    _addColumn('exporterName', 'exporter_name'.tr(), _hasStringData((r) => r.exporterName));
+    _addColumn('countryOfOrigin', 'country_of_origin'.tr(), _hasStringData((r) => r.countryOfOrigin));
+    _addColumn('productDetails', 'product_details'.tr(), _hasStringData((r) => r.productDetails));
+    _addColumn('netWeight', 'net_weight'.tr(), _hasStringData((r) => r.netWeight));
+    _addColumn('netWeightUnit', 'net_weight_unit'.tr(), _hasStringData((r) => r.netWeightUnit));
+    _addColumn('portOfArrival', 'port_of_arrival'.tr(), _hasStringData((r) => r.portOfArrival));
+    _addColumn('portOfDeparture', 'port_of_departure'.tr(), _hasStringData((r) => r.portOfDeparture));
+    _addColumn('notifyParty', 'notify_party'.tr(), _hasStringData((r) => r.notifyParty));
+    _addColumn('notifyAddress', 'notify_address'.tr(), _hasStringData((r) => r.notifyAddress));
+    _addColumn('hsCode', 'hs_code'.tr(), _hasStringData((r) => r.hsCode));
+    _addColumn('quantity', 'quantity'.tr(), _hasNumData((r) => r.quantity));
+    _addColumn('quantityUnit', 'quantity_unit'.tr(), _hasStringData((r) => r.quantityUnit));
+    _addColumn('value', 'value'.tr(), _hasNumData((r) => r.value));
+    _addColumn('amountUsd', 'amount_usd'.tr(), _hasNumData((r) => r.amountUsd));
+    _addColumn('fobUsd', 'fob_usd'.tr(), _hasNumData((r) => r.fobUsd));
+    _addColumn('cifUsd', 'cif_usd'.tr(), _hasNumData((r) => r.cifUsd));
+    _addColumn('unlockedAt', 'unlocked_at'.tr(), _hasDateData((r) => r.unlockedAt));
+    _addColumn('id', 'id'.tr(), true); // ID is always shown
+
+    if (showAction) {
+      columns.add(_buildDataColumn('action'.tr().toUpperCase()));
+      columnKeys.add('action');
+    }
+
+    final scrollController = ScrollController();
+
+    return Scrollbar(
+      controller: scrollController,
+      thumbVisibility: true,
+      trackVisibility: true,
+      child: SingleChildScrollView(
+        controller: scrollController,
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          headingRowColor: WidgetStateProperty.all(Colors.transparent),
+          dataRowColor: WidgetStateProperty.all(Colors.transparent),
+          columnSpacing: 24,
+          horizontalMargin: 0,
+          columns: columns,
+          rows: records.map((record) {
+            final cells = <DataCell>[];
+            
+            for (final key in columnKeys) {
+              switch (key) {
+                case 'exporterName':
+                  cells.add(DataCell(SizedBox(width: 150, child: Text(record.exporterName ?? '', style: const TextStyle(fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis))));
+                  break;
+                case 'countryOfOrigin':
+                  cells.add(DataCell(Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.flag, size: 16, color: Colors.grey), const SizedBox(width: 8), Text(record.countryOfOrigin ?? '')])));
+                  break;
+                case 'productDetails':
+                  cells.add(DataCell(SizedBox(width: 150, child: Text(record.productDetails ?? '', overflow: TextOverflow.ellipsis, maxLines: 2))));
+                  break;
+                case 'netWeight':
+                  cells.add(DataCell(SizedBox(width: 100, child: Text(record.netWeight ?? '', overflow: TextOverflow.ellipsis))));
+                  break;
+                case 'netWeightUnit':
+                  cells.add(DataCell(SizedBox(width: 80, child: Text(record.netWeightUnit ?? '', overflow: TextOverflow.ellipsis))));
+                  break;
+                case 'portOfArrival':
+                  cells.add(DataCell(SizedBox(width: 100, child: Text(record.portOfArrival ?? '', overflow: TextOverflow.ellipsis))));
+                  break;
+                case 'portOfDeparture':
+                  cells.add(DataCell(SizedBox(width: 100, child: Text(record.portOfDeparture ?? '', overflow: TextOverflow.ellipsis))));
+                  break;
+                case 'notifyParty':
+                  cells.add(DataCell(SizedBox(width: 120, child: Text(record.notifyParty ?? '', overflow: TextOverflow.ellipsis))));
+                  break;
+                case 'notifyAddress':
+                  cells.add(DataCell(SizedBox(width: 120, child: Text(record.notifyAddress ?? '', overflow: TextOverflow.ellipsis))));
+                  break;
+                case 'hsCode':
+                  cells.add(DataCell(Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(4)), child: Text(record.hsCode ?? '', style: TextStyle(color: Colors.blue[800], fontSize: 12, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis))));
+                  break;
+                case 'quantity':
+                  cells.add(DataCell(Text(record.quantity?.toString() ?? '')));
+                  break;
+                case 'quantityUnit':
+                  cells.add(DataCell(Text(record.quantityUnit ?? '')));
+                  break;
+                case 'value':
+                  cells.add(DataCell(Text(record.value?.toString() ?? '')));
+                  break;
+                case 'amountUsd':
+                  cells.add(DataCell(Text(record.amountUsd != null ? '\$${record.amountUsd!.toStringAsFixed(2)}' : '')));
+                  break;
+                case 'fobUsd':
+                  cells.add(DataCell(Text(record.fobUsd != null ? '\$${record.fobUsd!.toStringAsFixed(2)}' : '')));
+                  break;
+                case 'cifUsd':
+                  cells.add(DataCell(Text(record.cifUsd != null ? '\$${record.cifUsd!.toStringAsFixed(2)}' : '')));
+                  break;
+                case 'unlockedAt':
+                  cells.add(DataCell(SizedBox(width: 100, child: Text(_formatRecordDate(record.unlockedAt), overflow: TextOverflow.ellipsis))));
+                  break;
+                case 'id':
+                  cells.add(DataCell(SizedBox(width: 100, child: Text(record.id, overflow: TextOverflow.ellipsis))));
+                  break;
+                case 'action':
+                  cells.add(DataCell(IconButton(icon: const Icon(Icons.lock_open, color: AppTheme.primaryBlue, size: 20), onPressed: () { di.sl<SubscriptionCubit>().unlock(contentType: ContentType.shipmentRecords, targetId: record.id); })));
+                  break;
+              }
+            }
+            
+            return DataRow(cells: cells);
+          }).toList(),
+        ),
       ),
     );
   }

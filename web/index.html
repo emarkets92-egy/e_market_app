@@ -18,21 +18,97 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <!-- App shell SEO: this is the Flutter SPA entry. Keep it noindex to avoid competing with the marketing site. -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Egypt E Market app — import & export marketplace dashboard.">
+  <link rel="canonical" href="/app/">
+
+  <!-- Social previews (for sharing /app links) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Egypt E Market — Import & Export Marketplace">
+  <meta property="og:description" content="Manage import & export opportunities on Egypt E Market.">
+  <meta property="og:url" content="/app/">
+  <meta property="og:image" content="/icons/Icon-512.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Egypt E Market — Import & Export Marketplace">
+  <meta name="twitter:description" content="Manage import & export opportunities on Egypt E Market.">
+  <meta name="twitter:image" content="/icons/Icon-512.png">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="e_market_app">
+  <meta name="apple-mobile-web-app-title" content="Egypt E Market">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>e_market_app</title>
+  <title>Egypt E Market App</title>
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <style>
+    /* Pre-Flutter guard UI */
+    #mobile-web-blocker {
+      display: none;
+      min-height: 100vh;
+      padding: 24px;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #111827;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    #mobile-web-blocker .card {
+      max-width: 520px;
+      width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+    }
+    #mobile-web-blocker .title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+    #mobile-web-blocker .desc {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #4b5563;
+      margin: 0;
+    }
+  </style>
+
+  <div id="mobile-web-blocker">
+    <div class="card">
+      <p class="title">Mobile web is coming soon</p>
+      <p class="desc">
+        This web app is currently optimized for desktop. Please open it on a larger screen for now.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // Block loading Flutter on small screens until mobile web UI is ready.
+      var minWidth = 600;
+      var isSmall = window.innerWidth < minWidth;
+
+      if (isSmall) {
+        var blocker = document.getElementById('mobile-web-blocker');
+        if (blocker) blocker.style.display = 'flex';
+        return;
+      }
+
+      var script = document.createElement('script');
+      script.src = 'flutter_bootstrap.js';
+      script.async = true;
+      document.body.appendChild(script);
+    })();
+  </script>
 </body>
 </html>

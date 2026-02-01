@@ -26,7 +26,7 @@ class ProfileListScreen extends StatefulWidget {
 class _ProfileListScreenState extends State<ProfileListScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String? _lastShownSuccessMessage;
-  bool _isTableView = true; // false = card view, true = table view (default: table)
+  bool _isTableView = false; // false = card view, true = table view (default: card)
 
   @override
   void initState() {
@@ -266,54 +266,98 @@ class _ProfileListScreenState extends State<ProfileListScreen> with SingleTicker
     );
   }
 
+  List<String> _getVisibleColumns(List<ProfileModel> profiles) {
+    final columns = <String>[];
+    
+    // Always show profile and name
+    columns.add('profile');
+    columns.add('name');
+    
+    // Check if any profile has email
+    if (profiles.any((p) => p.email != null && p.email!.isNotEmpty)) {
+      columns.add('email');
+    }
+    
+    // Check if any profile has whatsapp
+    if (profiles.any((p) => p.whatsapp != null && p.whatsapp!.isNotEmpty)) {
+      columns.add('whatsapp');
+    }
+    
+    return columns;
+  }
+
   Widget _buildTableView({required List<ProfileModel> profiles, required bool isUnlocking, required bool isSeen}) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // Table Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
+    final visibleColumns = _getVisibleColumns(profiles);
+    final scrollController = ScrollController();
+    
+    final columnWidths = {
+      'profile': 80.0,
+      'name': 200.0,
+      'email': 200.0,
+      'whatsapp': 150.0,
+    };
+
+    return Scrollbar(
+      controller: scrollController,
+      thumbVisibility: true,
+      trackVisibility: true,
+      child: SingleChildScrollView(
+        controller: scrollController,
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          children: [
+            // Table Header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
+              ),
+              child: Row(
+                children: visibleColumns.map((column) {
+                  final width = columnWidths[column] ?? 150.0;
+                  String label = '';
+                  
+                  switch (column) {
+                    case 'profile':
+                      label = 'profile'.tr().toUpperCase();
+                      break;
+                    case 'name':
+                      label = 'importer_name'.tr().toUpperCase();
+                      break;
+                    case 'email':
+                      label = 'email'.tr().toUpperCase();
+                      break;
+                    case 'whatsapp':
+                      label = 'whatsapp'.tr().toUpperCase();
+                      break;
+                  }
+                  
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: SizedBox(
+                      width: width,
+                      child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 80,
-                  child: Text('profile'.tr().toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 2,
-                  child: Text('importer_name'.tr().toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 2,
-                  child: Text('email'.tr().toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 1,
-                  child: Text('whatsapp'.tr().toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                ),
-              ],
-            ),
-          ),
-          // Table Rows
-          ...profiles.map((profile) {
-            return ProfileTableRow(
-              profile: profile,
-              isUnlocking: isUnlocking,
-              onUnlock: isSeen
-                  ? () {}
-                  : () {
-                      di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
-                    },
-            );
-          }),
-        ],
+            // Table Rows
+            ...profiles.map((profile) {
+              return ProfileTableRow(
+                profile: profile,
+                isUnlocking: isUnlocking,
+                visibleColumns: visibleColumns,
+                onUnlock: isSeen
+                    ? () {}
+                    : () {
+                        di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
+                      },
+              );
+            }),
+          ],
+        ),
       ),
     );
   }

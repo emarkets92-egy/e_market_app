@@ -67,6 +67,11 @@ final appRouter = GoRouter(
     return null;
   },
   routes: [
+    // Root entry for hosting under `/app/` (and for deep-link refreshes).
+    GoRoute(
+      path: '/',
+      redirect: (context, state) => RouteNames.home,
+    ),
     GoRoute(
       path: RouteNames.login,
       builder: (context, state) => BlocProvider.value(value: di.sl<AuthCubit>(), child: const LoginScreen()),

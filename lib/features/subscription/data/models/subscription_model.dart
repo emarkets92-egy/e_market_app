@@ -4,6 +4,7 @@ class SubscriptionModel {
   final String id;
   final String productId;
   final String productName;
+  final String? productHscode;
   final int countryId;
   final String subscriptionType;
   final DateTime startDate;
@@ -18,6 +19,7 @@ class SubscriptionModel {
     required this.id,
     required this.productId,
     required this.productName,
+    this.productHscode,
     required this.countryId,
     required this.subscriptionType,
     required this.startDate,
@@ -34,6 +36,7 @@ class SubscriptionModel {
       id: json['id'] as String,
       productId: json['productId'] as String,
       productName: json['productName'] as String,
+      productHscode: json['productHscode'] as String?,
       countryId: (json['countryId'] as num).toInt(),
       subscriptionType: json['subscriptionType'] as String,
       startDate: DateTime.parse(json['startDate'] as String),
@@ -57,6 +60,7 @@ class SubscriptionModel {
       'id': id,
       'productId': productId,
       'productName': productName,
+      if (productHscode != null) 'productHscode': productHscode,
       'countryId': countryId,
       'subscriptionType': subscriptionType,
       'startDate': startDate.toIso8601String(),

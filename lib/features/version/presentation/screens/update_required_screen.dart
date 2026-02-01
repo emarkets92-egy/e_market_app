@@ -1,11 +1,13 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../cubit/version_state.dart';
-import '../../services/windows_update_installer.dart';
+import '../../../../core/utils/app_exit.dart';
+import '../../../../core/utils/web_reload.dart';
+import '../../services/windows_update_installer.dart' if (dart.library.html) '../../services/windows_update_installer_stub.dart';
 
 class UpdateRequiredScreen extends StatefulWidget {
   final VersionUpdateRequired state;
@@ -39,6 +41,9 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
     final url = widget.state.downloadUrl;
     if (url == null || url.isEmpty) return;
 
+    // Defensive: this path should never run on Web.
+    if (kIsWeb) return;
+
     setState(() {
       _installing = true;
       _progress = 0;
@@ -56,7 +61,7 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
       await _installer.installInnoSetup(installerExe: file, installerArgs: null);
 
       // Installer runs outside the app and may need to replace files.
-      exit(0);
+      exitApp();
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -72,6 +77,8 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isWindowsDesktop = !kIsWeb && defaultTargetPlatform == TargetPlatform.windows;
+
     return Directionality(
       textDirection: ui.TextDirection.ltr,
       child: Scaffold(
@@ -154,7 +161,9 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
                       onPressed: _installing
                           ? null
                           : (widget.state.downloadUrl != null && widget.state.downloadUrl!.isNotEmpty)
-                          ? (Platform.isWindows ? _downloadAndInstallWindows : _openDownloadLink)
+                          ? (kIsWeb
+                                ? reloadPage
+                                : (isWindowsDesktop ? _downloadAndInstallWindows : _openDownloadLink))
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -163,11 +172,24 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         disabledBackgroundColor: Colors.grey,
                       ),
-                      child: Text(_installing ? 'updating'.tr() : 'update_now'.tr(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        _installing
+                            ? 'updating'.tr()
+                            : (kIsWeb ? 'Refresh page' : 'update_now'.tr()),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                     ),
                     if (widget.state.downloadUrl == null || widget.state.downloadUrl!.isEmpty) ...[
                       const SizedBox(height: 16),
                       Text('download_link_not_available'.tr(), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white60)),
+                    ],
+                    if (kIsWeb) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'A new version is available. Please refresh to continue.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                        textAlign: TextAlign.center,
+                      ),
                     ],
                   ],
                 ),
