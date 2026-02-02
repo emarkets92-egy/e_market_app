@@ -523,44 +523,50 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
     'actions': 1,
   };
 
+  /// Horizontal padding used by both table header and rows so columns align.
+  static const double _tableCellHorizontalPadding = 24.0;
+
   Widget _buildTableHeaderRow() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
       ),
-      child: Row(
-        children: _tableColumns.map((column) {
-          final flex = _columnFlex[column] ?? 1;
-          String label = '';
-          switch (column) {
-            case 'name':
-              label = 'importer_name'.tr().toUpperCase();
-              break;
-            case 'email':
-              label = 'email'.tr().toUpperCase();
-              break;
-            case 'phone':
-              label = 'phone'.tr().toUpperCase();
-              break;
-            case 'website':
-              label = 'website'.tr().toUpperCase();
-              break;
-            case 'actions':
-              label = 'actions'.tr().toUpperCase();
-              break;
-          }
-          return Expanded(
-            flex: flex,
-            child: Center(
-              child: Text(
-                label,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: _tableCellHorizontalPadding),
+        child: Row(
+          children: _tableColumns.map((column) {
+            final flex = _columnFlex[column] ?? 1;
+            String label = '';
+            switch (column) {
+              case 'name':
+                label = 'importer_name'.tr().toUpperCase();
+                break;
+              case 'email':
+                label = 'email'.tr().toUpperCase();
+                break;
+              case 'phone':
+                label = 'phone'.tr().toUpperCase();
+                break;
+              case 'website':
+                label = 'website'.tr().toUpperCase();
+                break;
+              case 'actions':
+                label = 'actions'.tr().toUpperCase();
+                break;
+            }
+            return Expanded(
+              flex: flex,
+              child: Center(
+                child: Text(
+                  label,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+                ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -586,6 +592,7 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
               isUnlocking: state.unlockingTargetId == profile.id,
               disableUnlockButton: state.isUnlocking,
               columnFlex: _columnFlex,
+              cellHorizontalPadding: _tableCellHorizontalPadding,
               onUnlock: () {
                 di.sl<SubscriptionCubit>().unlock(contentType: ContentType.profileContact, targetId: profile.id);
               },

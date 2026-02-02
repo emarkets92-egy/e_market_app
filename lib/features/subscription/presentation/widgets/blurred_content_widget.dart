@@ -16,18 +16,22 @@ class BlurredContentWidget extends StatelessWidget {
       return child;
     }
 
-    // For locked content, show blurred version with unlock button visible
+    // For locked content, blur the child *without changing its layout*.
+    // Using BackdropFilter here can create inconsistent sizing/painting in tight table cells.
     return Stack(
       children: [
-        // Blurred content
         ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(color: Colors.white.withValues(alpha: 0.7), child: child),
+          child: ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: child,
           ),
         ),
-        // Overlay to make it more blurred
-        Container(color: Colors.black.withValues(alpha: 0.2)),
+        // Dim/veil overlay; must fill the same bounds as the content.
+        Positioned.fill(
+          child: ColoredBox(
+            color: Colors.white.withValues(alpha: 0.70),
+          ),
+        ),
       ],
     );
   }

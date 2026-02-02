@@ -15,6 +15,8 @@ class SubscriptionProfileTableRow extends StatelessWidget {
   final bool isUnlocking;
   final bool disableUnlockButton;
   final Map<String, int> columnFlex;
+  /// Must match the table header horizontal padding so columns align.
+  final double cellHorizontalPadding;
 
   static const List<String> _columns = ['name', 'email', 'phone', 'website', 'actions'];
 
@@ -25,6 +27,7 @@ class SubscriptionProfileTableRow extends StatelessWidget {
     this.isUnlocking = false,
     this.disableUnlockButton = false,
     required this.columnFlex,
+    this.cellHorizontalPadding = 24.0,
   });
 
   int _getCurrentBalance(BuildContext context) {
@@ -66,9 +69,10 @@ class SubscriptionProfileTableRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final balance = _getCurrentBalance(context);
+    const actionButtonHeight = 40.0;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+      padding: EdgeInsets.only(top: 16.0, bottom: 16.0, left: cellHorizontalPadding, right: cellHorizontalPadding),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(bottom: BorderSide(color: Colors.grey[100]!)),
@@ -117,8 +121,10 @@ class SubscriptionProfileTableRow extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (profile.isSeen) Icon(Icons.email_outlined, size: 16, color: Colors.grey[400]),
-                          if (profile.isSeen) const SizedBox(width: 8),
+                          profile.isSeen
+                              ? Icon(Icons.email_outlined, size: 16, color: Colors.grey[400])
+                              : const SizedBox(width: 16, height: 16),
+                          const SizedBox(width: 8),
                           Flexible(
                             child: Text(
                               profile.email!,
@@ -142,8 +148,10 @@ class SubscriptionProfileTableRow extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (profile.isSeen) Icon(Icons.phone_outlined, size: 16, color: Colors.grey[400]),
-                          if (profile.isSeen) const SizedBox(width: 8),
+                          profile.isSeen
+                              ? Icon(Icons.phone_outlined, size: 16, color: Colors.grey[400])
+                              : const SizedBox(width: 16, height: 16),
+                          const SizedBox(width: 8),
                           Flexible(
                             child: _buildSelectableTelText(profile.phone!, isEnabled: profile.isSeen),
                           ),
@@ -175,26 +183,40 @@ class SubscriptionProfileTableRow extends StatelessWidget {
               break;
             case 'actions':
               child = profile.isSeen
-                  ? OutlinedButton.icon(
-                      onPressed: () {
-                        context.push('/profiles/${profile.id}');
-                      },
-                      icon: const Icon(Icons.visibility, size: 16),
-                      label: Text('view'.tr()),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.blue,
-                        side: const BorderSide(color: Colors.blue),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ? SizedBox(
+                      height: actionButtonHeight,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          context.push('/profiles/${profile.id}');
+                        },
+                        icon: const Icon(Icons.visibility, size: 16),
+                        label: Text(
+                          'view'.tr(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.blue,
+                          side: const BorderSide(color: Colors.blue),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
                       ),
                     )
                   : SizedBox(
-                      height: 40,
+                      height: actionButtonHeight,
                       child: ElevatedButton.icon(
                         onPressed: (isUnlocking || disableUnlockButton) ? null : onUnlock,
                         icon: isUnlocking
                             ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                             : const Icon(Icons.lock_open, size: 16, color: Colors.white),
-                        label: Text('credit_to_unlock'.tr(namedArgs: {'cost': profile.unlockCost.toString()}), style: const TextStyle(fontSize: 12, color: Colors.white)),
+                        label: Text(
+                          'credit_to_unlock'.tr(namedArgs: {'cost': profile.unlockCost.toString()}),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w600),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,

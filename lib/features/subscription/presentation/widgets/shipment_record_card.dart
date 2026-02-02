@@ -53,7 +53,6 @@ class _ShipmentRecordCardState extends State<ShipmentRecordCard> {
     if (_hasNum(r.fobUsd)) allFields.add({'label': 'fob_usd'.tr(), 'value': '\$${r.fobUsd!.toStringAsFixed(2)}'});
     if (_hasNum(r.cifUsd)) allFields.add({'label': 'cif_usd'.tr(), 'value': '\$${r.cifUsd!.toStringAsFixed(2)}'});
     if (_hasDate(r.unlockedAt)) allFields.add({'label': 'unlocked_at'.tr(), 'value': _formatDate(r.unlockedAt)});
-    allFields.add({'label': 'id'.tr(), 'value': r.id});
 
     // Show first 3 fields, rest in expanded
     final visibleFields = allFields.take(3).toList();
@@ -147,6 +146,7 @@ class _ShipmentRecordCardState extends State<ShipmentRecordCard> {
           child: Text(
             label,
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey[600]),
+            softWrap: true,
           ),
         ),
         const SizedBox(width: 8),
@@ -155,8 +155,7 @@ class _ShipmentRecordCardState extends State<ShipmentRecordCard> {
           child: Text(
             value,
             style: const TextStyle(fontSize: 13, color: Color(0xFF1E293B)),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
+            softWrap: true,
           ),
         ),
       ],
