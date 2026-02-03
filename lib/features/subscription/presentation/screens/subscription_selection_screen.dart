@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/di/injection_container.dart' as di;
+import '../../../../config/routes/route_names.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
+import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/premium_header_bar.dart';
 import '../cubit/subscription_cubit.dart';
@@ -224,14 +226,13 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                                       ],
                                     ),
                                   ),
-                                  // const SizedBox(width: 12),
-                                  // // Analysis button
-                                  // AppButton(
-                                  //   text: 'analysis'.tr(),
-                                  //   onPressed: () {
-                                  //     context.push('${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}');
-                                  //   },
-                                  // ),
+                                  const SizedBox(width: 12),
+                                  AppButton(
+                                    text: 'analysis'.tr(),
+                                    onPressed: () {
+                                      context.push('${RouteNames.analysis}?productId=${_selectedProduct!.productId}&countryId=${_selectedCountry!.id}');
+                                    },
+                                  ),
                                 ],
                               ),
                             ],
