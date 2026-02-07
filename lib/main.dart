@@ -26,6 +26,7 @@ void main() async {
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
       startLocale: Locale(LocalStorage.getLocale()),
+      useOnlyLangCode: true,
       child: const MyApp(),
     ),
   );

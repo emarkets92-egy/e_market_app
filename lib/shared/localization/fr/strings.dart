@@ -36,4 +36,6 @@ const Map<String, String> strings = {
   'insufficient_balance': 'Solde insuffisant',
   'unlock_cost': 'Coût de déverrouillage',
   'credits': 'Crédits',
+  'desktop_only_title': 'Bureau uniquement',
+  'desktop_only_message': 'La version mobile n\'est pas prête. Veuillez utiliser cette application sur ordinateur uniquement.',
 };

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../domain/repositories/version_repository.dart';
@@ -33,8 +34,13 @@ class VersionCubit extends Cubit<VersionState> {
         emit(VersionUpToDate());
       }
     } catch (e) {
-      // For mandatory updates, block on error to ensure version check works
-      // You can change this to VersionUpToDate() if you want to allow app to continue on error
+      // On web, version check often fails due to CORS (browser blocks cross-origin response).
+      // Allow app to continue so web users can use the app; backend should enable CORS.
+      if (kIsWeb) {
+        emit(VersionUpToDate());
+        return;
+      }
+      // On native/desktop: block on error so version check is enforced
       emit(VersionCheckError(message: e.toString()));
     }
   }

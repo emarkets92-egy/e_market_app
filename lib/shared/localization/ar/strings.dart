@@ -36,4 +36,6 @@ const Map<String, String> strings = {
   'insufficient_balance': 'رصيد غير كافٍ',
   'unlock_cost': 'تكلفة الفتح',
   'credits': 'نقاط',
+  'desktop_only_title': 'للسطح المكتب فقط',
+  'desktop_only_message': 'تخطيط الهاتف غير جاهز. يرجى استخدام التطبيق على سطح المكتب فقط.',
 };
